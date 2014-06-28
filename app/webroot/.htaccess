@@ -2,5 +2,20 @@
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+<FilesMatch ".(js|css|html|htm|php|xml)$">
+    SetOutputFilter DEFLATE
+</FilesMatch>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 7 day"
+    ExpiresByType image/jpeg "access plus 7 day"
+    ExpiresByType image/gif "access plus 7 day"
+    ExpiresByType image/png "access plus 7 day"
+    ExpiresByType text/css "access plus 7 day"
+    ExpiresByType application/javascript "access plus 7 day"
+    ExpiresByType application/x-javascript "access plus 7 day"
 </IfModule>
