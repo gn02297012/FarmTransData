@@ -26,10 +26,9 @@ foreach ($data as $item) {
     <label><input type="radio" name="mode" value="quantity"> 交易量</label>
     <label><input type="radio" name="mode" value="count" checked> 種類</label>
 </form>
-<script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-    var width = 960,
-            height = 700,
+    var width = 850,
+            height = 900,
             radius = Math.min(width, height) / 2,
             color = d3.scale.category20c();
 
@@ -47,7 +46,7 @@ foreach ($data as $item) {
 
     var partition = d3.layout.partition()
             .value(function(d) {
-                return d.quantity;
+                return 1;
             });
 
     var arc = d3.svg.arc()
@@ -64,7 +63,7 @@ foreach ($data as $item) {
                 return Math.max(0, y(d.y + d.dy));
             });
 
-    d3.json("../data.json", function(error, root) {
+    d3.json("../data.json", function(root) {
 //        var path = svg.datum(root).selectAll("path")
 //                .data(partition.nodes)
 //                .enter().append("path")
@@ -95,12 +94,17 @@ foreach ($data as $item) {
 //                .style("fill-rule", "evenodd")
 //                .each(stash)
 //                .on("click", click);
+console.log(root);
         var g = svg.selectAll("g")
                 .data(partition.nodes(root))
                 .enter().append("g");
 
         var path = g.append("path")
                 .attr("d", arc)
+                .attr("onmousemove", "ShowTooltip(evt)")
+                .attr("onmouseout", "HideTooltip(evt)")
+                /*.attr("title", "test")
+                 .attr("data-toggle", "tooltip").attr("data-placement", "top")*/
                 .style("stroke", "#fff")
                 .style("fill", function(d) {
                     return color((d.children ? d : d.parent).name);
@@ -118,13 +122,14 @@ foreach ($data as $item) {
                 })
                 .attr("dx", "6") // margin
                 .attr("dy", ".35em") // vertical-align
+                .style("display", "none")
                 .text(function(d) {
                     return d.name;
                 });
 
         function click(d) {
             // fade out all text elements
-            text.transition().attr("opacity", 0);
+            //text.transition().attr("opacity", 0);
 
             path.transition()
                     .duration(750)
@@ -229,4 +234,30 @@ foreach ($data as $item) {
 //
 //    });
 
+    function ShowTooltip(evt, showText) {
+        var text = evt.target.nextSibling;
+        //text.style.display = 'inline';
+        
+        var tooltip = $("#myTooltip");
+        tooltip.css("top", evt.offsetY-7);
+        tooltip.css("left", evt.offsetX+5);
+        tooltip.css("opacity", 1);
+        $(tooltip).children(".text").text(text.innerHTML);
+        //console.log($(tooltip).children(".text"));
+    }
+
+    function HideTooltip(evt) {
+        /*var text = evt.target.nextSibling;
+        text.style.display = 'none';*/
+        var tooltip = $("#myTooltip");
+        tooltip.css("opacity", 0);
+    }
 </script>
+
+<!-- Generated markup by the plugin -->
+<div class="tooltip right" id="myTooltip" role="tooltip">
+  <div class="tooltip-arrow"></div>
+  <div class="tooltip-inner text">
+    123
+  </div>
+</div>
