@@ -63,7 +63,7 @@ foreach ($data as $item) {
                 return Math.max(0, y(d.y + d.dy));
             });
 
-    d3.json("../data.json", function(root) {
+    d3.json("./query?$top=100", function(root) {
 //        var path = svg.datum(root).selectAll("path")
 //                .data(partition.nodes)
 //                .enter().append("path")
@@ -94,9 +94,8 @@ foreach ($data as $item) {
 //                .style("fill-rule", "evenodd")
 //                .each(stash)
 //                .on("click", click);
-console.log(root);
-        var g = svg.selectAll("g")
-                .data(partition.nodes(root))
+        var g = svg.datum(root).selectAll("g")
+                .data(partition.nodes)
                 .enter().append("g");
 
         var path = g.append("path")
@@ -174,8 +173,8 @@ console.log(root);
 
             path.data(partition.value(value).nodes)
                     .transition()
-                    .duration(1500)
-                    .attrTween("d", arcTween);
+                    .duration(1500);
+                    //.attrTween("d", arcTween);
         });
     });
 
@@ -237,10 +236,10 @@ console.log(root);
     function ShowTooltip(evt, showText) {
         var text = evt.target.nextSibling;
         //text.style.display = 'inline';
-        
+
         var tooltip = $("#myTooltip");
-        tooltip.css("top", evt.offsetY-7);
-        tooltip.css("left", evt.offsetX+5);
+        tooltip.css("top", evt.offsetY - 7);
+        tooltip.css("left", evt.offsetX + 5);
         tooltip.css("opacity", 1);
         $(tooltip).children(".text").text(text.innerHTML);
         //console.log($(tooltip).children(".text"));
@@ -248,7 +247,7 @@ console.log(root);
 
     function HideTooltip(evt) {
         /*var text = evt.target.nextSibling;
-        text.style.display = 'none';*/
+         text.style.display = 'none';*/
         var tooltip = $("#myTooltip");
         tooltip.css("opacity", 0);
     }
@@ -256,8 +255,8 @@ console.log(root);
 
 <!-- Generated markup by the plugin -->
 <div class="tooltip right" id="myTooltip" role="tooltip">
-  <div class="tooltip-arrow"></div>
-  <div class="tooltip-inner text">
-    123
-  </div>
+    <div class="tooltip-arrow"></div>
+    <div class="tooltip-inner text">
+        123
+    </div>
 </div>
