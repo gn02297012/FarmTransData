@@ -6,9 +6,9 @@
         <?php
         echo $this->Html->meta('icon');
         echo $this->fetch('meta');
-        echo $this->Html->css(array('bootstrap.min',
-            'font-awesome.min',
-            'landing-page'));
+        echo $this->Html->css(array(
+            'bootstrap.min',
+        ));
         echo $this->Html->script(array('jquery-1.10.2'));
         echo $this->Html->script(array(
             'd3.v3.min',
