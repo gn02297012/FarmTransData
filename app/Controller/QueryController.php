@@ -55,6 +55,7 @@ class QueryController extends AppController {
         parent::beforeFilter();
         //將此Controller下的所有Action改成同一個view
         $this->view = 'index';
+        $this->layout = 'ajax';
         $this->autoRender = false;
     }
 
@@ -69,7 +70,7 @@ class QueryController extends AppController {
         $strNow = ltrim($date->format('Y.m.d'), '0');
         //設定預設值
         $params = array(
-            '$top' => 10,
+            '$top' => 100,
             '$skip' => 0,
             'StartDate' => $strNow,
             'EndDate' => $strNow,
@@ -86,7 +87,7 @@ class QueryController extends AppController {
         return $params;
     }
 
-    private function processJsonData($data, $category = 0) {
+    private function processPartitionData($data, $category = 0) {
         //定義有哪些種類
         $categorys = array('', 'vegetables', 'fruits');
         //例外處理
@@ -143,14 +144,59 @@ class QueryController extends AppController {
         return json_encode(array('name' => 'return', 'children' => $result));
     }
 
-    public function partition() {
-        $this->layout = 'ajax';
+    private function processLineData($data) {
+        $result = array();
+        $keymap = array();
+        foreach ($data as $item) {
+            $key = $item['作物代號'] . $item['交易日期'];
+            if (!isset($keymap[$key])) {
+                $result[] = array(
+                    'date' => $item['交易日期'],
+                    'code' => $item['作物代號'],
+                    'name' => $item['作物名稱'],
+                    'marketCode' => $item['市場代號'],
+                    'market' => $item['市場名稱'],
+                    'priceTop' => $item['上價'],
+                    'priceMid' => $item['中價'],
+                    'priceBottom' => $item['下價'],
+                    'price' => $item['平均價'],
+                    'quantity' => $item['交易量'],
+                    'amount' => $item['平均價'] * $item['交易量'],
+                    'marketCount' => 1,
+                );
+                $keymap[$key] = (count($result) - 1);
+            } else {
+                $tmp = $result[$keymap[$key]];
+                $tmp['quantity'] += $item['交易量'];
+                $tmp['amount'] += $item['平均價'] * $item['交易量'];
+                $tmp['price'] = $tmp['amount'] / $tmp['quantity'];
+                $tmp['marketCount']++;
+                $result[$keymap[$key]] = $tmp;
+            }
+        }
+        return json_encode($result);
+    }
+
+    private function callAPI($params) {
         App::uses('HttpSocket', 'Network/Http');
         $HttpSocket = new HttpSocket();
         $params = $this->getQueryParams();
         $HttpSocket->get('http://m.coa.gov.tw/OpenData/FarmTransData.aspx', $params);
         $data = json_decode($HttpSocket->response['body'], true);
-        $result = $this->processJsonData($data, $params['Category']);
+        return $data;
+    }
+
+    public function partition() {
+        $params = $this->getQueryParams();
+        $data = $this->callAPI($params);
+        $result = $this->processPartitionData($data, $params['Category']);
+        echo $result;
+    }
+
+    public function line() {
+        $params = $this->getQueryParams();
+        $data = $this->callAPI($params);
+        $result = $this->processLineData($data);
         echo $result;
     }
 

@@ -8,4 +8,8 @@ class DiagramsController extends AppController {
         
     }
 
+    public function line() {
+        
+    }
+
 }

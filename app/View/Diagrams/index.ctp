@@ -45,16 +45,16 @@
             });
     // Keep track of the node that is currently being displayed as the root.
     var node;
+    //總共的value，用來計算百分比
+    var totalValue = 0;
 
     var jsonSuccess = function(error, root) {
         node = root;
-
         var g = svg.datum(root).append("g")
                 .selectAll("path")
                 .data(partition.nodes)
                 .enter()
                 .append("path");
-
         var path = g.attr("d", arc)
                 .attr("onmousemove", "ShowTooltip(evt)") //顯示文字提示
                 .attr("onmouseout", "HideTooltip(evt)")
@@ -67,8 +67,16 @@
                 })
                 //.style("fill-rule", "evenodd")
                 .on("click", click)
+                .on("mouseover", function mouseover(d) {
+                    var percentage = (100 * d.value / totalValue).toPrecision(3);
+                    var percentageString = percentage + "%";
+                    if (percentage < 0.1) {
+                        percentageString = "< 0.1%";
+                    }
+                    console.log(percentageString);
+                })
                 .each(stash);
-
+        totalValue = path.node().__data__.value;
         function click(d) {
             node = d;
             path.transition()
@@ -106,11 +114,10 @@
                     .style("fill", function(d) {
                         return color((d.children ? d : d.parent).name);
                     });
+            totalValue = path.node().__data__.value;
         });
     };
-
     d3.json("<?php echo $this->webroot; ?>query/partition?$top=100&$skip=0&Category=2", jsonSuccess);
-
     // Stash the old values for transition.
     function stash(d) {
         d.x0 = d.x;
@@ -157,7 +164,7 @@
         };
     }
 
-    function ShowTooltip(evt, showText) {
+    function ShowTooltip(evt) {
         var text = evt.target.getAttribute('data-name');
         var tooltip = $("#myTooltip");
         tooltip.css("top", evt.offsetY - 7);
