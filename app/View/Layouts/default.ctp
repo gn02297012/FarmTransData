@@ -14,7 +14,6 @@
             'd3.v3.min',
             'bootstrap-tooltip',
             'bootstrap.min',
-            'd3-bootstrap',
         ));
         ?>
         <style>

@@ -23,9 +23,21 @@
 
 </style>
 
-<script>
+<form>
+    <input type="text" id="Crop"><br>
+    <input type="button" id="submit" value="View">
+</form>
 
-    var margin = {top: 20, right: 20, bottom: 80, left: 50},
+<script>
+    $('#submit').on('click', function(){
+        d3.json("<?php echo $this->webroot; ?>query/line?$top=1000&$skip=0&Crop=" + $('#Crop').val() + "&StartDate=103.02.01", jsonSuccess);
+    });
+    $('form').on('submit', function(){
+        $('#submit').click();
+        return false;
+    });
+    
+    var margin = {top: 80, right: 20, bottom: 80, left: 50},
     width = 960 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
 
@@ -36,6 +48,8 @@
 
     var y = d3.scale.linear()
             .range([height, 0]);
+
+    var color = d3.scale.category10();
 
     var xAxis = d3.svg.axis()
             .scale(x)
@@ -62,7 +76,19 @@
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    d3.json("<?php echo $this->webroot; ?>query/line?$top=1000&$skip=0&Crop=大西瓜&StartDate=103.04.01", function(error, data) {
+    var jsonSuccess = function(error, data) {
+        svg.selectAll('g').remove();
+        
+        var nested_data = d3.nest()
+                .key(function(d) {
+                    return d.name;
+                })
+                .entries(data);
+
+        color.domain(nested_data.map(function(d) {
+            return d.key;
+        }));
+
         data.forEach(function(d) {
             d.date = parseDate(d.date);
         });
@@ -95,10 +121,34 @@
                 .style("text-anchor", "end")
                 .text("Price ($)");
 
-        svg.append("path")
-                .datum(data)
+        var item = svg.selectAll(".item")
+                .data(nested_data)
+                .enter().append("g")
+                .attr("class", "item");
+
+        item.append("path")
                 .attr("class", "line")
-                .attr("d", line);
-    });
+                .attr("d", function(d) {
+                    return line(d.values);
+                })
+                .style("stroke", function(d) {
+                    return color(d.key);
+                });
+
+        item.append("text")
+                .datum(function(d) {
+                    return {name: d.key, value: d.values[d.values.length - 1]};
+                })
+                .attr("transform", function(d) {
+                    return "translate(" + x(d.value.date) + "," + (y(d.value.price)-7) + ")";
+                })
+                .attr("x", 3)
+                .attr("dy", ".35em")
+                .text(function(d) {
+                    return d.value.name;
+                });
+    };
+    
+    d3.json("<?php echo $this->webroot; ?>query/line?$top=500&$skip=0&Crop=蘋果鳳梨&StartDate=103.04.01", jsonSuccess);
 
 </script>

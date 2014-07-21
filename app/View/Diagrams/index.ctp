@@ -117,7 +117,7 @@
             totalValue = path.node().__data__.value;
         });
     };
-    d3.json("<?php echo $this->webroot; ?>query/partition?$top=100&$skip=0&Category=2", jsonSuccess);
+    d3.json("<?php echo $this->webroot; ?>query/partition?$top=500&$skip=0&Category=2", jsonSuccess);
     // Stash the old values for transition.
     function stash(d) {
         d.x0 = d.x;
