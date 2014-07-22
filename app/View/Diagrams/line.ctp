@@ -16,27 +16,39 @@
     }
 
     .line {
+        
         fill: none;
         stroke: steelblue;
         stroke-width: 1.5px;
     }
 
+    .item:hover>.line {
+        stroke-width: 3px;
+    }
+
 </style>
 
 <form>
-    <input type="text" id="Crop"><br>
+    <select id="Crop">
+        <?php
+        foreach ($vegetables as $key => $value) {
+            echo $this->Html->tag('option', $key, array('value' => $key));
+        }
+        ?>
+    </select>
+    <input type="text"><br>
     <input type="button" id="submit" value="View">
 </form>
 
 <script>
-    $('#submit').on('click', function(){
-        d3.json("<?php echo $this->webroot; ?>query/line?$top=1000&$skip=0&Crop=" + $('#Crop').val() + "&StartDate=103.02.01", jsonSuccess);
+    $('#submit').on('click', function() {
+        d3.json("<?php echo $this->webroot; ?>query/line?$top=1000&$skip=0&Crop=" + $('#Crop').val() + "&StartDate=103.06.01", jsonSuccess);
     });
-    $('form').on('submit', function(){
+    $('form').on('submit', function() {
         $('#submit').click();
         return false;
     });
-    
+
     var margin = {top: 80, right: 20, bottom: 80, left: 50},
     width = 960 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
@@ -78,7 +90,7 @@
 
     var jsonSuccess = function(error, data) {
         svg.selectAll('g').remove();
-        
+
         var nested_data = d3.nest()
                 .key(function(d) {
                     return d.name;
@@ -124,7 +136,8 @@
         var item = svg.selectAll(".item")
                 .data(nested_data)
                 .enter().append("g")
-                .attr("class", "item");
+                .attr("class", "item")
+                .attr("onmousemove", "toFront(this)");
 
         item.append("path")
                 .attr("class", "line")
@@ -140,7 +153,7 @@
                     return {name: d.key, value: d.values[d.values.length - 1]};
                 })
                 .attr("transform", function(d) {
-                    return "translate(" + x(d.value.date) + "," + (y(d.value.price)-7) + ")";
+                    return "translate(" + x(d.value.date) + "," + (y(d.value.price) - 7) + ")";
                 })
                 .attr("x", 3)
                 .attr("dy", ".35em")
@@ -148,7 +161,11 @@
                     return d.value.name;
                 });
     };
-    
+
+    function toFront(el) {
+        el.parentNode.appendChild(el.parentNode.removeChild(el));
+    }
+
     d3.json("<?php echo $this->webroot; ?>query/line?$top=500&$skip=0&Crop=蘋果鳳梨&StartDate=103.04.01", jsonSuccess);
 
 </script>
