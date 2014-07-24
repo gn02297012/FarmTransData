@@ -12,7 +12,8 @@ class DiagramsController extends AppController {
 
     public function line() {
         $vegetables = $this->Query->vegetables;
-        $this->set(compact('vegetables'));
+        $markets = $this->Query->markets;
+        $this->set(compact('vegetables', 'markets'));
     }
 
 }
