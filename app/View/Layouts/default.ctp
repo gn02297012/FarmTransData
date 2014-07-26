@@ -31,7 +31,6 @@
                 right: 10px;
                 top: 10px;
             }
-
         </style>
     </head>
     <body>

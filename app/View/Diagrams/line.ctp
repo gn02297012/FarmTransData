@@ -1,5 +1,4 @@
 <style>
-
     body {
         font: 10px sans-serif;
     }
@@ -23,12 +22,16 @@
     }
 
     .item:hover>.line {
-        stroke-width: 3px;
+        /*stroke-width: 3px;*/
     }
 
     .overlay {
         fill: none;
         pointer-events: all;
+    }
+
+    #detail {
+        width: 100%;
     }
 </style>
 
@@ -52,20 +55,40 @@
     <input type="button" id="submit" value="View">
 </form>
 
+<br />
+<br />
+<table id="detail">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Price</th>
+            <th>Quantity(KG)</th>
+            <th>Amount</th>
+        </tr>        
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
 <script>
     $('#submit').on('click', function() {
-        d3.json("<?php echo $this->webroot; ?>query/line?$top=1000&$skip=0&Crop=" + $('#Crop').val() + "&StartDate=103.06.01&Market=" + $('#Market').val(), jsonSuccess);
+        d3.json('<?php echo $this->webroot; ?>query/line?$top=2000&$skip=0&Crop=' + $('#Crop').val() + '&StartDate=103.04.01&Market=' + $('#Market').val(), jsonSuccess);
     });
     $('form').on('submit', function() {
         $('#submit').click();
         return false;
     });
 
-    var margin = {top: 80, right: 20, bottom: 80, left: 50},
+    var margin = {top: 80, right: 120, bottom: 80, left: 50},
     width = 960 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%Y.%m.%d").parse;
+    var format = d3.time.format('%Y.%m.%d');
+    var formatDate = function(d) {
+        return (d.getFullYear()) + '/' + (d.getMonth() + 1) + '/' + (d.getDate());
+    };
 
     var x = d3.time.scale()
             .range([0, width]);
@@ -77,14 +100,14 @@
 
     var xAxis = d3.svg.axis()
             .scale(x)
-            .orient("bottom")
+            .orient('bottom')
             .tickFormat(function(d) {
-                return (d.getFullYear()) + '/' + (d.getMonth() + 1) + '/' + (d.getDate());
+                return formatDate(d);
             });
 
     var yAxis = d3.svg.axis()
             .scale(y)
-            .orient("left");
+            .orient('left');
 
     var line = d3.svg.line()
             .x(function(d) {
@@ -94,11 +117,11 @@
                 return y(d.price);
             });
 
-    var svg = d3.select("body").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var svg = d3.select('body').append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     var jsonSuccess = function(error, data) {
         svg.selectAll('g').remove();
@@ -114,7 +137,7 @@
         }));
 
         data.forEach(function(d) {
-            d.date = parseDate(d.date);
+            d.date = format.parse(d.date);
         });
 
         x.domain([d3.min(data, function(c) {
@@ -128,73 +151,90 @@
             return d.price;
         }));
 
-        svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis).selectAll("text")
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em")
-                .attr("transform", function(d) {
-                    return "rotate(-65)"
+        svg.append('g')
+                .attr('class', 'x axis')
+                .attr('transform', 'translate(0,' + height + ')')
+                .call(xAxis).selectAll('text')
+                .style('text-anchor', 'end')
+                .attr('dx', '-.8em')
+                .attr('dy', '.15em')
+                .attr('transform', function(d) {
+                    return 'rotate(-65)'
                 });
 
-        svg.append("g")
-                .attr("class", "y axis")
+        svg.append('g')
+                .attr('class', 'y axis')
                 .call(yAxis)
-                .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Price ($)");
+                .append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', 6)
+                .attr('dy', '.71em')
+                .style('text-anchor', 'end')
+                .text('Price ($)');
 
-        var item = svg.selectAll(".item")
+        svg.append('g')
+                .attr('class', 'info')
+                .append('text')
+                .attr('transform', 'translate(' + (width - 50) + ', -20)')
+                .attr('y', 6)
+                .attr('dy', '.71em')
+                .style('text-anchor', 'end')
+                .text(function() {
+                    var d = new Date();
+                    d.setFullYear(d.getFullYear() - 1911);
+                    return formatDate(d);
+                });
+
+        var item = svg.selectAll('.item')
                 .data(nested_data)
-                .enter().append("g")
-                .attr("class", "item")
-                .attr("onmousemove", "toFront(this)");
+                .enter().append('g')
+                .attr('class', 'item')
+                .attr('onmousemove', 'toFront(this)');
 
-        item.append("path")
-                .attr("class", "line")
-                .attr("d", function(d) {
+        item.append('path')
+                .attr('class', 'line')
+                .attr('d', function(d) {
                     return line(d.values);
                 })
-                .style("stroke", function(d) {
+                .style('stroke', function(d) {
                     return color(d.key);
-                });
+                })
+                .style('stroke-opacity', 0.5);
 
-        item.append("text")
+        item.append('text')
                 .datum(function(d) {
-                    return {name: d.key, value: d.values[d.values.length - 1]};
+                    return {name: d.key, value: d.values[0]};
                 })
-                .attr("class", "bg-text")
-                .attr("transform", function(d) {
-                    return "translate(" + x(d.value.date) + "," + (y(d.value.price) - 7) + ")";
+                .attr('class', 'bg-text')
+                .attr('transform', function(d) {
+                    return 'translate(' + x(d.value.date) + ',' + (y(d.value.price) - 7) + ')';
                 })
-                .attr("x", 3)
-                .attr("dy", ".35em")
-                .style("stroke", "white")
+                .attr('x', 3)
+                .attr('dy', '.35em')
+                .style('stroke', function(d) {
+                    return color(d.value.name);
+                })
                 .text(function(d) {
                     return d.value.name;
                 });
 
-        item.append("text")
+        item.append('text')
                 .datum(function(d) {
-                    return {name: d.key, value: d.values[d.values.length - 1]};
+                    return {name: d.key, value: d.values[0]};
                 })
-                .attr("transform", function(d) {
-                    return "translate(" + x(d.value.date) + "," + (y(d.value.price) - 7) + ")";
+                .attr('transform', function(d) {
+                    return 'translate(' + x(d.value.date) + ',' + (y(d.value.price) - 7) + ')';
                 })
-                .attr("x", 3)
-                .attr("dy", ".35em")
+                .attr('fill', 'black')
+                .attr('x', 3)
+                .attr('dy', '.35em')
                 .text(function(d) {
                     return d.value.name;
                 });
 
-        var focus = svg.append("g")
-                .attr("class", "focus")
-                .style("display", "none");
+        var focus = svg.append('g')
+                .attr('class', 'focus')
+                .style('display', 'none');
 
         var circles = focus.selectAll('circle')
                 .data(nested_data)
@@ -207,18 +247,44 @@
                     return color(d.key);
                 });
 
-        item.append("rect")
-                .attr("class", "overlay")
-                .attr("width", width)
-                .attr("height", height)
-                .on("mouseover", function() {
-                    focus.style("display", null);
+        item.append('rect')
+                .attr('class', 'overlay')
+                .attr('width', width)
+                .attr('height', height)
+                .on('mouseover', function() {
+                    focus.style('display', null);
                 })
-                .on("mouseout", function() {
-                    focus.style("display", "none");
+                .on('mouseout', function() {
+                    focus.style('display', 'none');
                 })
-                .on("mousemove", mousemove);
-        
+                .on('mousemove', mousemove);
+
+        var tbody = d3.select('#detail')
+                .select('tbody');
+
+        //清除原本的表格資料
+        tbody.selectAll('tr').remove();
+        var trs = tbody.selectAll('tr')
+                .data(nested_data).enter()
+                .append('tr');
+
+        //印出每列中的資料
+        trs.append('td').text(function(d, i) {
+            return d.key;
+        });
+        trs.append('td').text(function(d, i) {
+            return formatDate(d.values[0].date);
+        });
+        trs.append('td').text(function(d, i) {
+            return d.values[0].price;
+        });
+        trs.append('td').text(function(d, i) {
+            return d.values[0].quantity;
+        });
+        trs.append('td').text(function(d, i) {
+            return d.values[0].price * d.values[0].quantity;
+        });
+
         //滑鼠移動事件，用來處理線上面的圈圈
         function mousemove() {
             //取得滑鼠x位置所對應到的時間
@@ -242,15 +308,56 @@
                 } else {
                     return 'translate(9999,9999)';
                 }
-
             });
-        } // mousemove
+            //表格
+            tbody.selectAll('tr')
+                    .each(function(d, i) {
+                        var s = d.values.filter(function(d, i) {
+                            return d.date.getTime() == a;
+                        });
+                        //只顯示指定日期的
+                        if (s.length) {
+                            d3.select(this).selectAll('td')
+                                    .each(function(d, i) {
+                                        //不同的td要顯示不同資料
+                                        var txt;
+                                        switch (i) {
+                                            case 0:
+                                                txt = s[0].name;
+                                                break;
+                                            case 1:
+                                                txt = formatDate(s[0].date);
+                                                break;
+                                            case 2:
+                                                txt = s[0].price;
+                                                break;
+                                            case 3:
+                                                txt = s[0].quantity;
+                                                break;
+                                            case 4:
+                                                txt = s[0].price * s[0].quantity;
+                                                break;
+                                        }
+                                        this.innerHTML = txt;
+                                    });
+                        } else {
+                            d3.select(this).selectAll('td')
+                                    .each(function(d, i) {
+                                        if (i > 0) {
+                                            this.innerHTML = '';
+                                        }
+                                    });
+                        }
+                    });
+            //顯示日期
+            $('.info').children('text').html(formatDate(date));
+        }
     };
 
     function toFront(el) {
         el.parentNode.appendChild(el.parentNode.removeChild(el));
     }
 
-    d3.json("<?php echo $this->webroot; ?>query/line?$top=500&$skip=0&Crop=蘋果鳳梨&StartDate=103.04.01", jsonSuccess);
+    d3.json('<?php echo $this->webroot; ?>query/line?$top=500&$skip=0&Crop=玉米&StartDate=103.05.01', jsonSuccess);
 
 </script>
