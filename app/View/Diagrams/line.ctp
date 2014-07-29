@@ -32,6 +32,11 @@
 
     #detail {
         width: 100%;
+        margin-left: 30px;
+    }
+    
+    #detail th {
+        width: 20%;
     }
 </style>
 
@@ -57,6 +62,9 @@
 
 <br />
 <br />
+<div class="svgSection">
+    
+</div>
 <table id="detail">
     <thead>
         <tr>
@@ -117,7 +125,7 @@
                 return y(d.price);
             });
 
-    var svg = d3.select('body').append('svg')
+    var svg = d3.select('body').select('.svgSection').append('svg')
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
             .append('g')

@@ -3,6 +3,8 @@
     <label><input type="radio" name="mode" value="quantity"> 交易量</label>
     <label><input type="radio" name="mode" value="count" checked> 種類</label>
 </form>
+
+<div class="showName"></div>
 <script>
     var width = 850,
             height = 900,
@@ -73,9 +75,13 @@
                     if (percentage < 0.1) {
                         percentageString = "< 0.1%";
                     }
+                    $('.showName')
+                            .css("transform", 'translate(' + (Math.sin(x(d.x+d.dx/2)) * radius * 1.1 + radius - 30) + "px," + (-Math.cos(x(d.x+d.dx/2)) * radius * 1.05 + radius + 50) + 'px)')
+                            .html(d.name  +'<br />' + percentageString);
                     console.log(percentageString);
                 })
                 .each(stash);
+
         totalValue = path.node().__data__.value;
         function click(d) {
             node = d;
@@ -146,7 +152,7 @@
         }
     }
 
-// When zooming: interpolate the scales.
+    // When zooming: interpolate the scales.
     function arcTweenZoom(d) {
         var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
                 yd = d3.interpolate(y.domain(), [d.y, 1]),

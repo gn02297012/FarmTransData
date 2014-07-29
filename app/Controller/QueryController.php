@@ -62,7 +62,7 @@ class QueryController extends AppController {
                 $cat = substr($item['作物名稱'], 0, $pos);
             }
             //檢查是否為蔬菜，只保留蔬菜，其餘都剃除
-            if ($category != 0 and ! isset($this->{$categorys[$category]}[$cat])) {
+            if ($category != 0 and !isset($this->Query->{$categorys[$category]}[$cat])) {
                 continue;
             }
             //把名稱存到表裡面

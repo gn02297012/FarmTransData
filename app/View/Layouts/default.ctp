@@ -17,16 +17,14 @@
         ));
         ?>
         <style>
-
             body {
-                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
                 margin: auto;
                 position: relative;
                 width: 960px;
                 min-height: 900px;
             }
 
-            form {
+            .controlForm {
                 position: absolute;
                 right: 10px;
                 top: 10px;
