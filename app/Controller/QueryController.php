@@ -62,7 +62,7 @@ class QueryController extends AppController {
                 $cat = substr($item['作物名稱'], 0, $pos);
             }
             //檢查是否為蔬菜，只保留蔬菜，其餘都剃除
-            if ($category != 0 and !isset($this->Query->{$categorys[$category]}[$cat])) {
+            if ($category != 0 and ! isset($this->Query->{$categorys[$category]}[$cat])) {
                 continue;
             }
             //把名稱存到表裡面
@@ -105,6 +105,7 @@ class QueryController extends AppController {
         foreach ($data as &$item) {
             $key = $item['作物代號'] . $item['交易日期'];
             if (!isset($keymap[$key])) {
+                $keymap[$key] = count($result);
                 $result[] = array(
                     'date' => $item['交易日期'],
                     'code' => $item['作物代號'],
@@ -119,13 +120,49 @@ class QueryController extends AppController {
                     'amount' => (double) $item['平均價'] * $item['交易量'],
                     'marketCount' => 1,
                 );
-                $keymap[$key] = (count($result) - 1);
             } else {
                 $tmp = &$result[$keymap[$key]];
                 $tmp['quantity'] += $item['交易量'];
                 $tmp['amount'] += $item['平均價'] * $item['交易量'];
                 $tmp['price'] = round($tmp['amount'] / $tmp['quantity'], 2);
                 $tmp['marketCount'] ++;
+                //$result[$keymap[$key]] = $tmp;
+            }
+        }
+        return json_encode($result);
+    }
+
+    private function processDashBoardData($data) {
+        $result = array();
+        $keymap = array();
+        foreach ($data as &$item) {
+            $key = $item['作物代號'];
+            if (!isset($keymap[$key])) {
+                $keymap[$key] = count($result);
+                $result[] = array(
+                    'date' => $item['交易日期'],
+                    'code' => $item['作物代號'],
+                    'name' => $item['作物名稱'],
+                    'markets' => array(
+                        $item['市場代號'] => array(
+                            'market' => $item['市場名稱'],
+                            'quantity' => (double) $item['交易量'],
+                            'amount' => (double) $item['平均價'] * $item['交易量'],
+                        ),
+                    )
+                );
+            } else {
+                $tmp = &$result[$keymap[$key]];
+                //$tmp['date'] = "{$item['交易日期']}-{$tmp['date']}";
+                if (!isset($tmp['markets'][$item['市場代號']])) {
+                    $tmp['markets'][$item['市場代號']] = array(
+                        'market' => $item['市場名稱'],
+                        'quantity' => 0, 
+                        'amount' => 0,
+                        );
+                }
+                $tmp['markets'][$item['市場代號']]['quantity'] += $item['交易量'];
+                $tmp['markets'][$item['市場代號']]['amount'] += $item['平均價'] * $item['交易量'];
                 //$result[$keymap[$key]] = $tmp;
             }
         }
@@ -161,6 +198,13 @@ class QueryController extends AppController {
         $params = $this->getQueryParams();
         $data = $this->callAPI($params);
         $result = $this->processLineData($data);
+        echo $result;
+    }
+
+    public function dashboard() {
+        $params = $this->getQueryParams();
+        $data = $this->callAPI($params);
+        $result = $this->processDashBoardData($data);
         echo $result;
     }
 

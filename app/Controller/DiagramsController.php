@@ -16,4 +16,11 @@ class DiagramsController extends AppController {
         $this->set(compact('vegetables', 'markets'));
     }
 
+    public function dashboard() {
+        $vegetables = $this->Query->vegetables;
+        $fruits = $this->Query->fruits;
+        $markets = $this->Query->markets;
+        $this->set(compact('vegetables', 'fruits', 'markets'));
+    }
+
 }
