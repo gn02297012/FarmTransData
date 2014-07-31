@@ -11,6 +11,7 @@
         ));
         echo $this->Html->script(array('jquery-1.10.2'));
         echo $this->Html->script(array(
+            'angular.min',
             'd3.v3.min',
             'bootstrap-tooltip',
             'bootstrap.min',
@@ -18,10 +19,10 @@
         ?>
         <style>
             body {
-                margin: auto;
+/*                margin: auto;
                 position: relative;
                 width: 960px;
-                min-height: 900px;
+                min-height: 900px;*/
             }
 
             .controlForm {
@@ -31,7 +32,7 @@
             }
         </style>
     </head>
-    <body>
+    <body ng-app>
         <?php echo $this->Session->flash(); ?>
 
         <?php echo $this->fetch('content'); ?>

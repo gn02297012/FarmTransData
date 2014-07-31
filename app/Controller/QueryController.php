@@ -132,10 +132,21 @@ class QueryController extends AppController {
         return json_encode($result);
     }
 
-    private function processDashBoardData($data) {
+    private function processDashBoardData($data, $params) {
         $result = array();
         $keymap = array();
         foreach ($data as &$item) {
+            //取出作物名稱中的名稱，把品種分離
+            $pos = strpos($item['作物名稱'], '-');
+            if ($pos === false) {
+                $cat = $item['作物名稱'];
+                //$result[$cat] = array();
+            } else {
+                $cat = substr($item['作物名稱'], 0, $pos);
+            }
+            if (!empty($params['Crop']) and (strcmp($params['Crop'],$cat)!=0) ) {
+                continue;
+            }
             $key = $item['作物代號'];
             if (!isset($keymap[$key])) {
                 $keymap[$key] = count($result);
@@ -204,7 +215,7 @@ class QueryController extends AppController {
     public function dashboard() {
         $params = $this->getQueryParams();
         $data = $this->callAPI($params);
-        $result = $this->processDashBoardData($data);
+        $result = $this->processDashBoardData($data, $params);
         echo $result;
     }
 

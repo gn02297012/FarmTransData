@@ -1,7 +1,6 @@
 <style>
     body{
-        width:1060px;
-        margin:50px auto;
+
     }
     path {  stroke: #fff; }
     path:hover {  opacity:0.9; }
@@ -36,33 +35,74 @@
 
 </style>
 
-<form class="form-inline">
-    <div class="form-group">
-        <label>開始日期</label>
-        <input type="date" class="form-control" id="StartDate" value="<?php echo date('Y-m-d'); ?>">
-    </div>
-    <div class="form-group">
-        <label>結束日期</label>
-        <input type="date" class="form-control" id="EndDate" value="<?php echo date('Y-m-d'); ?>">
-    </div>
-    <div class="form-group">
-        <label>作物名稱</label>
-        <select class="form-control" id="Crop">
-            <option value="">全部</option>
-            <?php
-            foreach ($vegetables as $key => $value) {
-                echo $this->Html->tag('option', $key, array('value' => $key));
+<script>
+    function cpCtrl($scope, $http) {
+        //作物名稱選單
+        $scope.categorys = JSON.parse('<?php echo json_encode([['name' => '蔬菜', 'items' => $vegetables], ['name' => '水果', 'items' => $fruits]]) ?>');
+        $scope.items = $scope.categorys[0]['items'];
+        //API參數
+        $scope.Crop = '';
+        $scope.StartDate = $scope.EndDate = '<?php echo date('Y-m-d'); ?>';
+        $scope.top = 2000;
+        $scope.skip = 0;
+
+        //作物選單
+        $scope.update = function(selectedCat) {
+            $scope.items = selectedCat.items;
+            $scope.Crop = $scope.items[0];
+        };
+
+        //送出查詢
+        $scope.submit = function() {
+            function d(d) {
+                var d = new Date(d);
+                d.setFullYear(d.getFullYear() - 1911);
+                return formatDate(d);
             }
-            ?>
-        </select>
-    </div>
-    <div class="form-group">
-        <input type="button" class="btn btn-default" id="submit" value="View">
-    </div>
-</form>
+            $url = '<?php echo $this->Html->webroot('/query/dashboard'); ?>?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate);
+            $http.get($url).success(function(data) {
+                dashboard('#dashboard', data);
+            });
+        }
+    }
+</script>
+<div class="controlPanel" ng-controller="cpCtrl">
+    <form class="form-inline">
+        <div class="form-group">
+            <label>作物名稱</label>
+            <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
+
+            </select>
+            <select class="form-control" ng-model="Crop" ng-options="item for item in items" ng-init="Crop = items[0]">
+
+            </select>
+        </div>
+        <div class="form-group">
+            <label>top</label>
+            <input type="number" class="form-control" ng-model="top">
+        </div>
+        <div class="form-group">
+            <label>skip</label>
+            <input type="number" class="form-control" ng-model="skip">
+        </div>
+        <br/>
+        <div class="form-group">
+            <label>開始日期</label>
+            <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
+        </div>
+        <div class="form-group">
+            <label>結束日期</label>
+            <input type="date" class="form-control" ng-model="EndDate">
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" ng-click="submit()">查詢</button>
+        </div>
+    </form>
+</div>
 
 <div id='dashboard'>
 </div>
+
 <script>
     $('#submit').on('click', function() {
         function d(id) {
