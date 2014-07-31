@@ -213,9 +213,9 @@
                 // filter for selected state.
                 var st = fData.filter(function(s) {
                     return s.name == d[0];
-                })[0],
-                        nD = d3.keys(st.markets).map(function(s) {
-                    return {type: s, total: st.markets[s].quantity};
+                })[0];
+                var nD = $.map(tF, function(s) {
+                    return {type: s.type, total: (st.markets[s.type] == undefined) ? 0 : st.markets[s.type].quantity};
                 });
                 // call update functions of pie-chart and legend.    
                 pC.update(nD);
@@ -401,8 +401,9 @@
     }
 
     var jsonSuccess = function(error, data) {
+        //console.log(data);
         dashboard('#dashboard', data);
     }
-    d3.json('<?php echo $this->webroot; ?>query/dashboard?$top=500&$skip=0&Crop=香蕉&StartDate=103.07.01', jsonSuccess);
+    d3.json('<?php echo $this->webroot; ?>query/dashboard?$top=1000&$skip=0&Crop=花椰菜&StartDate=103.04.01', jsonSuccess);
 
 </script>
