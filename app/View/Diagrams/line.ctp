@@ -1,8 +1,4 @@
 <style>
-    body {
-        font: 10px sans-serif;
-    }
-
     .axis path,
     .axis line {
         fill: none;
@@ -34,36 +30,99 @@
         width: 100%;
         margin-left: 30px;
     }
-    
+
     #detail th {
         width: 20%;
     }
+
+    .legend{
+        width: auto;
+        display:inline-block;
+        margin-top: 50px;
+        vertical-align: top;
+    }
+
+
 </style>
 
-<form>
-    <select id="Crop">
-        <option value="">全部</option>
-        <?php
-        foreach ($vegetables as $key => $value) {
-            echo $this->Html->tag('option', $key, array('value' => $key));
-        }
-        ?>
-    </select>
-    <select id="Market">
-        <option value="">全部</option>
-        <?php
-        foreach ($markets as $key => $value) {
-            echo $this->Html->tag('option', $key, array('value' => $key));
-        }
-        ?>
-    </select>
-    <input type="button" id="submit" value="View">
-</form>
+<script>
+    function cpCtrl($scope, $http) {
+        //作物名稱選單
+        $scope.categorys = JSON.parse('<?php echo json_encode([ ['name' => '水果', 'items' => $fruits],['name' => '蔬菜', 'items' => $vegetables]]); ?>');
+        $scope.items = $scope.categorys[0]['items'];
+        //市場選單
+        $scope.markets = JSON.parse('<?php echo json_encode($markets); ?>');
+        //API參數
+        $scope.Crop = '';
+        $scope.Market = '';
+        $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 365); ?>';
+        $scope.EndDate = '<?php echo date('Y-m-d'); ?>';
+        $scope.top = 2000;
+        $scope.skip = 0;
 
+        //作物選單
+        $scope.update = function(selectedCat) {
+            $scope.items = selectedCat.items;
+            $scope.Crop = $scope.items[0];
+        };
+
+        //送出查詢
+        $scope.submit = function() {
+            function d(d) {
+                return formatROCDate(d);
+            }            
+            $url = '<?php echo $this->Html->webroot('/query/line'); ?>?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market?$scope.Market:'') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate);
+            console.log($url);
+            $http.get($url).success(function(data) {
+                jsonSuccess(null, data);
+            });
+        }
+    }
+</script>
+<div class="controlPanel" ng-controller="cpCtrl">
+    <form class="form-inline">
+        <div class="form-group">
+            <label>top</label>
+            <input type="number" class="form-control" ng-model="top">
+        </div>
+        <div class="form-group">
+            <label>skip</label>
+            <input type="number" class="form-control" ng-model="skip">
+        </div>
+        <br/><br/>
+        <div class="form-group">
+            <label>作物名稱</label>
+            <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
+
+            </select>
+            <select class="form-control" ng-model="Crop" ng-options="item for item in items" ng-init="Crop = items[0]">
+
+            </select>
+        </div>
+        <div class="form-group">
+            <label>市場名稱</label>
+            <select class="form-control" ng-model="Market" ng-options="m for m in markets">
+                <option value="" selected>全部</option>
+            </select>
+        </div>
+        <br/><br/>
+        <div class="form-group">
+            <label>開始日期</label>
+            <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
+        </div>
+        <div class="form-group">
+            <label>結束日期</label>
+            <input type="date" class="form-control" ng-model="EndDate">
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
+        </div>
+    </form>
+</div>
 <br />
 <br />
 <div class="svgSection">
-    
+
 </div>
 <table id="detail">
     <thead>
@@ -81,15 +140,11 @@
 </table>
 
 <script>
-    $('#submit').on('click', function() {
-        d3.json('<?php echo $this->webroot; ?>query/line?$top=2000&$skip=0&Crop=' + $('#Crop').val() + '&StartDate=103.04.01&Market=' + $('#Market').val(), jsonSuccess);
-    });
-    $('form').on('submit', function() {
+    $(document).ready(function() {
         $('#submit').click();
-        return false;
     });
 
-    var margin = {top: 80, right: 120, bottom: 80, left: 50},
+    var margin = {top: 80, right: 40, bottom: 80, left: 50},
     width = 960 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
 
@@ -201,44 +256,48 @@
 
         item.append('path')
                 .attr('class', 'line')
+                .attr('data-key', function(d) {
+                    return d.key;
+                })
                 .attr('d', function(d) {
                     return line(d.values);
                 })
                 .style('stroke', function(d) {
                     return color(d.key);
                 })
-                .style('stroke-opacity', 0.5);
-
-        item.append('text')
-                .datum(function(d) {
-                    return {name: d.key, value: d.values[0]};
-                })
-                .attr('class', 'bg-text')
-                .attr('transform', function(d) {
-                    return 'translate(' + x(d.value.date) + ',' + (y(d.value.price) - 7) + ')';
-                })
-                .attr('x', 3)
-                .attr('dy', '.35em')
-                .style('stroke', function(d) {
-                    return color(d.value.name);
-                })
-                .text(function(d) {
-                    return d.value.name;
-                });
-
-        item.append('text')
-                .datum(function(d) {
-                    return {name: d.key, value: d.values[0]};
-                })
-                .attr('transform', function(d) {
-                    return 'translate(' + x(d.value.date) + ',' + (y(d.value.price) - 7) + ')';
-                })
-                .attr('fill', 'black')
-                .attr('x', 3)
-                .attr('dy', '.35em')
-                .text(function(d) {
-                    return d.value.name;
-                });
+                .style('stroke-opacity', 0.8);
+        /*
+         * //原本放在線後端的文字
+         item.append('text')
+         .datum(function(d) {
+         return {name: d.key, value: d.values[0]};
+         })
+         .attr('class', 'bg-text')
+         .attr('transform', function(d) {
+         return 'translate(' + x(d.value.date) + ',' + (y(d.value.price) - 7) + ')';
+         })
+         .attr('x', 3)
+         .attr('dy', '.35em')
+         .style('stroke', function(d) {
+         return color(d.value.name);
+         })
+         .text(function(d) {
+         return d.value.name;
+         });
+         
+         item.append('text')
+         .datum(function(d) {
+         return {name: d.key, value: d.values[0]};
+         })
+         .attr('transform', function(d) {
+         return 'translate(' + x(d.value.date) + ',' + (y(d.value.price) - 7) + ')';
+         })
+         .attr('fill', 'black')
+         .attr('x', 3)
+         .attr('dy', '.35em')
+         .text(function(d) {
+         return d.value.name;
+         });*/
 
         var focus = svg.append('g')
                 .attr('class', 'focus')
@@ -266,6 +325,11 @@
                     focus.style('display', 'none');
                 })
                 .on('mousemove', mousemove);
+
+
+        legend($.map(nested_data, function(d) {
+            return d.key;
+        }));
 
         var tbody = d3.select('#detail')
                 .select('tbody');
@@ -362,10 +426,42 @@
         }
     };
 
+    function legend(lD) {
+        var leg = {};
+        //清除現有的圖例
+        d3.select('.svgSection').select('table').remove();
+        // create table for legend.
+        var legend = d3.select('body').select('.svgSection').append("table").attr('class', 'legend table table-hover table-bordered');
+
+        // create one row per segment.
+        var tr = legend.append("tbody")
+                .selectAll("tr")
+                .data(lD).enter()
+                .append("tr")
+                .on('mouseout', function(d) {
+                    $('[data-key="' + d + '"]').css('stroke-width', '');
+                })
+                .on('mousemove', function(d) {
+                    $('[data-key="' + d + '"]').css('stroke-width', '3px');
+                });
+
+        // create the first column for each segment.
+        tr.append("td").append("svg").attr("width", '16').attr("height", '16').append("rect")
+                .attr("width", '16').attr("height", '16')
+                .attr("fill", function(d) {
+                    return color(d);
+                });
+
+        // create the second column for each segment.
+        tr.append("td").text(function(d) {
+            return d;
+        });
+    }
+
     function toFront(el) {
         el.parentNode.appendChild(el.parentNode.removeChild(el));
     }
 
-    d3.json('<?php echo $this->webroot; ?>query/line?$top=500&$skip=0&Crop=玉米&StartDate=103.05.01', jsonSuccess);
+
 
 </script>

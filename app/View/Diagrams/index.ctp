@@ -1,14 +1,99 @@
+<script>
+    function cpCtrl($scope, $http) {
+        //作物名稱選單
+        $scope.categorys = JSON.parse('<?php echo json_encode([['name' => '全部', 'items' => [], 'cat' => 0], ['name' => '水果', 'items' => $fruits, 'cat' => 2], ['name' => '蔬菜', 'items' => $vegetables, 'cat' => 1]]); ?>');
+        $scope.items = $scope.categorys[0]['items'];
+        //市場選單
+        $scope.markets = JSON.parse('<?php echo json_encode($markets); ?>');
+        //API參數
+        $scope.Crop = '';
+        $scope.Market = '';
+        $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 10); ?>';
+        $scope.EndDate = '<?php echo date('Y-m-d'); ?>';
+        $scope.top = 500;
+        $scope.skip = 0;
+
+        //作物選單
+        $scope.update = function(selectedCat) {
+            $scope.items = selectedCat.items;
+            //$scope.Crop = $scope.items[0];
+        };
+
+        //送出查詢
+        $scope.submit = function() {
+            function d(d) {
+                return formatROCDate(d);
+            }
+            var cat = $scope.selCat.cat;
+            $url = '<?php echo $this->Html->webroot('/query/partition'); ?>?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop ? $scope.Crop : '') + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate) + '&Category=' + cat;
+            console.log($url);
+            $http.get($url).success(function(data) {
+                jsonSuccess(null, data);
+            });
+        }
+    }
+</script>
+<div class="controlPanel" ng-controller="cpCtrl">
+    <form class="form-inline">
+        <div class="form-group">
+            <label>top</label>
+            <input type="number" class="form-control" ng-model="top">
+        </div>
+        <div class="form-group">
+            <label>skip</label>
+            <input type="number" class="form-control" ng-model="skip">
+        </div>
+        <br/><br/>
+        <div class="form-group">
+            <label>作物名稱</label>
+            <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
+            </select>
+            <select class="form-control" ng-model="Crop" ng-options="item for item in items">
+                <option value="" selected>全部</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>市場名稱</label>
+            <select class="form-control" ng-model="Market" ng-options="m for m in markets">
+                <option value="" selected>全部</option>
+            </select>
+        </div>
+        <br/><br/>
+        <div class="form-group">
+            <label>開始日期</label>
+            <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
+        </div>
+        <div class="form-group">
+            <label>結束日期</label>
+            <input type="date" class="form-control" ng-model="EndDate">
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
+        </div>
+    </form>
+</div>
+
 <form>
     <label><input type="radio" name="mode" value="amount"> 價量</label>
     <label><input type="radio" name="mode" value="quantity"> 交易量</label>
     <label><input type="radio" name="mode" value="count" checked> 種類</label>
 </form>
 
-<div class="showName"></div>
+<div class="showName" style="display: inline-block;">
+    <br /><br />
+</div>
+<div class="svgSection" style="text-align: center;">
+
+</div>
 <script>
-    var width = 850,
-            height = 900,
-            radius = Math.min(width, height) / 2,
+    $(document).ready(function() {
+        $('#submit').click();
+    });
+
+    var margin = {top: 0, right: 40, bottom: 0, left: 40},
+    width = 850 - margin.left - margin.right,
+            height = 900 - margin.top - margin.bottom;
+    radius = Math.min(width, height) / 2,
             color = d3.scale.category20c();
 
     var x = d3.scale.linear()
@@ -17,11 +102,11 @@
     var y = d3.scale.linear()
             .range([0, radius]);
 
-    var svg = d3.select("body").append("svg")
-            .attr("width", width)
-            .attr("height", height)
+    var svg = d3.select("body").select('.svgSection').append("svg")
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+            .attr("transform", "translate(" + (width / 2 + margin.left) + "," + (height / 2 + margin.top + 10) + ")");
 
     var partition = d3.layout.partition()
             .value(function(d) {
@@ -52,6 +137,7 @@
 
     var jsonSuccess = function(error, root) {
         node = root;
+        svg.select('g').remove();
         var g = svg.datum(root).append("g")
                 .selectAll("path")
                 .data(partition.nodes)
@@ -76,9 +162,9 @@
                         percentageString = "< 0.1%";
                     }
                     $('.showName')
-                            .css("transform", 'translate(' + (Math.sin(x(d.x+d.dx/2)) * radius * 1.1 + radius - 30) + "px," + (-Math.cos(x(d.x+d.dx/2)) * radius * 1.05 + radius + 50) + 'px)')
-                            .html(d.name  +'<br />' + percentageString);
-                    console.log(percentageString);
+                            .css("transform", 'translate(' + (Math.sin(x(d.x + d.dx / 2)) * radius * 1.1 + radius + 10 + $('svg').offset().left) + "px," + (-Math.cos(x(d.x + d.dx / 2)) * radius * 1.1 + radius - 115 + $('svg').offset().top) + 'px)')
+                            .html(d.name + '<br />' + percentageString);
+                    //console.log(percentageString);
                 })
                 .each(stash);
 
@@ -90,7 +176,7 @@
                     .attrTween("d", arcTweenZoom(d));
         }
 
-        d3.selectAll("input").on("change", function change() {
+        d3.selectAll("[name='mode']").on("change", function change() {
             var value;
             switch (this.value) {
                 case 'amount':
@@ -123,7 +209,7 @@
             totalValue = path.node().__data__.value;
         });
     };
-    d3.json("<?php echo $this->webroot; ?>query/partition?$top=500&$skip=0&Category=2", jsonSuccess);
+
     // Stash the old values for transition.
     function stash(d) {
         d.x0 = d.x;
@@ -175,7 +261,7 @@
         var tooltip = $("#myTooltip");
         tooltip.css("top", evt.offsetY - 7);
         tooltip.css("left", evt.offsetX + 5);
-        tooltip.css("opacity", 1);
+        tooltip.css("opacity", 0.01);
         $(tooltip).children(".text").text(text);
         //console.log($(tooltip).children(".text"));
     }

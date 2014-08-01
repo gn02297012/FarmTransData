@@ -19,10 +19,10 @@
         ?>
         <style>
             body {
-/*                margin: auto;
-                position: relative;
-                width: 960px;
-                min-height: 900px;*/
+                /*                margin: auto;
+                                position: relative;
+                                width: 960px;
+                                min-height: 900px;*/
             }
 
             .controlForm {
@@ -31,6 +31,26 @@
                 top: 10px;
             }
         </style>
+        <script>
+            /**
+             * 將日期轉換成民國年.月.日的字串
+             * @param {date} d 日期
+             * @returns {String} 民國年.月.日
+             */
+            var formatROCDate = function(d) {
+                d = new Date(d);
+                d.setFullYear(d.getFullYear() - 1911);
+                var mm = d.getMonth() + 1,
+                        dd = d.getDate();
+                if (mm < 10) {
+                    mm = '0' + mm;
+                }
+                if (dd < 10) {
+                    dd = '0' + dd;
+                }
+                return (d.getFullYear()) + '.' + mm + '.' + dd;
+            };
+        </script>
     </head>
     <body ng-app>
         <?php echo $this->Session->flash(); ?>

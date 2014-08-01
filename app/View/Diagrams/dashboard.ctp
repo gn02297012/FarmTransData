@@ -38,11 +38,12 @@
 <script>
     function cpCtrl($scope, $http) {
         //作物名稱選單
-        $scope.categorys = JSON.parse('<?php echo json_encode([['name' => '蔬菜', 'items' => $vegetables], ['name' => '水果', 'items' => $fruits]]) ?>');
+        $scope.categorys = JSON.parse('<?php echo json_encode([['name' => '水果', 'items' => $fruits], ['name' => '蔬菜', 'items' => $vegetables]]); ?>');
         $scope.items = $scope.categorys[0]['items'];
         //API參數
         $scope.Crop = '';
-        $scope.StartDate = $scope.EndDate = '<?php echo date('Y-m-d'); ?>';
+        $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 30); ?>';
+        $scope.EndDate = '<?php echo date('Y-m-d'); ?>';
         $scope.top = 2000;
         $scope.skip = 0;
 
@@ -55,9 +56,7 @@
         //送出查詢
         $scope.submit = function() {
             function d(d) {
-                var d = new Date(d);
-                d.setFullYear(d.getFullYear() - 1911);
-                return formatDate(d);
+                return formatROCDate(d);
             }
             $url = '<?php echo $this->Html->webroot('/query/dashboard'); ?>?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate);
             $http.get($url).success(function(data) {
@@ -69,6 +68,15 @@
 <div class="controlPanel" ng-controller="cpCtrl">
     <form class="form-inline">
         <div class="form-group">
+            <label>top</label>
+            <input type="number" class="form-control" ng-model="top">
+        </div>
+        <div class="form-group">
+            <label>skip</label>
+            <input type="number" class="form-control" ng-model="skip">
+        </div>
+        <br/><br/>
+        <div class="form-group">
             <label>作物名稱</label>
             <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
 
@@ -77,15 +85,7 @@
 
             </select>
         </div>
-        <div class="form-group">
-            <label>top</label>
-            <input type="number" class="form-control" ng-model="top">
-        </div>
-        <div class="form-group">
-            <label>skip</label>
-            <input type="number" class="form-control" ng-model="skip">
-        </div>
-        <br/>
+        <br/><br/>
         <div class="form-group">
             <label>開始日期</label>
             <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
@@ -95,7 +95,7 @@
             <input type="date" class="form-control" ng-model="EndDate">
         </div>
         <div class="form-group">
-            <button type="button" class="btn btn-primary" ng-click="submit()">查詢</button>
+            <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
         </div>
     </form>
 </div>
@@ -104,31 +104,10 @@
 </div>
 
 <script>
-    $('#submit').on('click', function() {
-        function d(id) {
-            var d = new Date($(id).val());
-            d.setFullYear(d.getFullYear() - 1911);
-            return formatDate(d);
-        }
-        d3.json('<?php echo $this->webroot; ?>query/dashboard?$top=2000&$skip=0&Crop=' + $('#Crop').val() + '&StartDate=' + d('#StartDate') + '&EndDate=' + d('#EndDate'), jsonSuccess);
-    });
-    $('form').on('submit', function() {
+    $(document).ready(function() {
         $('#submit').click();
-        return false;
     });
-
-    var formatDate = function(d) {
-        var mm = d.getMonth() + 1,
-                dd = d.getDate();
-        if (mm < 10) {
-            mm = '0' + mm;
-        }
-        if (dd < 10) {
-            dd = '0' + dd;
-        }
-        return (d.getFullYear()) + '.' + mm + '.' + dd;
-    };
-
+    
     var color = d3.scale.category20();
     var markets = JSON.parse('<?php echo json_encode($markets); ?>');
 
@@ -140,18 +119,23 @@
             return color(c);
         }
 
+        var count = 0;
+        var keyLengthMax = 0;
+        
         // compute total for each state.
         fData.forEach(function(d) {
             var values = $.map(d.markets, function(d, i) {
                 return d.quantity;
             });
+            if (d.name.length > keyLengthMax) keyLengthMax = d.name.length;
+            count++;
             d.total = d3.sum(values);
         });
 
         // function to handle histogram.
         function histoGram(fD) {
             var hG = {}, hGDim = {t: 60, r: 0, b: 30, l: 0};
-            hGDim.w = 600 - hGDim.l - hGDim.r,
+            hGDim.w = count*keyLengthMax*11 - hGDim.l - hGDim.r,
                     hGDim.h = 300 - hGDim.t - hGDim.b;
 
             //create svg for histogram.
@@ -399,11 +383,4 @@
                 pC = pieChart(tF), // create the pie-chart.
                 leg = legend(tF);  // create the legend.
     }
-
-    var jsonSuccess = function(error, data) {
-        //console.log(data);
-        dashboard('#dashboard', data);
-    }
-    d3.json('<?php echo $this->webroot; ?>query/dashboard?$top=1000&$skip=0&Crop=花椰菜&StartDate=103.04.01', jsonSuccess);
-
 </script>

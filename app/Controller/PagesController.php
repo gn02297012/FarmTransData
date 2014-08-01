@@ -46,7 +46,7 @@ class PagesController extends AppController {
  *	or MissingViewException in debug mode.
  */
 	public function display() {
-            $this->redirect('/diagrams');
+            $this->redirect('/diagrams/line');
             return;
 		$path = func_get_args();
 
