@@ -6,7 +6,7 @@ class DiagramsController extends AppController {
 
     public $uses = array('Query');
 
-    public function index() {
+    public function partition() {
         $vegetables = array_keys($this->Query->vegetables);
         $fruits = array_keys($this->Query->fruits);
         $markets = array_keys($this->Query->markets);
@@ -27,4 +27,10 @@ class DiagramsController extends AppController {
         $this->set(compact('vegetables', 'fruits', 'markets'));
     }
 
+    public function search() {
+        $vegetables = array_keys($this->Query->vegetables);
+        $fruits = array_keys($this->Query->fruits);
+        $markets = array_keys($this->Query->markets);
+        $this->set(compact('vegetables', 'fruits', 'markets'));
+    }
 }

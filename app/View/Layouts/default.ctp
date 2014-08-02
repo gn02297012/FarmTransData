@@ -1,3 +1,13 @@
+<?php
+$path = "/{$this->Html->request->controller}/{$this->Html->request->action}";
+$menuItems = array(
+    '/diagrams/search' => '價格查詢',
+    '/diagrams/partition' => '組成圖',
+    '/diagrams/line' => '價格線圖',
+    '/diagrams/dashboard' => '市場圖',
+);
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -30,6 +40,10 @@
                 right: 10px;
                 top: 10px;
             }
+
+            .svgSection, svg {
+                /*border: 1px solid;*/
+            }
         </style>
         <script>
             /**
@@ -53,9 +67,38 @@
         </script>
     </head>
     <body ng-app>
-        <?php echo $this->Session->flash(); ?>
+        <div class="container">
+            <nav class="navbar navbar-default" role="navigation" style="/*display: none;*/">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">農產品交易行情資料視覺化</a>
+                    </div>
 
-        <?php echo $this->fetch('content'); ?>
-        <?php //echo $this->element('sql_dump'); ?>
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <?php
+                            foreach ($menuItems as $key => &$value) {
+                                echo $this->Html->tag('li', $this->Html->link($value, $key)
+                                        , array('class' => (strcmp($path, $key) === 0 ? 'active' : '')));
+                            }
+                            ?>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+
+            <?php echo $this->Session->flash(); ?>
+
+            <?php echo $this->fetch('content'); ?>
+            <?php //echo $this->element('sql_dump'); ?>
+        </div>
     </body>
 </html>

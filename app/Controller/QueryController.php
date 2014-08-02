@@ -42,6 +42,30 @@ class QueryController extends AppController {
         return $params;
     }
 
+    private function processData($data, $params) {
+        $result = array();
+        foreach ($data as &$item) {
+            //把花卉的資料剔除
+            if (strpos($item['市場名稱'], '市場') !== false) {
+                continue;
+            }
+            $result[] = array(
+                'date' => $item['交易日期'],
+                'code' => $item['作物代號'],
+                'name' => $item['作物名稱'],
+                'marketCode' => $item['市場代號'],
+                'market' => $item['市場名稱'],
+                'priceTop' => $item['上價'],
+                'priceMid' => $item['中價'],
+                'priceBottom' => $item['下價'],
+                'price' => $item['平均價'],
+                'quantity' => $item['交易量'],
+                'amount' => $item['平均價'] * $item['交易量'],
+            );
+        }
+        return json_encode($result);
+    }
+
     private function processPartitionData($data, $category = 0) {
         //定義有哪些種類
         $categorys = array('', 'vegetables', 'fruits');
@@ -53,6 +77,10 @@ class QueryController extends AppController {
         $keymap = array();
         $namemap = array();
         foreach ($data as $item) {
+            //把花卉的資料剔除
+            if (strpos($item['市場名稱'], '市場') !== false) {
+                continue;
+            }
             //取出作物名稱中的名稱，把品種分離
             $pos = strpos($item['作物名稱'], '-');
             if ($pos === false) {
@@ -103,6 +131,10 @@ class QueryController extends AppController {
         $result = array();
         $keymap = array();
         foreach ($data as &$item) {
+            //把花卉的資料剔除
+            if (strpos($item['市場名稱'], '市場') !== false) {
+                continue;
+            }
             //取出作物名稱中的名稱，把品種分離
             $pos = strpos($item['作物名稱'], '-');
             if ($pos === false) {
@@ -147,6 +179,10 @@ class QueryController extends AppController {
         $result = array();
         $keymap = array();
         foreach ($data as &$item) {
+            //把花卉的資料剔除
+            if (strpos($item['市場名稱'], '市場') !== false) {
+                continue;
+            }
             //取出作物名稱中的名稱，把品種分離
             $pos = strpos($item['作物名稱'], '-');
             if ($pos === false) {
@@ -191,12 +227,16 @@ class QueryController extends AppController {
         return json_encode($result);
     }
 
-    private function callAPI($params) {
+    private function callAPI($params, $jsonDecode = true) {
         App::uses('HttpSocket', 'Network/Http');
         $HttpSocket = new HttpSocket();
         $params = $this->getQueryParams();
         $HttpSocket->get('http://m.coa.gov.tw/OpenData/FarmTransData.aspx', $params);
-        $data = json_decode($HttpSocket->response['body'], true);
+        if ($jsonDecode) {
+            $data = json_decode($HttpSocket->response['body'], true);
+        } else {
+            $data = $HttpSocket->response['body'];
+        }
         return $data;
     }
 
@@ -207,6 +247,13 @@ class QueryController extends AppController {
             $result = $this->Query->$cat;
         }
         return json_encode($result);
+    }
+
+    public function search() {
+        $params = $this->getQueryParams();
+        $data = $this->callAPI($params);
+        $result = $this->processData($data, $params);
+        echo $result;
     }
 
     public function partition() {

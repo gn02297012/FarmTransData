@@ -73,15 +73,23 @@
     </form>
 </div>
 
-<form>
-    <label><input type="radio" name="mode" value="amount"> 價量</label>
-    <label><input type="radio" name="mode" value="quantity"> 交易量</label>
-    <label><input type="radio" name="mode" value="count" checked> 種類</label>
+<form class="form-inline">
+    <br/>
+    <div class="form-group">
+        <label>顯示類型</label>
+    </div>
+    <div class="form-group">
+        <label><input type="radio" name="mode" value="amount"> 價量</label>
+    </div>
+    <div class="form-group">
+        <label><input type="radio" name="mode" value="quantity"> 交易量</label>
+    </div>
+    <div class="form-group">
+        <label><input type="radio" name="mode" value="count" checked> 種類</label>
+    </div>
 </form>
 
-<div class="showName" style="display: inline-block;">
-    <br /><br />
-</div>
+<div class="showName" style="display: inline-block;"><br /><br /></div>
 <div class="svgSection" style="text-align: center;">
 
 </div>
@@ -91,7 +99,7 @@
     });
 
     var margin = {top: 0, right: 40, bottom: 0, left: 40},
-    width = 850 - margin.left - margin.right,
+    width = 900 - margin.left - margin.right,
             height = 900 - margin.top - margin.bottom;
     radius = Math.min(width, height) / 2,
             color = d3.scale.category20c();
@@ -106,6 +114,7 @@
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
             .append("g")
+            .style('cursor', 'pointer')
             .attr("transform", "translate(" + (width / 2 + margin.left) + "," + (height / 2 + margin.top + 10) + ")");
 
     var partition = d3.layout.partition()
@@ -161,8 +170,15 @@
                     if (percentage < 0.1) {
                         percentageString = "< 0.1%";
                     }
+                    console.log(-Math.cos(x(d.x + d.dx / 2)) + ' * ' + radius + ' *1.1 = ' + ((-Math.cos(x(d.x + d.dx / 2)) * radius * 1.1)));
+                    console.log(radius);
+                    console.log($('svg').offset().top);
+                    var oX = Math.sin(x(d.x + d.dx / 2)) * radius * 1.1 + radius + margin.left - 90 + $('svg').offset().left;
+                    var oY = -Math.cos(x(d.x + d.dx / 2)) * radius * 1.05 + radius + margin.left + 30;
+                    var translate = 'translate(' + oX + "px," + oY + 'px)';
+                    console.log(translate);
                     $('.showName')
-                            .css("transform", 'translate(' + (Math.sin(x(d.x + d.dx / 2)) * radius * 1.1 + radius + 10 + $('svg').offset().left) + "px," + (-Math.cos(x(d.x + d.dx / 2)) * radius * 1.1 + radius - 115 + $('svg').offset().top) + 'px)')
+                            .css("transform", translate)
                             .html(d.name + '<br />' + percentageString);
                     //console.log(percentageString);
                 })
@@ -261,7 +277,7 @@
         var tooltip = $("#myTooltip");
         tooltip.css("top", evt.offsetY - 7);
         tooltip.css("left", evt.offsetX + 5);
-        tooltip.css("opacity", 0.01);
+        tooltip.css("opacity", 0);
         $(tooltip).children(".text").text(text);
         //console.log($(tooltip).children(".text"));
     }
