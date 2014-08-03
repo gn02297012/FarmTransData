@@ -2,9 +2,9 @@
 $path = "/{$this->Html->request->controller}/{$this->Html->request->action}";
 $menuItems = array(
     '/diagrams/search' => '價格查詢',
-    '/diagrams/partition' => '組成圖',
-    '/diagrams/line' => '價格線圖',
-    '/diagrams/dashboard' => '市場圖',
+    '/diagrams/partition' => '價量比例圖',
+    '/diagrams/line' => '價格走勢圖',
+    '/diagrams/dashboard' => '市場分析圖',
 );
 ?>
 
@@ -18,6 +18,8 @@ $menuItems = array(
         echo $this->fetch('meta');
         echo $this->Html->css(array(
             'bootstrap.min',
+            'font-awesome.min',
+            'style',
         ));
         echo $this->Html->script(array('jquery-1.10.2'));
         echo $this->Html->script(array(
@@ -29,6 +31,10 @@ $menuItems = array(
         ));
         ?>
         <style>
+            * {
+                /*border: 1px solid;*/
+            }
+
             body {
                 /*                margin: auto;
                                 position: relative;
@@ -49,33 +55,33 @@ $menuItems = array(
     </head>
     <body ng-app>
         <div class="container">
-            <div class="row">
-                <nav class="navbar navbar-default" role="navigation" style="/*display: none;*/">
-                    <div class="container-fluid">
-                        <!-- Brand and toggle get grouped for better mobile display -->
-                        <div class="navbar-header">
-                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                                <span class="sr-only">Toggle navigation</span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                            </button>
-                            <a class="navbar-brand" href="#">農產品交易行情資料視覺化</a>
-                        </div>
+            <nav class="navbar navbar-default" role="navigation" style="/*display: none;*/">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">農產品交易行情資料視覺化</a>
+                    </div>
 
-                        <!-- Collect the nav links, forms, and other content for toggling -->
-                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                            <ul class="nav navbar-nav">
-                                <?php
-                                foreach ($menuItems as $key => &$value) {
-                                    echo $this->Html->tag('li', $this->Html->link($value, $key)
-                                            , array('class' => (strcmp($path, $key) === 0 ? 'active' : '')));
-                                }
-                                ?>
-                            </ul>
-                        </div><!-- /.navbar-collapse -->
-                    </div><!-- /.container-fluid -->
-                </nav>
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <?php
+                            foreach ($menuItems as $key => &$value) {
+                                echo $this->Html->tag('li', $this->Html->link($value, $key)
+                                        , array('class' => (strcmp($path, $key) === 0 ? 'active' : '')));
+                            }
+                            ?>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+            <div class="row">
             </div>
             <div class="row" id="mainContent">
                 <div class="col-xs-12">

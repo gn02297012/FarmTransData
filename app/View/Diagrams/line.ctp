@@ -6,19 +6,10 @@
         shape-rendering: crispEdges;
     }
 
-    .x.axis path {
-        /*display: none;*/
-    }
-
     .line {
-
         fill: none;
         stroke: steelblue;
         stroke-width: 1.5px;
-    }
-
-    .item:hover>.line {
-        /*stroke-width: 3px;*/
     }
 
     .overlay {
@@ -28,7 +19,6 @@
 
     #detail {
         width: 100%;
-        margin-left: 30px;
     }
 
     #detail th {
@@ -56,8 +46,8 @@
         $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
         $scope.Crop = '';
         $scope.Market = '';
-        $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 365); ?>';
-        $scope.EndDate = '<?php echo date('Y-m-d'); ?>';
+        $scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 365);
+        $scope.EndDate = formatDateInput(new Date());
         $scope.top = 2000;
         $scope.skip = 0;
 
@@ -69,10 +59,7 @@
 
         //送出查詢
         $scope.submit = function() {
-            function d(d) {
-                return formatROCDate(d);
-            }            
-            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market?$scope.Market:'') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate);
+            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market?$scope.Market:'') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
             console.log($url);
             $http.get($url).success(function(data) {
                 jsonSuccess(null, data);
@@ -125,7 +112,7 @@
 <div class="svgSection">
 
 </div>
-<table id="detail">
+<table class="table table-striped table-bordered table-hover" id="detail">
     <thead>
         <tr>
             <th>Name</th>
@@ -142,7 +129,7 @@
 
 <script>
     var margin = {top: 80, right: 40, bottom: 80, left: 50},
-    width = 960 - margin.left - margin.right,
+    width = 880 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
 
     var format = d3.time.format('%Y.%m.%d');

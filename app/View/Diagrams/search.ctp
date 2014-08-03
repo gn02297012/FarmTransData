@@ -10,8 +10,8 @@
         $scope.baseUrl = '<?php echo $this->Html->webroot('/query/search'); ?>';
         $scope.Crop = '';
         $scope.Market = '';
-        $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 10); ?>';
-        $scope.EndDate = '<?php echo date('Y-m-d'); ?>';
+        $scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 10);
+        $scope.EndDate = formatDateInput(new Date());
         $scope.top = 100;
         $scope.skip = 0;
 
@@ -23,11 +23,8 @@
 
         //送出查詢
         $scope.submit = function() {
-            function d(d) {
-                return formatROCDate(d);
-            }
             var cat = $scope.selCat.cat;
-            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop ? $scope.Crop : '') + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate) + '&Category=' + cat;
+            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop ? $scope.Crop : '') + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate) + '&Category=' + cat;
             console.log($url);
             $http.get($url).success(function(data) {
                 showData(data);

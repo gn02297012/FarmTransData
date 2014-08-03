@@ -1,0 +1,21 @@
+.legend{
+    margin-bottom:76px;
+    display:inline-block;
+    border-collapse: collapse;
+    border-spacing: 0px;
+    transform: translate(0,50px);
+}
+.legend tr{    
+    border-bottom:1px solid grey;
+}
+.legend tr:first-child {
+    border-top:1px solid grey;
+}
+.legend td{
+    padding:4px;
+    vertical-align:bottom;
+}
+.legendFreq, .legendPerc{
+    text-align:right;
+    width:50px;
+}

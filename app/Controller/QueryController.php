@@ -205,7 +205,7 @@ class QueryController extends AppController {
                         $item['市場代號'] => array(
                             'market' => $item['市場名稱'],
                             'quantity' => (double) $item['交易量'],
-                            'amount' => (double) $item['平均價'] * $item['交易量'],
+                            'amount' => ((double) $item['平均價']) * ((double) $item['交易量']),
                         ),
                     )
                 );
