@@ -38,7 +38,7 @@
 <script>
     function cpCtrl($scope, $http) {
         //作物名稱選單
-        $scope.categorys = JSON.parse('<?php echo json_encode([ ['name' => '水果', 'items' => $fruits],['name' => '蔬菜', 'items' => $vegetables]]); ?>');
+        $scope.categorys = JSON.parse('<?php echo json_encode([ ['name' => '水果', 'items' => $fruits], ['name' => '蔬菜', 'items' => $vegetables]]); ?>');
         $scope.items = $scope.categorys[0]['items'];
         //市場選單
         $scope.markets = JSON.parse('<?php echo json_encode($markets); ?>');
@@ -59,7 +59,7 @@
 
         //送出查詢
         $scope.submit = function() {
-            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market?$scope.Market:'') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
+            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
             console.log($url);
             $http.get($url).success(function(data) {
                 jsonSuccess(null, data);
@@ -338,7 +338,7 @@
             return d.values[0].quantity;
         });
         trs.append('td').text(function(d, i) {
-            return d.values[0].price * d.values[0].quantity;
+            return Math.round(d.values[0].price * d.values[0].quantity * 100) /100;
         });
 
         //滑鼠移動事件，用來處理線上面的圈圈
@@ -391,7 +391,7 @@
                                                 txt = s[0].quantity;
                                                 break;
                                             case 4:
-                                                txt = s[0].price * s[0].quantity;
+                                                txt = Math.round(s[0].price * s[0].quantity * 100) / 100;
                                                 break;
                                         }
                                         this.innerHTML = txt;

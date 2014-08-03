@@ -160,13 +160,13 @@ class QueryController extends AppController {
                     'priceBottom' => (double) $item['下價'],
                     'price' => (double) $item['平均價'],
                     'quantity' => (double) $item['交易量'],
-                    'amount' => (double) $item['平均價'] * $item['交易量'],
+                    'amount' => (double) $item['平均價'] * (double) $item['交易量'],
                     'marketCount' => 1,
                 );
             } else {
                 $tmp = &$result[$keymap[$key]];
                 $tmp['quantity'] += $item['交易量'];
-                $tmp['amount'] += $item['平均價'] * $item['交易量'];
+                $tmp['amount'] += (double) $item['平均價'] * (double) $item['交易量'];
                 $tmp['price'] = round($tmp['amount'] / $tmp['quantity'], 2);
                 $tmp['marketCount'] ++;
                 //$result[$keymap[$key]] = $tmp;
