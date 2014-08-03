@@ -6,6 +6,7 @@
         //市場選單
         $scope.markets = JSON.parse('<?php echo json_encode($markets); ?>');
         //API參數
+        $scope.baseUrl = '<?php echo $this->Html->webroot('/query/partition'); ?>';
         $scope.Crop = '';
         $scope.Market = '';
         $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 10); ?>';
@@ -25,7 +26,7 @@
                 return formatROCDate(d);
             }
             var cat = $scope.selCat.cat;
-            $url = '<?php echo $this->Html->webroot('/query/partition'); ?>?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop ? $scope.Crop : '') + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate) + '&Category=' + cat;
+            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop ? $scope.Crop : '') + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate) + '&Category=' + cat;
             console.log($url);
             $http.get($url).success(function(data) {
                 jsonSuccess(null, data);
@@ -94,10 +95,6 @@
 
 </div>
 <script>
-    $(document).ready(function() {
-        $('#submit').click();
-    });
-
     var margin = {top: 0, right: 40, bottom: 0, left: 40},
     width = 900 - margin.left - margin.right,
             height = 900 - margin.top - margin.bottom;

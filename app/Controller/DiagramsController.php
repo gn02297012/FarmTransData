@@ -5,7 +5,14 @@ App::uses('AppController', 'Controller');
 class DiagramsController extends AppController {
 
     public $uses = array('Query');
-
+    
+    public function beforeFilter() {
+        parent::beforeFilter();
+        if ($this->request->query('ajax') != null) {
+            $this->layout = 'ajax';
+        }
+    }
+    
     public function partition() {
         $vegetables = array_keys($this->Query->vegetables);
         $fruits = array_keys($this->Query->fruits);

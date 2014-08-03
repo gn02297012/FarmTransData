@@ -53,6 +53,7 @@
         //市場選單
         $scope.markets = JSON.parse('<?php echo json_encode($markets); ?>');
         //API參數
+        $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
         $scope.Crop = '';
         $scope.Market = '';
         $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 365); ?>';
@@ -71,7 +72,7 @@
             function d(d) {
                 return formatROCDate(d);
             }            
-            $url = '<?php echo $this->Html->webroot('/query/line'); ?>?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market?$scope.Market:'') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate);
+            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market?$scope.Market:'') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate);
             console.log($url);
             $http.get($url).success(function(data) {
                 jsonSuccess(null, data);
@@ -140,10 +141,6 @@
 </table>
 
 <script>
-    $(document).ready(function() {
-        $('#submit').click();
-    });
-
     var margin = {top: 80, right: 40, bottom: 80, left: 50},
     width = 960 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;

@@ -4,8 +4,10 @@
         $scope.categorys = JSON.parse('<?php echo json_encode([['name' => '全部', 'items' => [], 'cat' => 0], ['name' => '水果', 'items' => $fruits, 'cat' => 2], ['name' => '蔬菜', 'items' => $vegetables, 'cat' => 1]]); ?>');
         $scope.items = $scope.categorys[0]['items'];
         //市場選單
+        $scope.showMarket = true;
         $scope.markets = JSON.parse('<?php echo json_encode($markets); ?>');
         //API參數
+        $scope.baseUrl = '<?php echo $this->Html->webroot('/query/search'); ?>';
         $scope.Crop = '';
         $scope.Market = '';
         $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 10); ?>';
@@ -25,7 +27,7 @@
                 return formatROCDate(d);
             }
             var cat = $scope.selCat.cat;
-            $url = '<?php echo $this->Html->webroot('/query/search'); ?>?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop ? $scope.Crop : '') + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate) + '&Category=' + cat;
+            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop ? $scope.Crop : '') + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate) + '&Category=' + cat;
             console.log($url);
             $http.get($url).success(function(data) {
                 showData(data);
@@ -52,7 +54,7 @@
                 <option value="" selected>全部</option>
             </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" ng-show="showMarket">
             <label>市場名稱</label>
             <select class="form-control" ng-model="Market" ng-options="m for m in markets">
                 <option value="" selected>全部</option>
@@ -93,10 +95,6 @@
     </table>
 </div>
 <script>
-    $(document).ready(function() {
-        $('#submit').click();
-    });
-
     var tbody = d3.select('.result').select('tbody');
 
     var showData = function(data) {

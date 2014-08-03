@@ -41,6 +41,7 @@
         $scope.categorys = JSON.parse('<?php echo json_encode([['name' => '水果', 'items' => $fruits], ['name' => '蔬菜', 'items' => $vegetables]]); ?>');
         $scope.items = $scope.categorys[0]['items'];
         //API參數
+        $scope.baseUrl = '<?php echo $this->Html->webroot('/query/dashboard'); ?>';
         $scope.Crop = '';
         $scope.StartDate = '<?php echo date('Y-m-d', time() - 86400 * 30); ?>';
         $scope.EndDate = '<?php echo date('Y-m-d'); ?>';
@@ -58,14 +59,14 @@
             function d(d) {
                 return formatROCDate(d);
             }
-            $url = '<?php echo $this->Html->webroot('/query/dashboard'); ?>?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate);
+            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&StartDate=' + d($scope.StartDate) + '&EndDate=' + d($scope.EndDate);
             $http.get($url).success(function(data) {
                 dashboard('#dashboard', data);
             });
         }
     }
 </script>
-<div class="controlPanel" ng-controller="cpCtrl">
+<div class="controlPanel ng-scope" ng-controller="cpCtrl">
     <form class="form-inline">
         <div class="form-group">
             <label>top</label>
@@ -103,11 +104,7 @@
 <div id='dashboard'>
 </div>
 
-<script>
-    $(document).ready(function() {
-        $('#submit').click();
-    });
-    
+<script>    
     var color = d3.scale.category20();
     var markets = JSON.parse('<?php echo json_encode($markets); ?>');
 
