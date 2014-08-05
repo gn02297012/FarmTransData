@@ -19,3 +19,24 @@
     text-align:right;
     width:50px;
 }
+
+.filter label {
+    margin-right: 5px;
+}
+
+.result th {
+
+    cursor: s-resize;
+}
+
+.chevron-up:after {
+    float: right;
+    content: "\e113";
+    font-family: 'Glyphicons Halflings';
+}
+
+.chevron-down:after {
+    float: right;
+    content: "\e114";
+    font-family: 'Glyphicons Halflings';
+}

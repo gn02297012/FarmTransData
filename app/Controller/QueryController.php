@@ -42,11 +42,27 @@ class QueryController extends AppController {
         return $params;
     }
 
-    private function processData($data, $params) {
-        $result = array();
+    private function &getBasicName($crop) {
+        //取出作物名稱中的名稱，把品種分離
+        $pos = strpos($crop, '-');
+        if ($pos === false) {
+            $cat = $crop;
+        } else {
+            $cat = substr($crop, 0, $pos);
+        }
+        return $cat;
+    }
+    
+    private function processData($data, $params, &$result) {
+        //$result = array();
         foreach ($data as &$item) {
             //把花卉的資料剔除
             if (strpos($item['市場名稱'], '市場') !== false) {
+                continue;
+            }
+            //把不同品種的作物都剔除
+            $cat = $this->getBasicName($item['作物名稱']);
+            if (!empty($params['Crop']) and ( strcmp($params['Crop'], $cat) != 0)) {
                 continue;
             }
             $result[] = array(
@@ -62,8 +78,11 @@ class QueryController extends AppController {
                 'quantity' => $item['交易量'],
                 'amount' => $item['平均價'] * $item['交易量'],
             );
+            if (count($result) >= $params['$top']) {
+                break;
+            }
         }
-        return json_encode($result);
+        //return json_encode($result);
     }
 
     private function processPartitionData($data, $category = 0) {
@@ -230,7 +249,7 @@ class QueryController extends AppController {
     private function callAPI($params, $jsonDecode = true) {
         App::uses('HttpSocket', 'Network/Http');
         $HttpSocket = new HttpSocket();
-        $params = $this->getQueryParams();
+        empty($params) and $params = $this->getQueryParams();
         $HttpSocket->get('http://m.coa.gov.tw/OpenData/FarmTransData.aspx', $params);
         if ($jsonDecode) {
             $data = json_decode($HttpSocket->response['body'], true);
@@ -251,9 +270,19 @@ class QueryController extends AppController {
 
     public function search() {
         $params = $this->getQueryParams();
-        $data = $this->callAPI($params);
-        $result = $this->processData($data, $params);
-        echo $result;
+        $result = array();
+        while (1) {
+            $data = $this->callAPI($params);
+            if (empty($data)) {
+                break;
+            }
+            $this->processData($data, $params, $result);
+            if (count($result) >= $params['$top']) {
+                break;
+            }
+            $params['$skip'] += (int) $params['$top'];
+        }
+        echo json_encode($result);
     }
 
     public function partition() {
@@ -275,6 +304,12 @@ class QueryController extends AppController {
         $data = $this->callAPI($params);
         $result = $this->processDashBoardData($data, $params);
         echo $result;
+    }
+
+    public function test() {
+        $params = $this->getQueryParams();
+        $result = $this->Query->search($params);
+        var_dump($result);
     }
 
 }

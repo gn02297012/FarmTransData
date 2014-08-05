@@ -5,12 +5,22 @@ App::uses('AppModel', 'Model');
 class Query extends AppModel {
 
     public $name = 'Query';
+    public $useTable = 'raw';
+    public $primaryKey = 'id';
+    public $belongsTo = array(
+        'Code' => array(
+            'className' => 'Code',
+            'foreignKey' => 'code'
+        )
+    );
     public $markets = array(
         '台北二' => 104, '台北一' => 109, '三重市' => 241,
         '宜蘭市' => 260, '桃園縣' => 338, '台中市' => 400,
-        '永靖鄉' => 512, '溪湖鎮' => 514, '南投市' => 540,
+        '東勢鎮' => 423, '永靖鄉' => 512, '溪湖鎮' => 514,
+        '南投市' => 540, '嘉義市' => 600,
         '西螺鎮' => 648, '高雄市' => 800, '鳳山區' => 830,
         '屏東市' => 900, '台東市' => 930, '花蓮市' => 950,
+        '台北市場' => 105, '台南市場' => 700,
     );
     public $vegetables = array(
         '九層塔' => 1, '人參葉' => 1, '大心菜' => 1, '大蒜' => 1, '小白菜' => 1,
@@ -54,9 +64,20 @@ class Query extends AppModel {
         '楊梅' => 1, '溫州柑' => 1, '葡萄' => 1, '葡萄柚' => 1,
         '酪梨' => 1, '榴槤' => 1, '蜜棗' => 1, '鳳梨' => 1, '蓮霧' => 1,
         '橄欖' => 1, '龍眼' => 1, '藍莓' => 1, '雜柑' => 1, '蘋果' => 1,
-        /* '蘋果五爪進口' => 1, '蘋果其他進口' => 1, '蘋果金冠進口' => 1, '蘋果秋香進口' => 1, '蘋果紅玉進口' => 1,
-          '蘋果陸奧進口' => 1, '蘋果富士進口' => 1, '蘋果惠' => 1,'葡萄無子進口' => 1, */
         '釋迦' => 1, '櫻桃' => 1, '豔陽柑' => 1,
     );
+
+    public function &search($params) {
+        $result = $this->find('all', array(
+            /* 'conditions' => array(
+              'name'=>$params['Crop'],
+              'market' => $params['Market'],
+              ),*/
+            'recursive' => 1,
+              'order' => array('date desc'), 
+            'limit' => 100,
+        ));
+        return $result;
+    }
 
 }
