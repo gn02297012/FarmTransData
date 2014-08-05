@@ -36,6 +36,7 @@ $menuItems = array(
             'bootstrap.min',
             'jquery.dataTables.min',
             'jquery-ui.min',
+            'jquery-scrollto',
             'dataTables.bootstrap',
             'public',
             'ng',
@@ -175,6 +176,8 @@ $menuItems = array(
                 </div>
             </div>
         </div>
+        
+        <footer></footer>
         <?php
         echo $this->Html->script(array(
             'footer',

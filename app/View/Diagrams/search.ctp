@@ -88,56 +88,9 @@
         if (angular.element('.controlPanel').scope().skip === 0) {
             initTable();
         }
-        //加入篩選資料的checkbox
-        var keys = d3.nest()
-                .key(function(d) {
-                    return d.name;
-                })
-                .rollup(function() {
-                })
-                .entries(data)
-                .map(function(d) {
-                    return d.key;
-                });
-        //找出現有的key
-        var existedKeys = $('.filter').find('input').map(function(i, d) {
-            return d.getAttribute('data-key');
-        }).toArray();
-        if (existedKeys.length) {
-            //將未有的key插入到現有的key
-            $.each(keys, function(i, d) {
-                if (existedKeys.indexOf(d) === -1) {
-                    existedKeys.push(d);
-                }
-            });
-            keys = existedKeys;
-        }
-        //如果key數等於row數，或key數為1就不產生checkbox
-        if (keys.length < (dataTable.rows()[0].length + data.length) && keys.length > 1) {
-            var labels = filter.selectAll('label')
-                    .data(keys).enter()
-                    .append('label');
-            labels.append('input')
-                    .attr('type', 'checkbox')
-                    .attr('checked', true)
-                    .attr('data-key', function(d) {
-                        return  d;
-                    })
-                    .on('change', function(d) {
-                        var selectedCrops = $('.filter').find('input:checked').map(function(i, d) {
-                            return d.getAttribute('data-key');
-                        }).toArray();
-                        if (selectedCrops.length === 0) {
-                            selectedCrops = ['^$'];
-                        }
-                        dataTable.column(1).search(selectedCrops.join('|'), true, true).draw();
-                    });
-            labels.append('span')
-                    .text(function(d) {
-                        return d;
-                    });
-        }
+
         dataTable.rows.add(rows).draw();
+
 //        tbody.selectAll('tr').remove();
 //        var trs = tbody
 //                .selectAll('tr')
@@ -162,12 +115,77 @@
 //                });
         console.log(data.length);
         if (data.length) {
+            setFilterCheckbox(data);
             angular.element('.controlPanel').scope().skip += angular.element('.controlPanel').scope().top;
             angular.element('.controlPanel').scope().submit();
         } else {
             angular.element('.controlPanel').scope().skip = 0;
+            //找出現有的key
+            var existedKeys = $('.filter').find('input').map(function(i, d) {
+                return d.getAttribute('data-key');
+            }).toArray();
+            //checkbox的數量必須大於1(只有一個key)而且小於資料列的數量(一列一個key)
+            if (existedKeys.length > 1 && existedKeys.length < dataTable.rows()[0].length) {
+                filter.selectAll('label')
+                        .style('display', null);
+            }
         }
     };
+
+    var setFilterCheckbox = function(data) {
+        //加入篩選資料的checkbox
+        var keys = d3.nest()
+                .key(function(d) {
+                    return d.name;
+                })
+                .rollup(function() {
+                })
+                .entries(data)
+                .map(function(d) {
+                    return d.key;
+                });
+
+        //找出現有的key
+        var existedKeys = $('.filter').find('input').map(function(i, d) {
+            return d.getAttribute('data-key');
+        }).toArray();
+        if (existedKeys.length) {
+            //將未有的key插入到現有的key
+            $.each(keys, function(i, d) {
+                if (existedKeys.indexOf(d) === -1) {
+                    existedKeys.push(d);
+                }
+            });
+            keys = existedKeys;
+        }
+
+        //如果key數等於row數，或key數為1就不產生checkbox
+        if (keys.length < (dataTable.rows()[0].length + data.length) && keys.length > 1) {
+            var labels = filter.selectAll('label')
+                    .data(keys).enter()
+                    .append('label')
+                    .style('display', 'none');
+            labels.append('input')
+                    .attr('type', 'checkbox')
+                    .attr('checked', true)
+                    .attr('data-key', function(d) {
+                        return  d;
+                    })
+                    .on('change', function(d) {
+                        var selectedCrops = $('.filter').find('input:checked').map(function(i, d) {
+                            return d.getAttribute('data-key');
+                        }).toArray();
+                        if (selectedCrops.length === 0) {
+                            selectedCrops = ['^$'];
+                        }
+                        dataTable.column(1).search(selectedCrops.join('|'), true, true).draw();
+                    });
+            labels.append('span')
+                    .text(function(d) {
+                        return d;
+                    });
+        }
+    }
 
 
 </script>

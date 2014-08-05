@@ -116,6 +116,10 @@ var jsonSuccess = function(data) {
         return selectProp(d);
     }));
 
+    //如果只有一個圈，就讓那個圈半徑最大化
+    if (children.length === 1) {
+        radius.domain([0, radius.domain()[1]]);
+    }
     //因為先前有做過排序，直接傳回每個群中的第一項，即為各群的最大值
     var clusters = nodes.map(function(d) {
         return d[0];
@@ -188,18 +192,18 @@ var jsonSuccess = function(data) {
             });
 
     var node = partition.nodes(root);
+
+    //滾輪捲動時的縮放效果
     svg.on('mousewheel', function() {
         d3.event.preventDefault();
-        console.log(d3.event);
         var dx = d3.event.offsetX / $('.svgBubble').width(),
-        dy = d3.event.offsetY / $('.svgBubble').height();
-        console.log(dx);
-        console.log(dy);
-        $('.svgBubble').css('transform-origin', (dx*100) + '% ' + (dy*100) + '%');
+                dy = d3.event.offsetY / $('.svgBubble').height();
+        $('.svgBubble').css('transform-origin', (dx * 100) + '% ' + (dy * 100) + '%');
         angular.element('#svgZoom').scope().$apply(function($scope) {
-            $scope.zoom += d3.event.wheelDelta;
-        })
+            $scope.zoom = parseInt($scope.zoom) + d3.event.wheelDelta;
+        });
     });
+
     var path = svgPartition.append('g').datum(root)
             .style('stroke', 'white')
             .style('stroke-width', '0.5px')

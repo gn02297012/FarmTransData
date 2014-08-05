@@ -10,9 +10,19 @@
 <div class="row">
     <div class="landingpage">
         <div class="container">
-        <h1>Hello, world!</h1>
-        <p>This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information</p>
-        <p><a class="btn btn-primary btn-lg" role="button">Learn more</a></p>
+            <div class="col-sm-4 col-sm-offset-8">
+                <br/><br />
+                <br/><br />
+                <span class="title">KnowMe</span><span>農價資訊站</span>
+                <br />
+                <br />
+                <p>這邊可以打一些描述文字，否則會顯得太空虛。</p>
+                <br />
+                <br />
+                <button type="button" class="btn btn-primary btn-lg" onclick="scrollToFooter()">
+                    立刻看圖
+                </button>
+            </div>
         </div>
     </div>   
 </div>
@@ -41,6 +51,59 @@
             <div class="features-icon"><span class="glyphicon glyphicon-search"></span></div>
             <div class="caption">
                 <h3>資訊豐富</h3>
+                <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="">
+    <div class="col-sm-4 col-md-4" style="">
+        <img class="img-circle" src="<?php echo $this->Html->webroot('img/about.jpg') ?>" style="width: 100%;">
+    </div>
+    <div class="col-sm-8">
+        <h2>About</h2>
+    </div>
+</div>
+
+<div class="row" style="background-color: #f0f0f0;">
+    <br /><br />
+    <div class="col-sm-3">
+        <div class="thumbnail features">
+            <div class="caption">
+                <a href="<?php echo $this->Html->webroot('diagrams/partition') ?>">
+                    <h3>價量比例圖</h3>
+                </a>
+                <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail features">
+            <div class="caption">
+                <a href="<?php echo $this->Html->webroot('diagrams/line') ?>">  
+                    <h3>價格走勢圖</h3>
+                </a>
+                <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail features">
+            <div class="caption">
+                <a href="<?php echo $this->Html->webroot('diagrams/dashboard') ?>">   
+                    <h3>市場分析圖</h3>
+                </a>
+                <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail features">
+            <div class="caption">
+                <a href="<?php echo $this->Html->webroot('diagrams/bubble') ?>">     
+                    <h3>泡泡圖</h3>
+                </a>
                 <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
             </div>
         </div>

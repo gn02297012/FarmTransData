@@ -6,8 +6,8 @@
 var formatROCDate = function(d) {
     d = new Date(d);
     if (d.getFullYear() > 1911) {
-       d.setFullYear(d.getFullYear() - 1911); 
-    }    
+        d.setFullYear(d.getFullYear() - 1911);
+    }
     var mm = d.getMonth() + 1,
             dd = d.getDate();
     if (mm < 10) {
@@ -40,9 +40,16 @@ var formatDateInput = function(d, offset) {
     return (d.getFullYear()) + '-' + mm + '-' + dd;
 }
 
-function showWaitingIcon(selector) {
+var showWaitingIcon = function(selector) {
     $(selector).html('<i class="fa fa-spinner fa-spin fa-5x"></i>');
-}
+};
+
+var scrollToFooter = function() {
+    $('footer').ScrollTo({
+        duration: 500,
+        easing: 'linear'
+    });
+};
 
 var scope;
 $(document).ready(function() {
@@ -65,7 +72,7 @@ $(document).ready(function() {
             console.log(url);
             $.get(url + '?ajax=1', function(data) {
                 $("#mainContent").html(data);
-                $('.controlPanel #submit').click();
+                //$('.controlPanel #submit').click();
             });
             //儲存history
             window.history.pushState(url, 'New Title', url);

@@ -56,7 +56,7 @@
     </div>
     <div class="col-md-6" ng-controller="ZoomCtrl" style="overflow: hidden;">
         <input type="range" min="{{minZoom}}" max="{{maxZoom}}" ng-value="minZoom" id="svgZoom" ng-model="zoom" ng-init="zoom = minZoom" style="position: absolute; z-index: 10;">{{zoom}}
-        <svg class="svgBubble" ng-style="myStyle" style="border: 1px solid black;"></svg>
+        <svg class="svgBubble" ng-style="myStyle" style="border: 0px solid black;"></svg>
         <svg class="svgPartition"></svg>
     </div>
 </div>

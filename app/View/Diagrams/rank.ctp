@@ -55,27 +55,6 @@
         content: counter(rank);
     }
 </style>
-<script>
-    //設定ControlPanelCtrl的參數
-    $(document).ready(function() {
-        angular.element('.controlPanel').scope().$apply(function($scope, $http) {
-            $scope.showControlPanel = false;
-            $scope.showAllCrop = true;
-            $scope.showMarket = true;
-            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
-            $scope.Crop = '全部';
-            //$scope.Market = '';
-            $scope.StartDate = formatDateInput(new Date());
-            $scope.EndDate = formatDateInput(new Date());
-            $scope.top = 5000;
-            $scope.skip = 0;
-            $scope.submit = function() {
-                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + '&Market=' + ($scope.Market === '全部' ? '' : $scope.Market) + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
-                $scope.getData(url, jsonSuccess, window.location.pathname);
-            };
-            $scope.submit();
-        });
-    });</script>
 
 <br />
 <div id="rankContorl">
@@ -230,3 +209,29 @@
 <?php
 echo $this->Html->script(array('diagrams/rank'));
 ?>
+
+<script>
+    //設定ControlPanelCtrl的參數
+    $(document).ready(function() {
+        angular.element('.controlPanel').scope().$apply(function($scope, $http) {
+            console.log(typeof jsonSuccess);
+            $scope.showControlPanel = false;
+            $scope.showAllCrop = true;
+            $scope.showMarket = true;
+            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
+            $scope.Crop = '全部';
+            //$scope.Market = '';
+            $scope.StartDate = formatDateInput(new Date());
+            $scope.EndDate = formatDateInput(new Date());
+            $scope.top = 5000;
+            $scope.skip = 0;
+            $scope.submit = function() {
+                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + '&Market=' + ($scope.Market === '全部' ? '' : $scope.Market) + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
+                if (jsonSuccess) {
+                    $scope.getData(url, jsonSuccess, window.location.pathname);
+                }
+            };
+            $scope.submit();
+        });
+    });
+</script>
