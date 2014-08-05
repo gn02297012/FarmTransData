@@ -72,7 +72,7 @@ class QueryController extends AppController {
                 continue;
             }
             //檢查是否為蔬菜或水果
-            if ( $params['Category'] != 0 and ! isset($this->Query->{$this->categorys[$params['Category']]}[$cat])) {
+            if ($params['Category'] != 0 and ! isset($this->Query->{$this->categorys[$params['Category']]}[$cat])) {
                 continue;
             }
             $result[] = array(
@@ -156,6 +156,16 @@ class QueryController extends AppController {
         return json_encode(array('name' => 'return', 'children' => $result));
     }
 
+    private function getCategory($cat) {
+        if (isset($this->Query->vegetables[$cat])) {
+            return '蔬菜';
+        } else if (isset($this->Query->fruits[$cat])) {
+            return '水果';
+        } else {
+            return '其他';
+        }
+    }
+
     private function processLineData($data, $params) {
         //例外處理
         if (!isset($this->categorys[$params['Category']])) {
@@ -177,7 +187,7 @@ class QueryController extends AppController {
                 $cat = substr($item['作物名稱'], 0, $pos);
             }
             //檢查是否為蔬菜或水果
-            if ( $params['Category'] != 0 and ! isset($this->Query->{$this->categorys[$params['Category']]}[$cat])) {
+            if ($params['Category'] != 0 and ! isset($this->Query->{$this->categorys[$params['Category']]}[$cat])) {
                 continue;
             }
             if (!empty($params['Crop']) and ( strcmp($params['Crop'], $cat) != 0)) {
@@ -200,6 +210,7 @@ class QueryController extends AppController {
                     'amount' => (double) $item['平均價'] * (double) $item['交易量'],
                     'marketCount' => 1,
                     'cropCategory' => $cat,
+                    'category' => $this->getCategory($cat),
                 );
             } else {
                 $tmp = &$result[$keymap[$key]];

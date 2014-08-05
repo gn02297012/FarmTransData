@@ -14,17 +14,21 @@
 
     circle {
         stroke: rgba(0, 0, 0, 0.8);
-        stroke-width: 0px;
+        stroke-width: 2px;
     }
 
     circle:hover {
         stroke-width: 2px;
     }
 
+    .toggleCircle {
+        fill: red;
+    }
+
     .twMap {
         float: left;
-        max-width: 400px;
-        max-height: 700px;
+        max-width: 380px;
+        /*max-height: 700px;*/
         overflow: hidden;
     }
 
@@ -34,6 +38,12 @@
 
     .rankTable {
         counter-reset: rank 0;
+        margin: 5px;
+        -webkit-transition: all 1s linear;
+        -moz-transition: all 1s linear;
+        -ms-transition: all 1s linear;
+        -o-transition: all 1s linear;
+        transition: all 1s linear;
     }
     .rankTable tr > td:first-child:before {
         counter-increment: rank;
@@ -48,21 +58,34 @@
             $scope.showAllCrop = true;
             $scope.showMarket = true;
             $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
-            //$scope.Crop = '';
+            $scope.Crop = '全部';
             //$scope.Market = '';
             $scope.StartDate = formatDateInput(new Date());
             $scope.EndDate = formatDateInput(new Date());
             $scope.top = 5000;
             $scope.skip = 0;
             $scope.submit = function() {
-                var cat = $scope.selCat.cat;
-                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop === '全部' ? '' : $scope.Crop) + '&Market=' + ($scope.Market === '全部' ? '' : $scope.Market) + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate) + '&Category=' + cat;
+                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + '&Market=' + ($scope.Market === '全部' ? '' : $scope.Market) + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
                 $scope.getData(url, jsonSuccess, window.location.pathname);
             };
+            $scope.submit();
         });
     });</script>
 
 <br />
+<div id="rankContorl">
+    <div class="form-group toggleRange">
+        <label>範圍</label>
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="day">本日排行</button>
+        <button type="button" class="btn btn-default btn-lg" data-toggle="month">本月排行</button>
+    </div>
+    <div class="form-group toggleCategory">
+        <label>種類</label>
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="蔬菜">　蔬菜　</button>
+        <button type="button" class="btn btn-default btn-lg" data-toggle="水果">　水果　</button>
+    </div>
+
+</div>
 <div class="svgSection">
     <div class="twMap">
         <svg width="850" height="1200" style="transform: scale(0.6); transform-origin: 0 0;">
@@ -126,11 +149,11 @@
         <text>台北一</text>               
         </g>
         <g>
-        <circle cx="465" cy="-380" r="2" fill="black" title="台北二"></circle>
+        <circle cx="463" cy="-383" r="2" fill="black" title="台北二"></circle>
         <text>台北二</text>               
         </g>
         <g>
-        <circle cx="450" cy="-382" r="2" fill="black" title="三重市"></circle>
+        <circle cx="445" cy="-382" r="2" fill="black" title="三重市"></circle>
         <text>三重市</text>               
         </g>
         <g>
@@ -150,11 +173,11 @@
         <text>東勢鎮</text>               
         </g>
         <g>
-        <circle cx="160" cy="-10" r="2" fill="black" title="永靖鄉"></circle>
+        <circle cx="163" cy="-7" r="2" fill="black" title="永靖鄉"></circle>
         <text>永靖鄉</text>               
         </g>
         <g>
-        <circle cx="155" cy="-20" r="2" fill="black" title="溪湖鎮"></circle>
+        <circle cx="152" cy="-23" r="2" fill="black" title="溪湖鎮"></circle>
         <text>溪湖鎮</text>               
         </g>
         <g>
@@ -174,8 +197,8 @@
         <text>高雄市</text>               
         </g>
         <g>
-        <circle cx="115" cy="428" r="2" fill="black" title="鳳山區"></circle>
-        <text>鳳山區</text>               
+        <circle cx="115" cy="428" r="2" fill="black" title="鳳山市"></circle>
+        <text>鳳山市</text>               
         </g>
         <g>
         <circle cx="155" cy="410" r="2" fill="black" title="屏東市"></circle>
@@ -193,7 +216,10 @@
         </g>
         </svg>
     </div>
-    <div class="row" id="rankSection" style=""></div>
+    <div class="row" id="rankSection">
+        <div class="month"></div>
+        <div class="day"></div>
+    </div>
 </div>
 
 <?php
