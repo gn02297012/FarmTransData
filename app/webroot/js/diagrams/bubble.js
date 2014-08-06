@@ -1,6 +1,6 @@
 var margin = {top: 20, right: 60, bottom: 80, left: 70};
 var width = 960,
-        height = 600,
+        height = 500,
         padding = 1.5, //同一群中，每個圈圈的留白
         clusterPadding = 4, //不同群的圈圈留白
         maxRadius = 50;
@@ -32,8 +32,8 @@ var formatDate = function(d) {
 //選取哪個屬性作為計算
 var selectProp = function(d, isPrice) {
     if (isPrice)
-        return d.price;
-    return d.quantity;
+        return d.price * 1;
+    return d.quantity * 1;
 };
 
 //儲存每次查詢的資料，等到全部抓完後再進行動作
@@ -449,7 +449,7 @@ var jsonSuccess = function(data) {
                     return selectProp(e, 1);
                 });
             })]);
-
+        
         //X軸日期
         g2.append('g')
                 .attr('id', 'xAxis')

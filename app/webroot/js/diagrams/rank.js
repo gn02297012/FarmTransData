@@ -93,8 +93,8 @@ var initPage = function() {
             .attr('data-sec', function(d) {
                 return d;
             })
-            .attr('class', function(d) {
-                return d;
+            .attr('class',function(d) {
+                return d + ' showRange';
             })
             .style('display', function(d) {
                 return (d === $('.toggleRange .btn-primary').data('toggle')) ? 'block' : 'none';
@@ -144,70 +144,70 @@ var jsonSuccess = function(data) {
 
     //所有資料
     data = prevData;
+    //判斷是否有資料，決定要不要產生排名表格
     if (data.length === 0) {
+        rankSection.select('div.' + processStatus).selectAll('div').remove();
         rankSection.select('div.' + processStatus).append('div').append('h2').text('找不到資料');
-        return;
-    }
-
-    //將原始資料的日期格式化
-    $.each(data, function(i, d) {
-        d.date = format.parse(d.date);
-    });
-    //如果skip為0，表示這次是第一次搜尋，要先將表格清空
-    if (angular.element('.controlPanel').scope().skip === 0 && processStatus === 'day') {
-        init();
-    }
-    //承接下面的變數，資料分群後，再將所有子元素合併成一維陣列
-    var children = []
-    //將資料分群，並將同一個作物的數值加總起來
-    var nodes = d3.nest()
-            .key(function(d) {
-                return d.category;
-            })
-            .key(function(d) {
-                return d.market;
-            })
-            .key(function(d) {
-                return d.name;
-            })
-            .rollup(function(t) {
-                var sum = {key: t[0].name, code: t[0].code, name: t[0].name, market: t[0].market, marketCode: t[0].marketCode,
-                    date: t[0].date, cropCategory: t[0].cropCategory, category: t[0].category,
-                    marketCount: d3.sum(t, function(v) {
-                        return v.marketCount;
-                    }), quantity: Math.round(d3.sum(t, function(v) {
-                        return v.quantity;
-                    }) * 10) / 10, amount: d3.sum(t, function(v) {
-                        return v.price * v.quantity;
-                    })};
-                sum.price = sum.amount / sum.quantity;
-                if (sum.category == '其他') {
-                    console.log(sum);
-                }
-                return sum;
-            })
-            .sortValues(function(a, b) {
-                return b.quantity - a.quantity;
-            })
-            .entries(data)
-            .map(function(d, i) {
-                var e = d.values.map(function(e) {
-                    return {key: e.key, values: e.values.map(function(f) {
-                            return f.values;
-                        }).sort(function(a, b) {
-                            return b.quantity - a.quantity;
+    } else {
+        //將原始資料的日期格式化
+        $.each(data, function(i, d) {
+            d.date = format.parse(d.date);
+        });
+        //如果skip為0，表示這次是第一次搜尋，要先將表格清空
+        if (angular.element('.controlPanel').scope().skip === 0 && processStatus === 'day') {
+            init();
+        }
+        //承接下面的變數，資料分群後，再將所有子元素合併成一維陣列
+        var children = []
+        //將資料分群，並將同一個作物的數值加總起來
+        var nodes = d3.nest()
+                .key(function(d) {
+                    return d.category;
+                })
+                .key(function(d) {
+                    return d.market;
+                })
+                .key(function(d) {
+                    return d.name;
+                })
+                .rollup(function(t) {
+                    var sum = {key: t[0].name, code: t[0].code, name: t[0].name, market: t[0].market, marketCode: t[0].marketCode,
+                        date: t[0].date, cropCategory: t[0].cropCategory, category: t[0].category,
+                        marketCount: d3.sum(t, function(v) {
+                            return v.marketCount;
+                        }), quantity: Math.round(d3.sum(t, function(v) {
+                            return v.quantity;
+                        }) * 10) / 10, amount: d3.sum(t, function(v) {
+                            return v.price * v.quantity;
                         })};
+                    sum.price = sum.amount / sum.quantity;
+                    if (sum.category == '其他') {
+                        console.log(sum);
+                    }
+                    return sum;
+                })
+                .sortValues(function(a, b) {
+                    return b.quantity - a.quantity;
+                })
+                .entries(data)
+                .map(function(d, i) {
+                    var e = d.values.map(function(e) {
+                        return {key: e.key, values: e.values.map(function(f) {
+                                return f.values;
+                            }).sort(function(a, b) {
+                                return b.quantity - a.quantity;
+                            })};
+                    });
+                    return {key: d.key, values: e};
                 });
-                return {key: d.key, values: e};
-            });
-    console.log(nodes);
+        console.log(nodes);
 
-
-    rankSection.select('div.' + processStatus)
-            .selectAll('div').remove();
-    $.each(nodes, function(i, d) {
-        drawEachTable(d.key, rankSection.select('div.' + processStatus), d);
-    });
+        rankSection.select('div.' + processStatus)
+                .selectAll('div').remove();
+        $.each(nodes, function(i, d) {
+            drawEachTable(d.key, rankSection.select('div.' + processStatus), d);
+        });
+    }
 
     if (processStatus === 'day') {
         processStatus = 'month';
@@ -233,16 +233,28 @@ var jsonSuccess = function(data) {
             angular.element('.controlPanel').scope().submit();
         } else {
             //如果今天是本月的第一天，就直接複製本日排行到本月排行
-            $('#rankSection .month').append($('#rankSection .day').clone());
+            console.log($('#rankSection .day'));
+            $('#rankSection .month').children().remove();
+            $('#rankSection .month').append($('#rankSection .day').children().clone());
         }
     } else {
         processStatus = 'day';
         //預設顯示已經有顯示的市場資料
         var tables = d3.selectAll('.rankTable.showTable');
-        $.each(tables[0], function(i, d) {
-            var market = d.getAttribute('data-market');
-            toggleRankTable(market, true);
-        });
+        if (tables[0].length) {
+            $.each(tables[0], function(i, d) {
+                var market = d.getAttribute('data-market');
+                toggleRankTable(market, true);
+            });
+        } else {
+            //此為備案，如果本日都無資料時，將採取此方法
+            var circles = d3.selectAll('circle.toggleCircle');
+            $.each(circles[0], function(i, d) {
+                var market = d.getAttribute('title');
+                toggleRankTable(market, true);
+            });
+        }
+
     }
 };
 

@@ -11,8 +11,6 @@
     <div class="landingpage">
         <div class="container">
             <div class="col-sm-4 col-sm-offset-8">
-                <br/><br />
-                <br/><br />
                 <div style="max-width: 313px;">
                     <div class="arrow_box">
                         農價資訊站
@@ -29,10 +27,11 @@
                     立刻看圖
                 </button>
             </div>
+            <div></div>
         </div>
     </div>   
 </div>
-<div class="row" style="background-color: #f0f0f0;">
+<div class="row">
     <br /><br />
     <div class="col-sm-4 col-md-4">
         <div class="thumbnail features">
@@ -63,7 +62,7 @@
     </div>
 </div>
 
-<div class="row" style="">
+<div class="row" style="background-color: #f0f0f0;">
     <div class="col-sm-4 col-md-4" style="">
         <img class="img-circle" src="<?php echo $this->Html->webroot('img/about.jpg') ?>" style="width: 100%;">
     </div>
@@ -72,7 +71,7 @@
     </div>
 </div>
 
-<div class="row" style="background-color: #f0f0f0;">
+<div class="row">
     <br /><br />
     <div class="col-sm-3">
         <div class="thumbnail features">

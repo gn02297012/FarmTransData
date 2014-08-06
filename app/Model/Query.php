@@ -84,7 +84,8 @@ class Query extends AppModel {
         $startDate = empty($params['StartDate']) ? 1 : str_replace('.', '', $params['StartDate']);
         $endDate = empty($params['EndDate']) ? 1 : str_replace('.', '', $params['EndDate']);
         $conditions['Query.date_int BETWEEN ? AND ?'] = array($startDate, $endDate);
-        $conditions['Code.category BETWEEN ? AND ?'] = array(1, 2);
+        $category = empty($params['Category']) ? array(1, 2) : array($params['Category'], $params['Category']);
+        $conditions['Code.category BETWEEN ? AND ?'] = $category;
         //如果有設定Crop參數，則在查詢後加個%
         if (isset($conditions[$keys['Crop']])) {
             $conditions[$keys['Crop']] .= '%';
@@ -98,7 +99,6 @@ class Query extends AppModel {
         ));
 
         //var_dump($this->getLastQuery());
-        //整理結果，去除掉陣列中的Query跟Code，變成SQL出來的結果
         function getCategory($cat) {
             switch ($cat) {
                 case '1':
@@ -113,8 +113,17 @@ class Query extends AppModel {
         }
 
         foreach ($result as &$item) {
+            //整理結果，去除掉陣列中的Query跟Code，變成SQL出來的結果
             $item = array_merge($item['Query'], $item['Code']);
             $item['code'] = getCategory($item['code']);
+            //取出作物名稱中的名稱，把品種分離
+            $pos = strpos($item['name'], '-');
+            if ($pos === false) {
+                $cat = $item['name'];
+            } else {
+                $cat = substr($item['name'], 0, $pos);
+            }
+            $item['cropCategory'] = $cat;
         }
         return $result;
 

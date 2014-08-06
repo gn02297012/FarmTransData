@@ -36,9 +36,13 @@
 
     }
 
-    .cropCategorySection {
+    .showRange {
         position: absolute;
         left: 400px;
+    }
+
+    .cropCategorySection {
+        /*position: absolute;*/
     }
 
     .rankTable {
@@ -193,7 +197,7 @@
         <text>台東市</text>               
         </g>
         <g>
-        <circle cx="490" cy="-32" r="2" fill="black" title="花蓮市"></circle>
+        <circle cx="480" cy="-32" r="2" fill="black" title="花蓮市"></circle>
         <text>花蓮市</text>               
         </g>
         </g>
@@ -201,8 +205,8 @@
         </svg>
     </div>
     <div class="row" id="rankSection">
-        <div class="month" style="display: none;"></div>
-        <div class="day"></div>
+        <div class="showRange month" style="display: none;"></div>
+        <div class="showRange day"></div>
     </div>
 </div>
 
@@ -214,7 +218,6 @@ echo $this->Html->script(array('diagrams/rank'));
     //設定ControlPanelCtrl的參數
     $(document).ready(function() {
         angular.element('.controlPanel').scope().$apply(function($scope, $http) {
-            console.log(typeof jsonSuccess);
             $scope.showControlPanel = false;
             $scope.showAllCrop = true;
             $scope.showMarket = true;
@@ -223,7 +226,7 @@ echo $this->Html->script(array('diagrams/rank'));
             //$scope.Market = '';
             $scope.StartDate = formatDateInput(new Date());
             $scope.EndDate = formatDateInput(new Date());
-            $scope.top = 10000;
+            $scope.top = 5000;
             $scope.skip = 0;
             $scope.submit = function() {
                 var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + '&Market=' + ($scope.Market === '全部' ? '' : $scope.Market) + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
