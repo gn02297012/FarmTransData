@@ -78,7 +78,7 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th>日期</th>
+                <th>交易日期</th>
                 <th>作物名稱</th>
                 <th>市場</th>
                 <th>平均價格</th>

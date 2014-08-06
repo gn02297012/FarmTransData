@@ -40,3 +40,12 @@
     content: "\e114";
     font-family: 'Glyphicons Halflings';
 }
+
+.datePicker {
+    display: none;
+    -moz-transform: translateX(0px) translateY(-14px);
+    -webkit-transform: translateX(0px) translateY(-14px);
+    -o-transform: translateX(0px) translateY(-14px);
+    -ms-transform: translateX(0px) translateY(-14px);
+    transform: translateX(0px) translateY(-14px);
+}

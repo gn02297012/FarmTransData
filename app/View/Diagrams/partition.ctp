@@ -87,12 +87,13 @@
     </div>
 </form>
 
-<div class="showName" style="display: inline-block;"><br /><br /></div>
-<div class="svgSection" style="text-align: center;">
 
+<div class="svgSection" style="text-align: center;">
+    <div class="showName" style="display: inline-block; position: absolute;"><br /><br /></div>
 </div>
+
 <script>
-    var margin = {top: 0, right: 40, bottom: 0, left: 40},
+    var margin = {top: 40, right: 40, bottom: 40, left: 40},
     width = 900 - margin.left - margin.right,
             height = 900 - margin.top - margin.bottom;
     radius = Math.min(width, height) / 2,
@@ -164,13 +165,9 @@
                     if (percentage < 0.1) {
                         percentageString = "< 0.1%";
                     }
-                    console.log(-Math.cos(x(d.x + d.dx / 2)) + ' * ' + radius + ' *1.1 = ' + ((-Math.cos(x(d.x + d.dx / 2)) * radius * 1.1)));
-                    console.log(radius);
-                    console.log($('svg').offset().top);
-                    var oX = Math.sin(x(d.x + d.dx / 2)) * radius * 1.1 + radius + margin.left - 90 + $('svg').offset().left;
-                    var oY = -Math.cos(x(d.x + d.dx / 2)) * radius * 1.05 + radius + margin.left + 30;
+                    var oX = Math.sin(x(d.x + d.dx / 2)) * radius * 1.1 + radius + margin.left -20;
+                    var oY = -Math.cos(x(d.x + d.dx / 2)) * radius * 1.05 + radius + margin.top - 10;
                     var translate = 'translate(' + oX + "px," + oY + 'px)';
-                    console.log(translate);
                     $('.showName')
                             .css("transform", translate)
                             .html(d.name + '<br />' + percentageString);

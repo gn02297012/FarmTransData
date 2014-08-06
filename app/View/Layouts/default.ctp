@@ -13,6 +13,7 @@ $menuItems = array(
     <head>
         <?php echo $this->Html->charset(); ?>
         <title>農產品交易行情資料視覺化</title>
+         <meta name="viewport" content="width=device-width, initial-scale=1">
         <?php
         echo $this->Html->meta('icon');
         echo $this->fetch('meta');
@@ -54,7 +55,7 @@ $menuItems = array(
         </style>
     </head>
     <body ng-app>
-        <div class="container">
+        <div class="container-fluid">
             <nav class="navbar navbar-default" role="navigation" style="/*display: none;*/">
                 <div class="container-fluid">
                     <!-- Brand and toggle get grouped for better mobile display -->
