@@ -1,18 +1,6 @@
 var rankSection = d3.select('#rankSection');
 var processStatus = 'day';
 
-var process = function() {
-    var today = new Date();
-    //產生今天的日期字串
-    var endDate = formatDateInput(today);
-    today.setDate(1);
-    //產生本月第一天的日期字串
-    var startDate = formatDateInput(today);
-    console.log(endDate);
-    console.log(startDate);
-}
-process();
-
 //讓排名的表格總是在最後一格顯示
 var popupRankTable = function(market) {
     var tables = d3.selectAll('.rankTable[data-market="' + market + '"]')[0];
@@ -40,11 +28,11 @@ $('#rankContorl .toggleRange button').on('click', function(event) {
     $(this).parent().children('.btn').toggleClass('btn-primary', false);
     $(this).parent().children('.btn').toggleClass('btn-default', true);
     $(this).toggleClass('btn-primary', true);
-    
+
     var sec = $(this).data('toggle');
-    var other = (sec==='month'?'day':'month');
-    $('div[data-sec="'+sec+'"]').fadeIn();
-    $('div[data-sec="'+other+'"]').fadeOut();
+    var other = (sec === 'month' ? 'day' : 'month');
+    $('div[data-sec="' + sec + '"]').fadeIn();
+    $('div[data-sec="' + other + '"]').fadeOut();
 });
 
 //切換顯示蔬菜或水果
@@ -52,11 +40,11 @@ $('#rankContorl .toggleCategory button').on('click', function(event) {
     $(this).parent().children('.btn').toggleClass('btn-primary', false);
     $(this).parent().children('.btn').toggleClass('btn-default', true);
     $(this).toggleClass('btn-primary', true);
-    
+
     var sec = $(this).data('toggle');
-    var other = (sec==='蔬菜'?'水果':'蔬菜');
-    $('div[data-sec="'+sec+'"]').fadeIn();
-    $('div[data-sec="'+other+'"]').fadeOut();
+    var other = (sec === '蔬菜' ? '水果' : '蔬菜');
+    $('div[data-sec="' + sec + '"]').fadeIn();
+    $('div[data-sec="' + other + '"]').fadeOut();
 });
 
 //本頁內容的初始化
@@ -95,6 +83,23 @@ var initPage = function() {
                 //切換class
                 circle.classed('toggleCircle', t);
             });
+
+
+    //顯示區域初始化
+    rankSection.selectAll('div').remove();
+    var sec = rankSection.selectAll('div')
+            .data(['month', 'day']).enter()
+            .append('div')
+            .attr('data-sec', function(d) {
+                return d;
+            })
+            .attr('class', function(d) {
+                return d;
+            })
+            .style('display', function(d) {
+                return (d === $('.toggleRange .btn-primary').data('toggle')) ? 'block' : 'none';
+            })
+            .html('<div>載入中請稍後 <i class="fa fa-spinner fa-spin fa-2x"></div>');
 };
 initPage();
 
@@ -122,18 +127,6 @@ var init = function() {
     d3.selectAll('circle')
             .attr('fill', 'black').attr('data-toggle', '0')
             .style('display', 'none');
-    //顯示區域初始化
-    rankSection.selectAll('div').remove();
-    var sec = rankSection.selectAll('div')
-            .data(['month', 'day']).enter()
-            .append('div')
-            .attr('data-sec', function(d) {
-                return d;
-            })
-            .attr('class', function(d) {
-                return d;
-            });
-    sec.selectAll('div').remove();
 };
 
 var jsonSuccess = function(data) {
@@ -209,6 +202,9 @@ var jsonSuccess = function(data) {
             });
     console.log(nodes);
 
+
+    rankSection.select('div.' + processStatus)
+            .selectAll('div').remove();
     $.each(nodes, function(i, d) {
         drawEachTable(d.key, rankSection.select('div.' + processStatus), d);
     });
@@ -252,7 +248,11 @@ var jsonSuccess = function(data) {
 
 var drawEachTable = function(tag, sec, nodes) {
     var sec = sec.append('div')
-            .attr('data-sec', tag);
+            .attr('data-sec', tag)
+            .classed('cropCategorySection', 1)
+            .style('display', function(d) {
+                return (tag === $('.toggleCategory .btn-primary').data('toggle')) ? 'block' : 'none';
+            });
     var div = sec.selectAll('div')
             .data(nodes.values).enter()
             .append('div')

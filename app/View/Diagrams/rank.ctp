@@ -36,6 +36,11 @@
 
     }
 
+    .cropCategorySection {
+        position: absolute;
+        left: 400px;
+    }
+
     .rankTable {
         counter-reset: rank 0;
         margin: 5px;
@@ -54,7 +59,7 @@
     //設定ControlPanelCtrl的參數
     $(document).ready(function() {
         angular.element('.controlPanel').scope().$apply(function($scope, $http) {
-            $scope.showControlPanel = true;
+            $scope.showControlPanel = false;
             $scope.showAllCrop = true;
             $scope.showMarket = true;
             $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
@@ -217,7 +222,7 @@
         </svg>
     </div>
     <div class="row" id="rankSection">
-        <div class="month"></div>
+        <div class="month" style="display: none;"></div>
         <div class="day"></div>
     </div>
 </div>
