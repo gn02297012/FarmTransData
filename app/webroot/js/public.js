@@ -53,20 +53,20 @@ $(document).ready(function() {
     }
 
     //把nav選單ajax化
-//    $('.navbar-nav a').on('click', function(e) {
-//        //載入新的網頁
-//        url = $(this).attr("href");
-//        $.get(url + '?ajax=1', function(data) {
-//            $("#mainContent").html(data);
-//            $('.controlPanel #submit').click();
-//        });
-//        //儲存history
-//        window.history.pushState(url, 'New Title', url);
-//        //更新active
-//        updateNavMenuActive(url);
-//        //取消原本的事件
-//        e.preventDefault();
-//    });
+    $('.navbar-nav a').on('click', function(e) {
+        //載入新的網頁
+        url = $(this).attr("href");
+        $.get(url + '?ajax=1', function(data) {
+            $("#mainContent").html(data);
+            $('.controlPanel #submit').click();
+        });
+        //儲存history
+        window.history.pushState(url, 'New Title', url);
+        //更新active
+        updateNavMenuActive(url);
+        //取消原本的事件
+        e.preventDefault();
+    });
 
     //視窗按下上一頁的事件
     window.addEventListener('popstate', function(e) {

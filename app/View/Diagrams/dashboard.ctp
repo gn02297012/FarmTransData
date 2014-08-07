@@ -15,71 +15,28 @@
         display: none;
     }
 </style>
-
 <script>
-    function cpCtrl($scope, $http) {
-        //作物名稱選單
-        $scope.categorys = JSON.parse('<?php echo json_encode([['name' => '水果', 'items' => $fruits], ['name' => '蔬菜', 'items' => $vegetables]]); ?>');
-        $scope.items = $scope.categorys[0]['items'];
-        //API參數
-        $scope.baseUrl = '<?php echo $this->Html->webroot('/query/dashboard'); ?>';
-        $scope.Crop = '';
-        $scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 30);
-        $scope.EndDate = formatDateInput(new Date());
-        $scope.top = 2000;
-        $scope.skip = 0;
+    //設定ControlPanelCtrl的參數
+    $(document).ready(function() {
+        angular.element('.controlPanel').scope().$apply(function($scope, $http) {
+            $scope.showAllCrop = false;
+            $scope.showMarket = false;
+            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/dashboard'); ?>';
+            //$scope.Crop = '';
+            //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 30);
+            //$scope.EndDate = formatDateInput(new Date());
+            $scope.top = 3000;
+            $scope.skip = 0;
 
-        //作物選單
-        $scope.update = function(selectedCat) {
-            $scope.items = selectedCat.items;
-            $scope.Crop = $scope.items[0];
-        };
-
-        //送出查詢
-        $scope.submit = function() {
-            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
-            //showWaitingIcon('.svgSection');
-            $http.get($url).success(function(data) {
-                dashboard(data);
-            });
-        }
-    }
+            $scope.submit = function() {
+                var cat = $scope.selCat.cat;
+                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
+                $scope.getData(url, dashboard, window.location.pathname);
+            };
+        });
+    });
 </script>
 
-<div class="controlPanel" ng-controller="cpCtrl">
-    <form class="form-inline">
-        <div class="form-group">
-            <label>top</label>
-            <input type="number" class="form-control" ng-model="top">
-        </div>
-        <div class="form-group">
-            <label>skip</label>
-            <input type="number" class="form-control" ng-model="skip">
-        </div>
-        <br/><br/>
-        <div class="form-group">
-            <label>作物名稱</label>
-            <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
-
-            </select>
-            <select class="form-control" ng-model="Crop" ng-options="item for item in items" ng-init="Crop = items[0]">
-
-            </select>
-        </div>
-        <br/><br/>
-        <div class="form-group">
-            <label>開始日期</label>
-            <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
-        </div>
-        <div class="form-group">
-            <label>結束日期</label>
-            <input type="date" class="form-control" ng-model="EndDate">
-        </div>
-        <div class="form-group">
-            <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
-        </div>
-    </form>
-</div>
 <form class="form-inline">
     <br/>
     <div class="form-group">
@@ -98,7 +55,7 @@
 
 <script>
     var color = d3.scale.category20();
-    var markets = JSON.parse('<?php echo json_encode($markets); ?>');
+    var markets = JSON.parse('<?php echo json_encode($markets_raw); ?>');
 
     //圖表要根據交易量還是價量呈現
     var showType = function(d) {
@@ -192,9 +149,9 @@
                 y.domain([0, d3.max(nD, function(d) {
                         return d[1];
                     })]);
-                
+
                 var bars = hGsvg.selectAll(".bar").data(nD);
-                
+
                 bars.select("rect").transition().duration(500)
                         .attr("y", function(d) {
                             return y(d[1]);
@@ -206,7 +163,7 @@
                             //如果有給顏色就使用，否則就自動產生顏色
                             return segColor(d[2]);
                         });
-                        
+
                 bars.select("text").transition().duration(500)
                         .text(function(d) {
                             return d3.format(",")(d[1])
@@ -248,17 +205,17 @@
             }
 
             function mouseover(d) {
-                                hG.update(fData.map(function(v) {
+                hG.update(fData.map(function(v) {
                     return [v.name, (v.markets[d.data.type] == undefined) ? 0 : showType(v.markets[d.data.type]), d.data.type];
                 }));
             }
-            
+
             function mouseout(d) {
                 hG.update(fData.map(function(v) {
                     return [v.name, Math.floor(v.total * 100) / 100];
                 }), barColor);
             }
-            
+
             function arcTween(a) {
                 var i = d3.interpolate(this._current, a);
                 this._current = i(0);
@@ -268,7 +225,7 @@
             }
             return pC;
         }
-        
+
         //畫出圖例與資料數值
         function legend(lD) {
             var leg = {};

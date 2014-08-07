@@ -25,20 +25,25 @@
 }
 
 .result th {
-
     cursor: s-resize;
 }
 
-.chevron-up:after {
+.sort-asc:after {
     float: right;
-    content: "\e113";
-    font-family: 'Glyphicons Halflings';
+    content: "\f0de";
+    font-family: FontAwesome;
 }
 
-.chevron-down:after {
+.sort-desc:after {
     float: right;
-    content: "\e114";
-    font-family: 'Glyphicons Halflings';
+    content: "\f0dd";
+    font-family: FontAwesome;
+}
+
+.sortable:after {
+    float: right;
+    content: "\f0dc";
+    font-family: FontAwesome;
 }
 
 .datePicker {

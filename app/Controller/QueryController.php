@@ -52,7 +52,7 @@ class QueryController extends AppController {
         }
         return $cat;
     }
-    
+
     private function processData($data, $params, &$result) {
         //$result = array();
         foreach ($data as &$item) {
@@ -165,7 +165,7 @@ class QueryController extends AppController {
             if (!empty($params['Crop']) and ( strcmp($params['Crop'], $cat) != 0)) {
                 continue;
             }
-            $key = $item['作物代號'] . $item['交易日期'];
+            $key = $item['作物名稱'] . $item['交易日期'];
             if (!isset($keymap[$key])) {
                 $keymap[$key] = count($result);
                 $result[] = array(
@@ -310,6 +310,19 @@ class QueryController extends AppController {
         $params = $this->getQueryParams();
         $result = $this->Query->search($params);
         var_dump($result);
+    }
+
+    public function getCropAndMarketList() {
+        $vegetables = array_keys($this->Query->vegetables);
+        $fruits = array_keys($this->Query->fruits);
+        $markets = array_merge(['全部'], array_keys($this->Query->markets));
+        $result = array('crop' => array(
+                array('name' => '全部', 'items' => array('全部'), 'cat' => 0),
+                array('name' => '蔬菜', 'items' => $vegetables, 'cat' => 1),
+                array('name' => '水果', 'items' => $fruits, 'cat' => 2),
+            ),
+            'market' => $markets);
+        echo json_encode($result);
     }
 
 }

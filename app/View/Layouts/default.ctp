@@ -13,7 +13,10 @@ $menuItems = array(
     <head>
         <?php echo $this->Html->charset(); ?>
         <title>農產品交易行情資料視覺化</title>
-         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script>
+            var webroot = '<?php echo $this->Html->webroot ?>';
+        </script>
         <?php
         echo $this->Html->meta('icon');
         echo $this->fetch('meta');
@@ -28,7 +31,8 @@ $menuItems = array(
             'd3.v3.min',
             'bootstrap-tooltip',
             'bootstrap.min',
-            'public'
+            'public',
+            'ng',
         ));
         ?>
         <style>
@@ -83,9 +87,63 @@ $menuItems = array(
                 </div><!-- /.container-fluid -->
             </nav>
             <div class="row">
-            </div>
-            <div class="row" id="mainContent">
                 <div class="col-xs-12">
+                    <div class="controlPanel" ng-controller="ControlPanelCtrl">
+                        <div class="col-md-8">
+                            <form class="form-inline">
+                                <div class="form-group">
+                                    <label>top</label>
+                                    <input type="number" class="form-control" ng-model="top">
+                                </div>
+                                <div class="form-group">
+                                    <label>skip</label>
+                                    <input type="number" class="form-control" ng-model="skip">
+                                </div>
+                                <br/><br/>
+                                <div class="form-group">
+                                    <label>作物名稱</label>
+                                    <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
+                                    </select>
+                                    <select class="form-control" ng-model="Crop" ng-options="item for item in items">
+                                    </select>
+                                </div>
+                                <div class="form-group" ng-show="showMarket">
+                                    <label>市場名稱</label>
+                                    <select class="form-control" ng-model="Market" ng-options="m for m in markets">
+                                    </select>
+                                </div>
+                                <br/><br/>
+                                <div class="form-group">
+                                    <label>開始日期</label>
+                                    <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>結束日期</label>
+                                    <input type="date" class="form-control" ng-model="EndDate">
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-4">
+                            設定檔
+                            <form class="form-inline">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-success" ng-click="saveSetting()">儲存設定</button>
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-warning" ng-click="loadSetting()">載入設定</button>
+                                </div>
+                            </form>
+                            <div class="list-group" id="settingList">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12" id="mainContent">
                     <?php echo $this->Session->flash(); ?>
 
                     <?php echo $this->fetch('content'); ?>

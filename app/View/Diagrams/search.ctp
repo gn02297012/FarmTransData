@@ -1,76 +1,24 @@
 <script>
-    function cpCtrl($scope, $http) {
-        //作物名稱選單
-        $scope.categorys = JSON.parse('<?php echo json_encode([['name' => '全部', 'items' => [], 'cat' => 0], ['name' => '水果', 'items' => $fruits, 'cat' => 2], ['name' => '蔬菜', 'items' => $vegetables, 'cat' => 1]]); ?>');
-        $scope.items = $scope.categorys[0]['items'];
-        //市場選單
-        $scope.showMarket = true;
-        $scope.markets = JSON.parse('<?php echo json_encode($markets); ?>');
-        //API參數
-        $scope.baseUrl = '<?php echo $this->Html->webroot('/query/search'); ?>';
-        $scope.Crop = '';
-        $scope.Market = '';
-        $scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 10);
-        $scope.EndDate = formatDateInput(new Date());
-        $scope.top = 100;
-        $scope.skip = 0;
+    //設定ControlPanelCtrl的參數     
+    $(document).ready(function() {
+        angular.element('.controlPanel').scope().$apply(function($scope, $http) {
+            $scope.showAllCrop = true;
+            $scope.showMarket = true;
+            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/search'); ?>';
+            //$scope.Crop = '';
+            //$scope.Market = '';
+            //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 10);
+            //$scope.EndDate = formatDateInput(new Date());
+            $scope.top = 500;
+            $scope.skip = 0;
 
-        //作物選單
-        $scope.update = function(selectedCat) {
-            $scope.items = selectedCat.items;
-            //$scope.Crop = $scope.items[0];
-        };
-
-        //送出查詢
-        $scope.submit = function() {
-            var cat = $scope.selCat.cat;
-            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop ? $scope.Crop : '') + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate) + '&Category=' + cat;
-            console.log($url);
-            $http.get($url).success(function(data) {
-                showData(data);
-            });
-        }
-    }
-</script>
-<div class="controlPanel" ng-controller="cpCtrl">
-    <form class="form-inline">
-        <div class="form-group">
-            <label>top</label>
-            <input type="number" class="form-control" ng-model="top">
-        </div>
-        <div class="form-group">
-            <label>skip</label>
-            <input type="number" class="form-control" ng-model="skip">
-        </div>
-        <br/><br/>
-        <div class="form-group">
-            <label>作物名稱</label>
-            <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
-            </select>
-            <select class="form-control" ng-model="Crop" ng-options="item for item in items">
-                <option value="" selected>全部</option>
-            </select>
-        </div>
-        <div class="form-group" ng-show="showMarket">
-            <label>市場名稱</label>
-            <select class="form-control" ng-model="Market" ng-options="m for m in markets">
-                <option value="" selected>全部</option>
-            </select>
-        </div>
-        <br/><br/>
-        <div class="form-group">
-            <label>開始日期</label>
-            <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
-        </div>
-        <div class="form-group">
-            <label>結束日期</label>
-            <input type="date" class="form-control" ng-model="EndDate">
-        </div>
-        <div class="form-group">
-            <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
-        </div>
-    </form>
-</div>
+            $scope.submit = function() {
+                var cat = $scope.selCat.cat;
+                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop === '全部' ? '' : $scope.Crop) + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate) + '&Category=' + cat;
+                $scope.getData(url, showData, window.location.pathname);
+            };
+        });
+    });</script>
 
 <div class="result">
     <br />
@@ -151,27 +99,33 @@
                 });
 
         var sortFlag = 1;
-        var icons = ['chevron-up', 'chevron-down'];
+        var icons = ['sort-asc', 'sort-desc', 'sortable'];
         var lastSortKey = '';
-        d3.selectAll("thead th").data(fields).on("click", function(k) {
-            //判斷是否在同一個欄位中按下排序
-            if (lastSortKey !== k) {
-                lastSortKey = k;
-                //清除所有欄位的箭頭按鈕
-                d3.selectAll('.chevron-up').classed('chevron-up', false);
-                d3.selectAll('.chevron-down').classed('chevron-down', false);
-            } else {
-                //如果都在同一欄上面按，才切換ASC或DESC
-                d3.select(this).classed((sortFlag == 1 ? icons[0] : icons[1]), false);
-                sortFlag *= -1;
-            }
-            //設定當前欄位的箭頭
-            d3.select(this).classed((sortFlag == 1 ? icons[0] : icons[1]), true);
-            //排序
-            trs.sort(function(a, b) {
-                return (a[k] == b[k] ? 0 : (a[k] > b[k] ? 1 : -1)) * sortFlag;
-            });
-        });
+        d3.selectAll("thead th").data(fields)
+                .attr('class', function(d, i) {
+                    if (i > 2) {
+                        return 'sortable';
+                    }
+                })
+                .on("click", function(k) {
+                    //判斷是否在同一個欄位中按下排序
+                    if (lastSortKey !== k) {
+                        lastSortKey = k;                 //清除所有欄位的箭頭按鈕
+                        $.each(icons, function(i, d) {
+                            d3.selectAll('.' + d).classed(d, false);
+                        });
+                    } else {
+                        //如果都在同一欄上面按，才切換ASC或DESC
+                        d3.select(this).classed((sortFlag == 1 ? icons[0] : icons[1]), false);
+                        sortFlag *= -1;
+                    }
+                    //設定當前欄位的箭頭
+                    d3.select(this).classed((sortFlag == 1 ? icons[0] : icons[1]), true);
+                    //排序
+                    trs.sort(function(a, b) {
+                        return (a[k] == b[k] ? 0 : (a[k] > b[k] ? 1 : -1)) * sortFlag;
+                    });
+                });
     };
 
 

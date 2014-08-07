@@ -36,105 +36,28 @@
 </style>
 
 <script>
-    function cpCtrl($scope, $http) {
-        //作物名稱選單
-        $scope.categorys = JSON.parse('<?php echo json_encode([ ['name' => '水果', 'items' => $fruits], ['name' => '蔬菜', 'items' => $vegetables]]); ?>');
-        $scope.items = $scope.categorys[0]['items'];
-        //市場選單
-        $scope.markets = JSON.parse('<?php echo json_encode($markets); ?>');
-        //API參數
-        $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
-        $scope.Crop = '';
-        $scope.Market = '';
-        $scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 365);
-        $scope.EndDate = formatDateInput(new Date());
-        $scope.top = 2000;
-        $scope.skip = 0;
+    //設定ControlPanelCtrl的參數
+    $(document).ready(function() {
+        angular.element('.controlPanel').scope().$apply(function($scope, $http) {
+            $scope.showAllCrop = false;
+            $scope.showMarket = true;
+            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
+            //$scope.Crop = '';
+            //$scope.Market = '';
+            //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 365);
+            //$scope.EndDate = formatDateInput(new Date());
+            $scope.top = 3000;
+            $scope.skip = 0;
 
-        //作物選單
-        $scope.update = function(selectedCat) {
-            $scope.items = selectedCat.items;
-            $scope.Crop = $scope.items[0];
-        };
-
-        //送出查詢
-        $scope.submit = function() {
-            $url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
-            console.log($url);
-            $http.get($url).success(function(data) {
-                jsonSuccess(null, data);
-            });
-        }
-    }
-
-    function DatePickerCtrl($scope) {
-        $scope.domain = [0, 0];
-        $scope.range = [0, 0];
-        $scope.startDate = $scope.range[0];
-        $scope.endDate = $scope.range[1];
-        $scope.selectedDate = 0;
-
-        $scope.init = function(domain) {
-            var total = (domain[1].getTime() - domain[0].getTime()) / 86400 / 1000;
-            var range = [0, total];
-            $scope.domain = [domain[0].getTime(), domain[1].getTime()];
-            $scope.range = range;
-            $scope.startDate = $scope.range[0];
-            $scope.endDate = $scope.range[1];
-            $scope.selectedDate = 0;
-        }
-
-        $scope.$watch('selectedDate', function(newValue, oldValue) {
-            if (newValue === oldValue)
-                return;
-            var t = $scope.domain[0] + $scope.selectedDate * 86400000;
-            moveScanline(x(t));
-            //更新詳細資料的表格內容
-            updateDetailTable(t);
-        }, true);
-    }
+            $scope.submit = function() {
+                var cat = $scope.selCat.cat;
+                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
+                $scope.getData(url, jsonSuccess, window.location.pathname);
+            };
+        });
+    });
 </script>
 
-<div class="controlPanel" ng-controller="cpCtrl">
-    <form class="form-inline">
-        <div class="form-group">
-            <label>top</label>
-            <input type="number" class="form-control" ng-model="top">
-        </div>
-        <div class="form-group">
-            <label>skip</label>
-            <input type="number" class="form-control" ng-model="skip">
-        </div>
-        <br/><br/>
-        <div class="form-group">
-            <label>作物名稱</label>
-            <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
-
-            </select>
-            <select class="form-control" ng-model="Crop" ng-options="item for item in items" ng-init="Crop = items[0]">
-
-            </select>
-        </div>
-        <div class="form-group">
-            <label>市場名稱</label>
-            <select class="form-control" ng-model="Market" ng-options="m for m in markets">
-                <option value="" selected>全部</option>
-            </select>
-        </div>
-        <br/><br/>
-        <div class="form-group">
-            <label>開始日期</label>
-            <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
-        </div>
-        <div class="form-group">
-            <label>結束日期</label>
-            <input type="date" class="form-control" ng-model="EndDate">
-        </div>
-        <div class="form-group">
-            <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
-        </div>
-    </form>
-</div>
 <br />
 <br />
 <div class="svgSection col-xs-12" style="overflow-x: scroll;">
@@ -201,14 +124,14 @@
             .append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    var jsonSuccess = function(error, data) {
+    var jsonSuccess = function(data) {
         svg.selectAll('g').remove();
         var nested_data = d3.nest()
                 .key(function(d) {
                     return d.name;
                 })
                 .entries(data);
-        color.domain(nested_data.map(function(d) {
+         color.domain(nested_data.map(function(d) {
             return d.key;
         }));
         data.forEach(function(d) {
@@ -273,11 +196,29 @@
                     return color(d.key);
                 })
                 .style('stroke-opacity', 0.8);
-        //日期選擇
+        //套上範圍資料
+        //console.log(angular.element('.datePicker').scope());
+        if (angular.element('.datePicker').controller()) {
+            //console.log('normal');
+            angular.element('.datePicker').scope().init(x.domain());
+        } else {
+            //console.log('from other page');
+            //因為AngularJS無法運作，所以這邊改成用jQuery來設定
+            var domain = [x.domain()[0].getTime(), x.domain()[1].getTime()];
+            var total = (domain[1] - domain[0]) / 86400 / 1000;
+            var range = [0, total];
+            $('.datePicker input[type="range"]').attr('max', total);
+            $('.datePicker input[type="range"]').attr('min', 0);
+            //angular.element('.datePicker').controller('DatePickerCtrl');
+//            angular.element('.datePicker').scope()
+//                    .$apply(function($scope) {
+//                        //$scope.domain = [0,1];
+//                        $scope.domain = [x.domain()[0].getTime(), x.domain()[1].getTime()];
+//                    });
+        }
+        //日期選擇BAR的樣式
         $('.datePicker').css('width', (width + 6) + 'px')
-                .css('margin-left', ($('.svgSection g').offset().left + $('.svgSection g')[0].getBBox().width - $('.item')[0].getBBox().width - 16) + 'px');
-        angular.element('.datePicker').scope()
-                .init(x.domain());
+                .css('margin-left', ($('#xAxis .domain').offset().left - $('.svgSection svg').offset().left) + 'px');
         $('.datePicker').fadeIn();
 
         //掃描線
@@ -383,7 +324,8 @@
                         $scope.selectedDate = day;
                     });
             //掃描線位置，由於有用AngularJS設定重畫，所以下面這行先註解起來
-            //moveScanline(x(a));
+            moveScanline(x(a));
+            $('.datePicker input[type="range"]').val(day);
 
             //更新詳細資料的表格內容
             //updateDetailTable(a);

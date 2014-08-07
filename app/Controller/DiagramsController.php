@@ -30,8 +30,9 @@ class DiagramsController extends AppController {
     public function dashboard() {
         $vegetables = array_keys($this->Query->vegetables);
         $fruits = array_keys($this->Query->fruits);
-        $markets = $this->Query->markets;
-        $this->set(compact('vegetables', 'fruits', 'markets'));
+        $markets = array_keys($this->Query->markets);
+        $markets_raw = $this->Query->markets;
+        $this->set(compact('vegetables', 'fruits', 'markets', 'markets_raw'));
     }
 
     public function search() {
