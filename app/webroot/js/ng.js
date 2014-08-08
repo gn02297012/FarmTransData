@@ -1,6 +1,6 @@
 //控制介面的controller
 function ControlPanelCtrl($scope, $http) {
-    //是否顯示選單，全部作物與市場
+//是否顯示選單，全部作物與市場
     $scope.showAllCrop = true;
     $scope.showMarket = true;
     //API參數
@@ -18,10 +18,9 @@ function ControlPanelCtrl($scope, $http) {
     $scope.items = null;
     //市場選單
     $scope.markets = [];
-
     //動態載入作物名稱與市場清單
     $http.get(webroot + 'query/getCropAndMarketList').success(function(data) {
-        //設定作物名稱清單
+//設定作物名稱清單
         $scope.categorys = data['crop'];
         $scope.selCat = $scope.categorys[($scope.showAllCrop ? 0 : 1)];
         $scope.items = $scope.selCat.items;
@@ -30,7 +29,6 @@ function ControlPanelCtrl($scope, $http) {
         $scope.markets = data['market'];
         $scope.Market = $scope.markets[0];
     });
-
     //更新作物選單
     $scope.update = function(selectedCat, Crop) {
         $scope.items = selectedCat.items;
@@ -39,11 +37,9 @@ function ControlPanelCtrl($scope, $http) {
         }
         $scope.Crop = Crop ? Crop : $scope.items[0];
     };
-
     //送出查詢
     $scope.submit = function() {
     };
-
     //負責處理GET的函數，由於全部寫在submit會出錯，所以才多透過這個
     $scope.getData = function(url, callback, sourcePathName) {
         console.log(encodeURI(url));
@@ -54,59 +50,46 @@ function ControlPanelCtrl($scope, $http) {
             }
             callback(data);
         });
+        $('#controlPanelBody').collapse('hide');
     };
-
+    
+    $scope.settings = {};
+    //新增設定
+    $scope.addSetting = function() {
+        var s = {CatName: $scope.selCat.name, Category: $scope.selCat.cat, Crop: $scope.Crop, Market: $scope.Market, t: (new Date()).getTime()};
+        $scope.settings[s.t] = s;
+        $scope.saveSetting();
+        $('#settingList').collapse('show');
+    };
     //儲存設定
     $scope.saveSetting = function() {
-        var s = {Category: $scope.selCat.cat, Crop: $scope.Crop, Market: $scope.Market, t: (new Date()).getTime()};
-        var old = localStorage.getItem('setting');
-        if (old !== null && typeof old === "string") {
-            old = JSON.parse(old);
-        } else {
-            old = {setting: []};
-        }
-        old.setting.push(s);
-        localStorage.setItem('setting', JSON.stringify(old));
+        var obj = {setting: $scope.settings};
+        localStorage.setItem('setting', JSON.stringify(obj));
     };
-
-    $scope.settings;
+    //載入設定
     $scope.loadSetting = function() {
         var old = localStorage.getItem('setting');
         if (old !== undefined && old !== null && typeof old === "string") {
             old = JSON.parse(old);
         } else {
-            old = {setting: []};
+            old = {setting: {}};
         }
         $scope.settings = old.setting;
-        d3.select('#settingList').selectAll('a')
-                .data($scope.settings).enter()
-                .append('a')
-                .attr('class', 'list-group-item')
-                .attr('href', '#')
-                .attr('data-t', function(d) {
-                    return d.t;
-                })
-                .text(function(d) {
-                    return d.Crop + "\t" + d.Market;
-                })
-                .on('click', function(d) {
-                    console.log($scope.selCat);
-                    $scope.$apply(function($scope) {
-                        if ($scope.selCat.cat !== d.Cateogry) {
-                            $scope.selCat = $scope.categorys[d.Category];
-                        }
-                        //$scope.Crop = d.Crop;
-                        $scope.update($scope.categorys[d.Category], d.Crop);
-                        $scope.Market = d.Market;
-                    });
-                });
     };
+    //設定設定檔到控制面板
+    $scope.setSetting = function(d) {
+        if ($scope.selCat.cat !== d.Cateogry) {
+            $scope.selCat = $scope.categorys[d.Category];
+        }
+        $scope.update($scope.categorys[d.Category], d.Crop);
+        $scope.Market = d.Market;
+    }
 
-    $scope.$watch('selCat', function(newValue, oldValue) {
-        console.log($scope.selCat);
-        console.log($scope.Crop);
-
-    });
+    //刪除
+    $scope.deleteSetting = function(t) {
+        delete $scope.settings[t];
+        $scope.saveSetting();
+    }
 
     //是否在作物清單中顯示"全部"這個選項
     $scope.$watch('showAllCrop', function(newValue, oldValue) {
@@ -127,14 +110,14 @@ function ControlPanelCtrl($scope, $http) {
                 $scope.Crop = $scope.items[0];
             }
             //如果第二層選到全部，移除該選項並切換到下一個
-            if ($scope.selCat && $scope.items[0] == '全部') {
+            if ($scope.selCat && $scope.items[0] === '全部') {
                 $scope.selCat['items'] = $scope.selCat['items'].slice(1);
                 $scope.items = $scope.selCat['items'];
-                //$scope.Crop = $scope.items[0];
+            console.log($scope.selCat);
+                $scope.Crop = $scope.items[0];
             }
         }
     });
-
 }
 
 //價格圖中的日期選擇的controller
@@ -144,11 +127,9 @@ function DatePickerCtrl($scope) {
     $scope.startDate = $scope.range[0];
     $scope.endDate = $scope.range[1];
     $scope.selectedDate = 0;
-
     $scope.init = function(domain) {
         $scope.domain = [domain[0].getTime(), domain[1].getTime()];
     };
-
     $scope.$watch('domain', function(newValue, oldValue) {
         if (newValue === undefined) {
             return;
@@ -160,7 +141,6 @@ function DatePickerCtrl($scope) {
         $scope.endDate = $scope.range[1];
         $scope.selectedDate = 0;
     }, true);
-
     $scope.$watch('selectedDate', function(newValue, oldValue) {
         if (newValue === oldValue) {
             return;

@@ -165,7 +165,7 @@ class QueryController extends AppController {
             if (!empty($params['Crop']) and ( strcmp($params['Crop'], $cat) != 0)) {
                 continue;
             }
-            $key = $item['作物名稱'] . $item['交易日期'];
+            $key = $item['作物名稱'] . $item['交易日期'] . $item['市場代號'];
             if (!isset($keymap[$key])) {
                 $keymap[$key] = count($result);
                 $result[] = array(

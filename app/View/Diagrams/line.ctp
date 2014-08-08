@@ -18,11 +18,11 @@
     }
 
     #detail {
-        width: 100%;
+        /*width: 100%;*/
     }
 
     #detail th {
-        width: 20%;
+        /*width: 20%;*/
     }
 
     .legend{
@@ -44,14 +44,14 @@
             $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
             //$scope.Crop = '';
             //$scope.Market = '';
-            //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 365);
+            //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 7);
             //$scope.EndDate = formatDateInput(new Date());
             $scope.top = 3000;
             $scope.skip = 0;
 
             $scope.submit = function() {
                 var cat = $scope.selCat.cat;
-                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + $scope.Crop + '&Market=' + ($scope.Market ? $scope.Market : '') + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
+                var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + ($scope.Crop === '全部' ? '' : $scope.Crop) + '&Market=' + ($scope.Market === '全部' ? '' : $scope.Market) + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
                 $scope.getData(url, jsonSuccess, window.location.pathname);
             };
         });
@@ -60,31 +60,35 @@
 
 <br />
 <br />
-<div class="svgSection col-xs-12" style="overflow-x: scroll;">
-    <svg></svg>
-    <div class="datePicker" style="float: left;" ng-controller="DatePickerCtrl">
-        <input type="range" ng-model="selectedDate" ng-value="{{selectedDate}}" min="{{range[0]}}" max="{{range[1]}}">
-    </div>
-</div>
-<table class="table table-striped table-bordered table-hover" id="detail">
-    <thead>
-        <tr>
-            <th>作物名稱</th>
-            <th>交易日期</th>
-            <th>價格</th>
-            <th>交易量</th>
-            <th>交易額</th>
-        </tr>        
-    </thead>
-    <tbody>
 
-    </tbody>
-</table>
+<div class="svgSection col-xs-12 col-md-7" style="overflow-x: scroll;">
+    <label><input type="checkbox" checked="true" id="combineMarket"><span>合併市場</span></label><br />
+    <svg></svg>
+    <!--    <div class="datePicker" style="float: left; display: none;" ng-controller="DatePickerCtrl">
+            <input type="range" ng-model="selectedDate" ng-value="{{selectedDate}}" min="{{range[0]}}" max="{{range[1]}}">
+        </div>-->
+
+</div>
+<div class="col-xs-12 col-md-5">
+    <table class="table table-striped table-bordered table-hover table-condensed" id="detail">
+        <thead>
+            <tr>
+                <th>作物名稱</th>
+                <th>交易日期</th>
+                <th>價格</th>
+                <th>交易量(公斤)</th>
+                <th>交易額</th>
+            </tr>        
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
 
 <script>
     var margin = {top: 80, right: 40, bottom: 80, left: 50},
-    width = 1040 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom;
+    width = 700 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
 
     var format = d3.time.format('%Y.%m.%d');
     var formatDate = function(d) {
@@ -97,7 +101,7 @@
     var y = d3.scale.linear()
             .range([height, 0]);
 
-    var color = d3.scale.category10();
+    var color = d3.scale.category20();
 
     var xAxis = d3.svg.axis()
             .scale(x)
@@ -128,10 +132,40 @@
         svg.selectAll('g').remove();
         var nested_data = d3.nest()
                 .key(function(d) {
-                    return d.name;
+                    return d.name + (d3.select('#combineMarket').property('checked') ? '' : ('@' + d.market));
                 })
                 .entries(data);
-         color.domain(nested_data.map(function(d) {
+
+        //根據是否有勾選合併市場，如果有勾才多做合併處理
+        if (d3.select('#combineMarket').property('checked')) {
+            var combineMarket = nested_data.map(function(d) {
+                //將各個市場的資料合併起來
+                var tmp = d3.nest()
+                        .key(function(d) {
+                            return d.date;
+                        })
+                        .rollup(function(t) {
+                            var sum = {code: t[0].code, name: t[0].name, market: t[0].market, marketCode: t[0].marketCode,
+                                date: format.parse(t[0].date),
+                                marketCount: d3.sum(t, function(v) {
+                                    return v.marketCount;
+                                }), quantity: d3.sum(t, function(v) {
+                                    return v.quantity;
+                                }), amount: d3.sum(t, function(v) {
+                                    return v.price * v.quantity;
+                                })};
+                            sum.price = sum.amount / sum.quantity;
+                            return sum;
+                        })
+                        .entries(d.values);
+                return {key: d.key, values: tmp.map(function(d) {
+                        return d.values;
+                    })};
+            });
+            nested_data = combineMarket;
+        }
+
+        color.domain(nested_data.map(function(d) {
             return d.key;
         }));
         data.forEach(function(d) {
@@ -147,6 +181,12 @@
         y.domain(d3.extent(data, function(d) {
             return d.price;
         }));
+        //計算時間範圍的天數
+        var domain = [x.domain()[0].getTime(), x.domain()[1].getTime()];
+        var total = (domain[1] - domain[0]) / 86400 / 1000;
+        var range = [0, total];
+        //重新設定x的標籤數，解決天數過少會有重複標籤的問題
+        xAxis.ticks(total < 7 ? total : 7);
         svg.append('g')
                 .attr('id', 'xAxis')
                 .attr('class', 'x axis')
@@ -204,9 +244,6 @@
         } else {
             //console.log('from other page');
             //因為AngularJS無法運作，所以這邊改成用jQuery來設定
-            var domain = [x.domain()[0].getTime(), x.domain()[1].getTime()];
-            var total = (domain[1] - domain[0]) / 86400 / 1000;
-            var range = [0, total];
             $('.datePicker input[type="range"]').attr('max', total);
             $('.datePicker input[type="range"]').attr('min', 0);
             //angular.element('.datePicker').controller('DatePickerCtrl');
@@ -237,6 +274,9 @@
                 .data(nested_data)
                 .enter()
                 .append('circle')
+                .attr('data-key', function(d) {
+                    return d.key;
+                })
                 .attr('class', 'circle')
                 .attr('r', 6)
                 .attr('fill', 'none')
@@ -271,12 +311,20 @@
                 });
         //印出每列中的資料
         var crop = trs.append('td');
+        //加入是否顯示的checkbox
+        crop.append('input').attr('type', 'checkbox')
+                .attr('checked', true)
+                .on('change', function(d) {
+                    $('[data-key="' + d.key + '"]').toggle();
+                });
+        //加入圖例顏色
         crop.append("svg").attr("width", '16').attr("height", '16')
                 .style('margin-right', '5px')
                 .append("rect").attr("width", '16').attr("height", '16')
                 .attr("fill", function(d) {
                     return color(d.key);
                 });
+        //加入文字
         crop.append('span').text(function(d, i) {
             return d.key;
         });
@@ -284,7 +332,7 @@
             return formatDate(d.values[0].date);
         });
         trs.append('td').text(function(d, i) {
-            return d.values[0].price;
+            return Math.round(d.values[0].price * 100) / 100;
         });
         trs.append('td').text(function(d, i) {
             return d.values[0].quantity;
@@ -319,16 +367,16 @@
             });
             //下方input range的值要跟著改
             var day = (a - x.domain()[0]) / 86400000;
-            angular.element('.datePicker').scope()
-                    .$apply(function($scope) {
-                        $scope.selectedDate = day;
-                    });
+//            angular.element('.datePicker').scope()
+//                    .$apply(function($scope) {
+//                        $scope.selectedDate = day;
+//                    });
             //掃描線位置，由於有用AngularJS設定重畫，所以下面這行先註解起來
             moveScanline(x(a));
             $('.datePicker input[type="range"]').val(day);
 
             //更新詳細資料的表格內容
-            //updateDetailTable(a);
+            updateDetailTable(a);
 
             //顯示日期
             $('.info').children('text').html(formatDate(date));
@@ -361,7 +409,7 @@
                                             txt = formatDate(s[0].date);
                                             break;
                                         case 2:
-                                            txt = s[0].price;
+                                            txt = Math.round(s[0].price * 100) / 100;
                                             break;
                                         case 3:
                                             txt = s[0].quantity;

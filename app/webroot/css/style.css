@@ -54,3 +54,11 @@
     -ms-transform: translateX(0px) translateY(-14px);
     transform: translateX(0px) translateY(-14px);
 }
+
+#settingList > li {
+    cursor: pointer;
+}
+
+#settingList > li:hover {
+    background-color: #f8f8f8;
+}

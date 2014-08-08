@@ -90,66 +90,79 @@ $menuItems = array(
                 <div class="col-xs-12">
                     <div class="controlPanel" ng-controller="ControlPanelCtrl">
                         <div class="col-md-8">
-                            <form class="form-inline">
-                                <div class="form-group">
-                                    <label>top</label>
-                                    <input type="number" class="form-control" ng-model="top">
+                            <div class="panel panel-default"> <!--panel-->
+                                <div class="panel-heading">
+                                    <a data-toggle="collapse"  href="#controlPanelBody">
+                                        <span class="panel-title">查詢選單</span>
+                                    </a>
                                 </div>
-                                <div class="form-group">
-                                    <label>skip</label>
-                                    <input type="number" class="form-control" ng-model="skip">
+                                <div class="panel-body panel-collapse collapse in" id="controlPanelBody">
+                                    <form class="form-inline">
+                                        <div class="hide">
+                                            <div class="form-group">
+                                                <label>top</label>
+                                                <input type="number" class="form-control" ng-model="top">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>skip</label>
+                                                <input type="number" class="form-control" ng-model="skip">
+                                            </div>
+                                            <br/><br/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>作物名稱</label>
+                                            <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
+                                            </select>
+                                            <select class="form-control" ng-model="Crop" ng-options="item for item in items">
+                                            </select>
+                                        </div>
+                                        <div class="form-group" ng-show="showMarket">
+                                            <label>市場名稱</label>
+                                            <select class="form-control" ng-model="Market" ng-options="m for m in markets">
+                                            </select>
+                                        </div>
+                                        <br/><br/>
+                                        <div class="form-group">
+                                            <label>開始日期</label>
+                                            <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>結束日期</label>
+                                            <input type="date" class="form-control" ng-model="EndDate">
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
+                                        </div>
+                                    </form>
                                 </div>
-                                <br/><br/>
-                                <div class="form-group">
-                                    <label>作物名稱</label>
-                                    <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
-                                    </select>
-                                    <select class="form-control" ng-model="Crop" ng-options="item for item in items">
-                                    </select>
-                                </div>
-                                <div class="form-group" ng-show="showMarket">
-                                    <label>市場名稱</label>
-                                    <select class="form-control" ng-model="Market" ng-options="m for m in markets">
-                                    </select>
-                                </div>
-                                <br/><br/>
-                                <div class="form-group">
-                                    <label>開始日期</label>
-                                    <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
-                                </div>
-                                <div class="form-group">
-                                    <label>結束日期</label>
-                                    <input type="date" class="form-control" ng-model="EndDate">
-                                </div>
-                                <div class="form-group">
-                                    <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
-                                </div>
-                            </form>
+                            </div><!--panel-->
                         </div>
-                        <div class="col-md-4">
-                            設定檔
-                            <form class="form-inline">
-                                <div class="form-group">
-                                    <button type="button" class="btn btn-success" ng-click="saveSetting()">儲存設定</button>
+                        <div class="col-md-3">
+                            <div class="panel panel-default"> <!--panel-->
+                                <div class="panel-heading">
+                                    <a data-toggle="collapse"  href="#settingList">
+                                        <span class="panel-title">常用查詢 </span>
+                                    </a>
+                                    <a href="" class="label label-success" ng-click="addSetting()">新增</a>
                                 </div>
-                                <div class="form-group">
-                                    <button type="button" class="btn btn-warning" ng-click="loadSetting()">載入設定</button>
-                                </div>
-                            </form>
-                            <div class="list-group" id="settingList">
-                            </div>
+                                <ul class="list-group panel-collapse collapse" id="settingList" ng-init="loadSetting()">
+                                    <li class="list-group-item" ng-repeat="setting in settings" ng-click="setSetting(setting)">
+                                        {{setting.CatName}} / {{setting.Crop}} / {{setting.Market}}
+                                        <a href="" style="float: right;" ng-click="deleteSetting(setting.t)"><span class="glyphicon glyphicon-remove"></span></a>
+                                    </li>
+                                </ul>
+                            </div><!--panel-->
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12" id="mainContent">
-                    <?php echo $this->Session->flash(); ?>
+                <div class="row-fluid">
+                    <div class="col-xs-12" id="mainContent">
+                        <?php echo $this->Session->flash(); ?>
 
-                    <?php echo $this->fetch('content'); ?>
-                    <?php //echo $this->element('sql_dump'); ?>
+                        <?php echo $this->fetch('content'); ?>
+                        <?php //echo $this->element('sql_dump');  ?>
+                    </div>
                 </div>
             </div>
-        </div>
     </body>
 </html>
