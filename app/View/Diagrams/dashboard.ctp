@@ -64,7 +64,12 @@
 
     function dashboard(fData) {
         var id = '.svgSection';
-        $(id).html('');
+        if (fData.length) {
+            $(id).html('');
+        } else {
+            $(id).html('找不到資料');
+            return false;
+        }
 
         var barColor = 'steelblue';
         function segColor(c) {
@@ -72,12 +77,12 @@
         }
 
         var count = 0;
-        var keyLengthMax = 0;
+        var keyLengthMax = 4;
 
         //畫出長條圖
         function histoGram(fD) {
             var hG = {}, hGDim = {t: 60, r: 0, b: 30, l: 0};
-            hGDim.w = count * keyLengthMax * 11 - hGDim.l - hGDim.r,
+            hGDim.w = (count < 3 ? 2 : count) * keyLengthMax * 11 - hGDim.l - hGDim.r,
                     hGDim.h = 300 - hGDim.t - hGDim.b;
 
             var hGsvg = d3.select(id).append("svg")
@@ -289,7 +294,7 @@
                 return d.total;
             });
             //計算各作物的總和
-            keyLengthMax = 0;
+            keyLengthMax = 4;
             fData.forEach(function(d) {
                 var values = $.map(d.markets, function(d, i) {
                     return showType(d);

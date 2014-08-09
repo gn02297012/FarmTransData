@@ -28,13 +28,13 @@
     cursor: s-resize;
 }
 
-.sort-asc:after {
+.sorting_asc:after {
     float: right;
     content: "\f0de";
     font-family: FontAwesome;
 }
 
-.sort-desc:after {
+.sorting_desc:after {
     float: right;
     content: "\f0dd";
     font-family: FontAwesome;
@@ -61,4 +61,12 @@
 
 #settingList > li:hover {
     background-color: #f8f8f8;
+}
+
+[data-toggle="collapse"] {
+    cursor: pointer;
+}
+
+.dataTables_filter {
+    float: right;
 }

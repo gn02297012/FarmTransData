@@ -121,6 +121,20 @@
             .y(function(d) {
                 return y(d.price);
             });
+    //交易量的線
+    var y2 = d3.scale.linear()
+            .range([height, 0]);
+
+    var y2Axis = d3.svg.axis()
+            .scale(y2)
+            .orient('right');
+    var line2 = d3.svg.line()
+            .x(function(d) {
+                return x(d.date);
+            })
+            .y(function(d) {
+                return y2(d.quantity);
+            });
 
     var svg = d3.select('body').select('.svgSection svg')
             .attr('width', width + margin.left + margin.right)
@@ -181,6 +195,9 @@
         y.domain(d3.extent(data, function(d) {
             return d.price;
         }));
+        y2.domain(d3.extent(data, function(d) {
+            return d.quantity;
+        }));
         //計算時間範圍的天數
         var domain = [x.domain()[0].getTime(), x.domain()[1].getTime()];
         var total = (domain[1] - domain[0]) / 86400 / 1000;
@@ -207,6 +224,16 @@
                 .attr('dy', '.71em')
                 .style('text-anchor', 'end')
                 .text('Price ($)');
+        svg.append('g')
+                .attr('class', 'y axis')
+                .attr('transform', 'translate(' + width + ', 0)')
+                .call(y2Axis)
+                .append('text')
+                .attr('transform', 'rotate(90)')
+                .attr('y', 6)
+                .attr('dy', '.71em')
+                .style('text-anchor', '')
+                .text('Quantity (KG)');
         svg.append('g')
                 .attr('class', 'info')
                 .append('text')
@@ -236,6 +263,18 @@
                     return color(d.key);
                 })
                 .style('stroke-opacity', 0.8);
+        item.append('path')
+                .attr('class', 'line')
+                .attr('data-key', function(d) {
+                    return d.key;
+                })
+                .attr('d', function(d) {
+                    return line2(d.values);
+                })
+                .style('stroke', function(d) {
+                    return color(d.key);
+                })
+                .style('stroke-opacity', 0.3);
         //套上範圍資料
         //console.log(angular.element('.datePicker').scope());
         if (angular.element('.datePicker').controller()) {
@@ -310,7 +349,7 @@
                     $('[data-key="' + d.key + '"]').css('stroke-width', '3px');
                 });
         //印出每列中的資料
-        var crop = trs.append('td');
+        var crop = trs.append('td').append('label');
         //加入是否顯示的checkbox
         crop.append('input').attr('type', 'checkbox')
                 .attr('checked', true)
@@ -319,6 +358,7 @@
                 });
         //加入圖例顏色
         crop.append("svg").attr("width", '16').attr("height", '16')
+                .style('margin-left', '5px')
                 .style('margin-right', '5px')
                 .append("rect").attr("width", '16').attr("height", '16')
                 .attr("fill", function(d) {

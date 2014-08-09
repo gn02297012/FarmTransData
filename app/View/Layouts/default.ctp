@@ -31,6 +31,8 @@ $menuItems = array(
             'd3.v3.min',
             'bootstrap-tooltip',
             'bootstrap.min',
+            'jquery.dataTables.min',
+            'dataTables.bootstrap',
             'public',
             'ng',
         ));
@@ -91,14 +93,12 @@ $menuItems = array(
                     <div class="controlPanel" ng-controller="ControlPanelCtrl">
                         <div class="col-md-8">
                             <div class="panel panel-default"> <!--panel-->
-                                <div class="panel-heading">
-                                    <a data-toggle="collapse"  href="#controlPanelBody">
-                                        <span class="panel-title">查詢選單</span>
-                                    </a>
+                                <div class="panel-heading" data-toggle="collapse" href="#controlPanelBody">
+                                    <span class="panel-title">查詢選單</span>
                                 </div>
                                 <div class="panel-body panel-collapse collapse in" id="controlPanelBody">
                                     <form class="form-inline">
-                                        <div class="hide">
+                                        <div class="">
                                             <div class="form-group">
                                                 <label>top</label>
                                                 <input type="number" class="form-control" ng-model="top">
@@ -139,13 +139,11 @@ $menuItems = array(
                         </div>
                         <div class="col-md-3">
                             <div class="panel panel-default"> <!--panel-->
-                                <div class="panel-heading">
-                                    <a data-toggle="collapse"  href="#settingList">
-                                        <span class="panel-title">常用查詢 </span>
-                                    </a>
-                                    <a href="" class="label label-success" ng-click="addSetting()">新增</a>
+                                <div class="panel-heading" data-toggle="collapse" href="#settingList">
+                                    <span class="panel-title">常用查詢 </span>
+                                    <a href="#123" class="label label-success" ng-click="addSetting($event)" onclick="event.preventDefault();">新增</a>
                                 </div>
-                                <ul class="list-group panel-collapse collapse" id="settingList" ng-init="loadSetting()">
+                                <ul class="list-group panel-collapse collapse in" id="settingList" ng-init="loadSetting()">
                                     <li class="list-group-item" ng-repeat="setting in settings" ng-click="setSetting(setting)">
                                         {{setting.CatName}} / {{setting.Crop}} / {{setting.Market}}
                                         <a href="" style="float: right;" ng-click="deleteSetting(setting.t)"><span class="glyphicon glyphicon-remove"></span></a>

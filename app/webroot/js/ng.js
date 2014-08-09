@@ -20,10 +20,14 @@ function ControlPanelCtrl($scope, $http) {
     $scope.markets = [];
     //動態載入作物名稱與市場清單
     $http.get(webroot + 'query/getCropAndMarketList').success(function(data) {
-//設定作物名稱清單
+        //設定作物名稱清單
         $scope.categorys = data['crop'];
-        $scope.selCat = $scope.categorys[($scope.showAllCrop ? 0 : 1)];
+        //$scope.selCat = $scope.categorys[($scope.showAllCrop ? 0 : 1)];
+        $scope.selCat = $scope.categorys[1]; //預設不要是全部
         $scope.items = $scope.selCat.items;
+        if ($scope.showAllCrop) {
+            $scope.items.splice(0, 0, '全部');
+        }
         $scope.Crop = $scope.items[0];
         //設定市場清單
         $scope.markets = data['market'];
@@ -52,14 +56,15 @@ function ControlPanelCtrl($scope, $http) {
         });
         $('#controlPanelBody').collapse('hide');
     };
-    
+
     $scope.settings = {};
     //新增設定
-    $scope.addSetting = function() {
+    $scope.addSetting = function($event) {
         var s = {CatName: $scope.selCat.name, Category: $scope.selCat.cat, Crop: $scope.Crop, Market: $scope.Market, t: (new Date()).getTime()};
         $scope.settings[s.t] = s;
         $scope.saveSetting();
         $('#settingList').collapse('show');
+        $event.stopPropagation();
     };
     //儲存設定
     $scope.saveSetting = function() {
@@ -113,7 +118,6 @@ function ControlPanelCtrl($scope, $http) {
             if ($scope.selCat && $scope.items[0] === '全部') {
                 $scope.selCat['items'] = $scope.selCat['items'].slice(1);
                 $scope.items = $scope.selCat['items'];
-            console.log($scope.selCat);
                 $scope.Crop = $scope.items[0];
             }
         }

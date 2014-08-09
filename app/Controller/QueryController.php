@@ -57,7 +57,7 @@ class QueryController extends AppController {
         //$result = array();
         foreach ($data as &$item) {
             //把花卉的資料剔除
-            if (strpos($item['市場名稱'], '市場') !== false) {
+            if ((strpos($item['市場名稱'], '市場') !== false) or (strlen($item['作物代號']) === 5 and $item['作物代號'] !== 'ZZZZZ')) {
                 continue;
             }
             //把不同品種的作物都剔除
@@ -79,7 +79,7 @@ class QueryController extends AppController {
                 'amount' => $item['平均價'] * $item['交易量'],
             );
             if (count($result) >= $params['$top']) {
-                break;
+                //break;
             }
         }
         //return json_encode($result);
@@ -281,6 +281,7 @@ class QueryController extends AppController {
                 break;
             }
             $params['$skip'] += (int) $params['$top'];
+                break;
         }
         echo json_encode($result);
     }
