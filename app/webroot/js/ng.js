@@ -54,7 +54,7 @@ function ControlPanelCtrl($scope, $http) {
             }
             callback(data);
         });
-        $('#controlPanelBody').collapse('hide');
+        //$('#controlPanelBody').collapse('hide');
     };
 
     $scope.settings = {};

@@ -46,7 +46,7 @@
             //$scope.Market = '';
             //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 7);
             //$scope.EndDate = formatDateInput(new Date());
-            $scope.top = 3000;
+            $scope.top = 100;
             $scope.skip = 0;
 
             $scope.submit = function() {
@@ -88,7 +88,7 @@
 <script>
     var margin = {top: 80, right: 40, bottom: 80, left: 50},
     width = 700 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+            height = 600 - margin.top - margin.bottom;
 
     var format = d3.time.format('%Y.%m.%d');
     var formatDate = function(d) {
@@ -99,7 +99,7 @@
             .range([0, width]);
 
     var y = d3.scale.linear()
-            .range([height, 0]);
+            .range([height - 100, 0]);
 
     var color = d3.scale.category20();
 
@@ -123,11 +123,11 @@
             });
     //交易量的線
     var y2 = d3.scale.linear()
-            .range([height, 0]);
+            .range([height, height - 100]);
 
     var y2Axis = d3.svg.axis()
             .scale(y2)
-            .orient('right');
+            .orient('right').ticks(5);
     var line2 = d3.svg.line()
             .x(function(d) {
                 return x(d.date);
@@ -142,11 +142,24 @@
             .append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
+    var prevData = [];
     var jsonSuccess = function(data) {
+        //將原始資料的日期格式化
+        $.each(data, function(i, d) {
+            d.date = format.parse(d.date);
+        });
+        //如果skip為0，表示這次是第一次搜尋，要先將表格清空
         svg.selectAll('g').remove();
+        if (angular.element('.controlPanel').scope().skip === 0) {
+        } else {
+            data = data.concat(prevData);
+        }
         var nested_data = d3.nest()
                 .key(function(d) {
                     return d.name + (d3.select('#combineMarket').property('checked') ? '' : ('@' + d.market));
+                })
+                .sortValues(function(a, b) {
+                    return a.date.getTime() - b.date.getTime();
                 })
                 .entries(data);
 
@@ -158,9 +171,12 @@
                         .key(function(d) {
                             return d.date;
                         })
+                        .sortKeys(function(a, b) {
+                            return (new Date(a)).getTime() - (new Date(b)).getTime();
+                        })
                         .rollup(function(t) {
                             var sum = {code: t[0].code, name: t[0].name, market: t[0].market, marketCode: t[0].marketCode,
-                                date: format.parse(t[0].date),
+                                date: t[0].date,
                                 marketCount: d3.sum(t, function(v) {
                                     return v.marketCount;
                                 }), quantity: d3.sum(t, function(v) {
@@ -182,9 +198,6 @@
         color.domain(nested_data.map(function(d) {
             return d.key;
         }));
-        data.forEach(function(d) {
-            d.date = format.parse(d.date);
-        });
         x.domain([d3.min(data, function(c) {
                 return c.date.getTime();
             }),
@@ -380,6 +393,15 @@
         trs.append('td').text(function(d, i) {
             return Math.round(d.values[0].price * d.values[0].quantity * 100) / 100;
         });
+
+        console.log(prevData.length);
+        if (data.length - prevData.length) {
+            prevData = data;
+            angular.element('.controlPanel').scope().skip += angular.element('.controlPanel').scope().top;
+            angular.element('.controlPanel').scope().submit();
+        } else {
+            angular.element('.controlPanel').scope().skip = 0;
+        }
 
         //滑鼠移動事件，用來處理線上面的圈圈
         function mousemove() {

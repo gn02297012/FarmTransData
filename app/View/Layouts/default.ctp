@@ -124,11 +124,11 @@ $menuItems = array(
                                         <br/><br/>
                                         <div class="form-group">
                                             <label>開始日期</label>
-                                            <input type="date" class="form-control" ng-model="StartDate" ng-value="StartDate">
+                                            <input type="date" class="form-control" ng-model="StartDate" ng-max="EndDate">
                                         </div>
                                         <div class="form-group">
                                             <label>結束日期</label>
-                                            <input type="date" class="form-control" ng-model="EndDate">
+                                            <input type="date" class="form-control" ng-model="EndDate" ng-min="StartDate">
                                         </div>
                                         <div class="form-group">
                                             <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
