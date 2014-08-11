@@ -17,14 +17,6 @@
         pointer-events: all;
     }
 
-    #detail {
-        /*width: 100%;*/
-    }
-
-    #detail th {
-        /*width: 20%;*/
-    }
-
     .legend{
         width: auto;
         display:inline-block;
@@ -61,8 +53,18 @@
 <br />
 <br />
 
-<div class="svgSection col-xs-12 col-md-7" style="overflow-x: scroll;">
+<div class="svgSection col-xs-12 col-md-7" style="/*overflow-x: scroll;*/">
     <label><input type="checkbox" checked="true" id="combineMarket"><span>合併市場</span></label><br />
+    <form class="form-inline">
+        <div class="form-group">
+            <label>作物名稱</label>
+            <select class="form-control" id="filterCrop">
+            </select>
+            <label>市場名稱</label>
+            <select class="form-control" id="filterMarket">
+            </select>
+        </div>
+    </form>
     <svg></svg>
     <!--    <div class="datePicker" style="float: left; display: none;" ng-controller="DatePickerCtrl">
             <input type="range" ng-model="selectedDate" ng-value="{{selectedDate}}" min="{{range[0]}}" max="{{range[1]}}">
@@ -86,7 +88,7 @@
 </div>
 
 <script>
-    var margin = {top: 80, right: 40, bottom: 80, left: 50},
+    var margin = {top: 80, right: 60, bottom: 80, left: 50},
     width = 700 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
 
@@ -127,7 +129,7 @@
 
     var y2Axis = d3.svg.axis()
             .scale(y2)
-            .orient('right').ticks(5);
+            .orient('left').ticks(5);
     var line2 = d3.svg.line()
             .x(function(d) {
                 return x(d.date);
@@ -143,6 +145,27 @@
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     var prevData = [];
+
+    //第一次搜尋的初始化動作
+    var init = function() {
+        prevData = [];
+        //設定作物名稱篩選與市場篩選
+        var filterCrop = d3.select('#filterCrop')
+                .on('change', filter);
+        var filterMarket = d3.select('#filterMarket')
+                .on('change', filter);
+        function filter() {
+            $('.item path').hide();
+            $('.focus circle').hide();
+            var line = $('[data-key="' + filterCrop.node().value + '@' + filterMarket.node().value + '"]');
+            console.log(line);
+            $('[data-key="' + filterCrop.node().value + '@' + filterMarket.node().value + '"]').show();
+        }
+        //清除原有的選單
+        filterCrop.selectAll('option').remove();
+        filterMarket.selectAll('option').remove();
+    };
+
     var jsonSuccess = function(data) {
         //將原始資料的日期格式化
         $.each(data, function(i, d) {
@@ -151,66 +174,139 @@
         //如果skip為0，表示這次是第一次搜尋，要先將表格清空
         svg.selectAll('g').remove();
         if (angular.element('.controlPanel').scope().skip === 0) {
+            init();
         } else {
-            data = data.concat(prevData);
+            data = prevData.concat(data);
         }
+        //處理本次搜尋到的資料
         var nested_data = d3.nest()
                 .key(function(d) {
-                    return d.name + (d3.select('#combineMarket').property('checked') ? '' : ('@' + d.market));
+                    return d.name;
                 })
                 .sortValues(function(a, b) {
-                    return a.date.getTime() - b.date.getTime();
+                    return b.date.getTime() - a.date.getTime();
                 })
                 .entries(data);
+        //取出本次資料中所有的作物名稱
+        var crops = d3.nest()
+                .key(function(d) {
+                    return d.name;
+                })
+                .entries(data)
+                .map(function(d) {
+                    return d.key;
+                });
+        //加入下拉選單
+        var filterCrop = d3.select('#filterCrop');
+        filterCrop.selectAll('option')
+                .data(crops).enter()
+                .append('option')
+                .attr('value', function(d) {
+                    return d;
+                })
+                .text(function(d) {
+                    return d;
+                });
+        //取出本次資料中所有的市場名稱
+        var markets = d3.nest()
+                .key(function(d) {
+                    return d.market;
+                })
+                .entries(data)
+                .map(function(d) {
+                    return d.key;
+                });
+        markets.splice(0, 0, '全部');
+        //加入下拉選單
+        var filterMarket = d3.select('#filterMarket');
+        filterMarket.selectAll('option')
+                .data(markets).enter()
+                .append('option')
+                .attr('value', function(d) {
+                    return d;
+                })
+                .text(function(d) {
+                    return d;
+                });
 
-        //根據是否有勾選合併市場，如果有勾才多做合併處理
-        if (d3.select('#combineMarket').property('checked')) {
-            var combineMarket = nested_data.map(function(d) {
-                //將各個市場的資料合併起來
-                var tmp = d3.nest()
-                        .key(function(d) {
-                            return d.date;
-                        })
-                        .sortKeys(function(a, b) {
-                            return (new Date(a)).getTime() - (new Date(b)).getTime();
-                        })
-                        .rollup(function(t) {
-                            var sum = {code: t[0].code, name: t[0].name, market: t[0].market, marketCode: t[0].marketCode,
-                                date: t[0].date,
-                                marketCount: d3.sum(t, function(v) {
-                                    return v.marketCount;
-                                }), quantity: d3.sum(t, function(v) {
-                                    return v.quantity;
-                                }), amount: d3.sum(t, function(v) {
-                                    return v.price * v.quantity;
-                                })};
-                            sum.price = sum.amount / sum.quantity;
-                            return sum;
-                        })
-                        .entries(d.values);
-                return {key: d.key, values: tmp.map(function(d) {
-                        return d.values;
-                    })};
-            });
-            nested_data = combineMarket;
-        }
+        console.log(nested_data);
 
+        var combineMarket = nested_data.map(function(d) {
+            //將每個市場的資料切割出來
+            var eachMarket = d3.nest()
+                    .key(function(d) {
+                        return d.market;
+                    })
+                    .entries(d.values)
+                    .map(function(m) {
+                        return {key: d.key + '@' + m.key, values: m.values};
+                    });
+            //將各個市場的資料加總起來
+            var tmp = d3.nest()
+                    .key(function(d) {
+                        return d.date;
+                    })
+                    .sortKeys(function(a, b) {
+                        return (new Date(b)).getTime() - (new Date(a)).getTime();
+                    })
+                    .rollup(function(t) {
+                        var sum = {code: t[0].code, name: t[0].name, market: t[0].market, marketCode: t[0].marketCode,
+                            date: t[0].date,
+                            marketCount: d3.sum(t, function(v) {
+                                return v.marketCount;
+                            }), quantity: d3.sum(t, function(v) {
+                                return v.quantity;
+                            }), amount: d3.sum(t, function(v) {
+                                return v.price * v.quantity;
+                            })};
+                        sum.price = sum.amount / sum.quantity;
+                        return sum;
+                    })
+                    .entries(d.values);
+            var total = {key: d.key + '@全部', values: tmp.map(function(d) {
+                    return d.values;
+                })};
+            //將市場總和的資料和各市場資料合併
+            eachMarket.splice(0, 0, total);
+            return eachMarket;
+        });
+        //資料格式處理
+        nested_data = [];
+        combineMarket.map(function(d) {
+            nested_data = nested_data.concat(d);
+        });
         color.domain(nested_data.map(function(d) {
             return d.key;
         }));
-        x.domain([d3.min(data, function(c) {
-                return c.date.getTime();
-            }),
+        var startDate = new Date(angular.element('.controlPanel').scope().StartDate);
+        startDate.setFullYear(startDate.getFullYear() - 1911);
+        var currStartDate = d3.min(data, function(c) {
+            return c.date.getTime();
+        });
+
+        x.domain([(prevData.length - data.length) ? startDate : currStartDate,
             d3.max(data, function(c) {
                 return c.date.getTime();
             })
         ]);
-        y.domain(d3.extent(data, function(d) {
-            return d.price;
-        }));
-        y2.domain(d3.extent(data, function(d) {
-            return d.quantity;
-        }));
+        y.domain([d3.min(nested_data, function(d) {
+                return d3.min(d.values, function(m) {
+                    return m.price;
+                });
+            }), d3.max(nested_data, function(d) {
+                return d3.max(d.values, function(m) {
+                    return m.price;
+                });
+            })]);
+        y2.domain([d3.min(nested_data, function(d) {
+                return d3.min(d.values, function(m) {
+                    return m.quantity;
+                });
+            }), d3.max(nested_data, function(d) {
+                return d3.max(d.values, function(m) {
+                    return m.quantity;
+                });
+            })]);
         //計算時間範圍的天數
         var domain = [x.domain()[0].getTime(), x.domain()[1].getTime()];
         var total = (domain[1] - domain[0]) / 86400 / 1000;
@@ -239,13 +335,13 @@
                 .text('Price ($)');
         svg.append('g')
                 .attr('class', 'y axis')
-                .attr('transform', 'translate(' + width + ', 0)')
+                //.attr('transform', 'translate(' + width + ', 0)')
                 .call(y2Axis)
                 .append('text')
-                .attr('transform', 'rotate(90)')
+                .attr('transform', 'rotate(-90)')
                 .attr('y', 6)
                 .attr('dy', '.71em')
-                .style('text-anchor', '')
+                .style('text-anchor', 'end')
                 .text('Quantity (KG)');
         svg.append('g')
                 .attr('class', 'info')
@@ -288,27 +384,6 @@
                     return color(d.key);
                 })
                 .style('stroke-opacity', 0.3);
-        //套上範圍資料
-        //console.log(angular.element('.datePicker').scope());
-        if (angular.element('.datePicker').controller()) {
-            //console.log('normal');
-            angular.element('.datePicker').scope().init(x.domain());
-        } else {
-            //console.log('from other page');
-            //因為AngularJS無法運作，所以這邊改成用jQuery來設定
-            $('.datePicker input[type="range"]').attr('max', total);
-            $('.datePicker input[type="range"]').attr('min', 0);
-            //angular.element('.datePicker').controller('DatePickerCtrl');
-//            angular.element('.datePicker').scope()
-//                    .$apply(function($scope) {
-//                        //$scope.domain = [0,1];
-//                        $scope.domain = [x.domain()[0].getTime(), x.domain()[1].getTime()];
-//                    });
-        }
-        //日期選擇BAR的樣式
-        $('.datePicker').css('width', (width + 6) + 'px')
-                .css('margin-left', ($('#xAxis .domain').offset().left - $('.svgSection svg').offset().left) + 'px');
-        $('.datePicker').fadeIn();
 
         //掃描線
         svg.append('g').append('line')
@@ -364,11 +439,15 @@
         //印出每列中的資料
         var crop = trs.append('td').append('label');
         //加入是否顯示的checkbox
-        crop.append('input').attr('type', 'checkbox')
+        var radio = crop.append('input').attr('type', 'radio')
+                .attr('name', 'cropRadio')
                 .attr('checked', true)
                 .on('change', function(d) {
-                    $('[data-key="' + d.key + '"]').toggle();
+                    $('.item path').hide();
+                    $('.focus circle').hide();
+                    $('[data-key="' + d.key + '"]').toggle($(this).prop('checked'));
                 });
+        $('[type="radio"]:first').click();
         //加入圖例顏色
         crop.append("svg").attr("width", '16').attr("height", '16')
                 .style('margin-left', '5px')
@@ -394,8 +473,8 @@
             return Math.round(d.values[0].price * d.values[0].quantity * 100) / 100;
         });
 
-        console.log(prevData.length);
-        if (data.length - prevData.length) {
+        console.log(data.length - prevData.length);
+        if (prevData.length - data.length) {
             prevData = data;
             angular.element('.controlPanel').scope().skip += angular.element('.controlPanel').scope().top;
             angular.element('.controlPanel').scope().submit();

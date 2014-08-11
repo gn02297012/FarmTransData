@@ -61,7 +61,7 @@ $menuItems = array(
         </style>
     </head>
     <body ng-app>
-        <div class="container-fluid">
+        <div class="container-fluid" ng-controller="ControlPanelCtrl">
             <nav class="navbar navbar-default" role="navigation" style="/*display: none;*/">
                 <div class="container-fluid">
                     <!-- Brand and toggle get grouped for better mobile display -->
@@ -90,8 +90,8 @@ $menuItems = array(
             </nav>
             <div class="row">
                 <div class="col-xs-12">
-                    <div class="controlPanel" ng-controller="ControlPanelCtrl">
-                        <div class="col-md-8">
+                    <div class="controlPanel">
+                        <div class="col-xs-12 col-sm-8">
                             <div class="panel panel-default"> <!--panel-->
                                 <div class="panel-heading" data-toggle="collapse" href="#controlPanelBody">
                                     <span class="panel-title">查詢選單</span>
@@ -121,6 +121,9 @@ $menuItems = array(
                                             <select class="form-control" ng-model="Market" ng-options="m for m in markets">
                                             </select>
                                         </div>
+                                        <div class="form-group">
+                                            <a href="#" class="label label-success" ng-click="addSetting($event)" onclick="event.preventDefault();">新增到常用查詢</a>
+                                        </div>
                                         <br/><br/>
                                         <div class="form-group">
                                             <label>開始日期</label>
@@ -137,30 +140,33 @@ $menuItems = array(
                                 </div>
                             </div><!--panel-->
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-xs-12 col-sm-3" style="float: right;">
                             <div class="panel panel-default"> <!--panel-->
                                 <div class="panel-heading" data-toggle="collapse" href="#settingList">
                                     <span class="panel-title">常用查詢 </span>
-                                    <a href="#123" class="label label-success" ng-click="addSetting($event)" onclick="event.preventDefault();">新增</a>
+                                    <a href="#" class="label label-success" ng-click="addSetting($event)" onclick="event.preventDefault();">新增</a>
                                 </div>
                                 <ul class="list-group panel-collapse collapse in" id="settingList" ng-init="loadSetting()">
                                     <li class="list-group-item" ng-repeat="setting in settings" ng-click="setSetting(setting)">
                                         {{setting.CatName}} / {{setting.Crop}} / {{setting.Market}}
-                                        <a href="" style="float: right;" ng-click="deleteSetting(setting.t)"><span class="glyphicon glyphicon-remove"></span></a>
+                                        <a href="#" style="float: right;" ng-click="deleteSetting(setting.t)"><span class="glyphicon glyphicon-remove"></span></a>
                                     </li>
                                 </ul>
                             </div><!--panel-->
                         </div>
                     </div>
                 </div>
-                <div class="row-fluid">
-                    <div class="col-xs-12" id="mainContent">
-                        <?php echo $this->Session->flash(); ?>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12" id="mainContent">
+                    <?php echo $this->Session->flash(); ?>
 
-                        <?php echo $this->fetch('content'); ?>
-                        <?php //echo $this->element('sql_dump');  ?>
-                    </div>
+                    <?php echo $this->fetch('content'); ?>
+                    <?php //echo $this->element('sql_dump');  ?>
                 </div>
             </div>
+        </div>
     </body>
 </html>
