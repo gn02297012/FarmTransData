@@ -38,7 +38,7 @@
             //$scope.Market = '';
             //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 7);
             //$scope.EndDate = formatDateInput(new Date());
-            $scope.top = 100;
+            $scope.top = 500;
             $scope.skip = 0;
 
             $scope.submit = function() {
@@ -54,8 +54,7 @@
 <br />
 
 <div class="svgSection col-xs-12 col-md-7" style="/*overflow-x: scroll;*/">
-    <label><input type="checkbox" checked="true" id="combineMarket"><span>合併市場</span></label><br />
-    <form class="form-inline">
+    <form class="form-inline" id="filterPanel" style="display :none;">
         <div class="form-group">
             <label>作物名稱</label>
             <select class="form-control" id="filterCrop">
@@ -63,6 +62,9 @@
             <label>市場名稱</label>
             <select class="form-control" id="filterMarket">
             </select>
+            <button type="button" class="btn btn-xs btn-success" id="addToShowList" data-toggle="tooltip" data-placement="right" title="加入到顯示清單">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
         </div>
     </form>
     <svg></svg>
@@ -72,10 +74,11 @@
 
 </div>
 <div class="col-xs-12 col-md-5">
-    <table class="table table-striped table-bordered table-hover table-condensed" id="detail">
+    <table class="table table-bordered table-hover table-condensed" id="detail">
         <thead>
             <tr>
                 <th>作物名稱</th>
+                <th>市場</th>
                 <th>交易日期</th>
                 <th>價格</th>
                 <th>交易量(公斤)</th>
@@ -146,21 +149,21 @@
 
     var prevData = [];
 
+    $('#addToShowList').on('click', function() {
+        var filterCrop = d3.select('#filterCrop');
+        var filterMarket = d3.select('#filterMarket');
+        $('[data-key="' + filterCrop.node().value + '@' + filterMarket.node().value + '"]').fadeIn();
+    });
+
     //第一次搜尋的初始化動作
     var init = function() {
+        //清除先前的資料
         prevData = [];
+        //顯示過濾清單
+        $('#filterPanel').fadeIn();
         //設定作物名稱篩選與市場篩選
-        var filterCrop = d3.select('#filterCrop')
-                .on('change', filter);
-        var filterMarket = d3.select('#filterMarket')
-                .on('change', filter);
-        function filter() {
-            $('.item path').hide();
-            $('.focus circle').hide();
-            var line = $('[data-key="' + filterCrop.node().value + '@' + filterMarket.node().value + '"]');
-            console.log(line);
-            $('[data-key="' + filterCrop.node().value + '@' + filterMarket.node().value + '"]').show();
-        }
+        var filterCrop = d3.select('#filterCrop');
+        var filterMarket = d3.select('#filterMarket');
         //清除原有的選單
         filterCrop.selectAll('option').remove();
         filterMarket.selectAll('option').remove();
@@ -229,8 +232,6 @@
                     return d;
                 });
 
-        console.log(nested_data);
-
         var combineMarket = nested_data.map(function(d) {
             //將每個市場的資料切割出來
             var eachMarket = d3.nest()
@@ -250,7 +251,7 @@
                         return (new Date(b)).getTime() - (new Date(a)).getTime();
                     })
                     .rollup(function(t) {
-                        var sum = {code: t[0].code, name: t[0].name, market: t[0].market, marketCode: t[0].marketCode,
+                        var sum = {code: t[0].code, name: t[0].name, market: '全部', marketCode: t[0].marketCode,
                             date: t[0].date,
                             marketCount: d3.sum(t, function(v) {
                                 return v.marketCount;
@@ -313,6 +314,7 @@
         var range = [0, total];
         //重新設定x的標籤數，解決天數過少會有重複標籤的問題
         xAxis.ticks(total < 7 ? total : 7);
+        //X軸日期
         svg.append('g')
                 .attr('id', 'xAxis')
                 .attr('class', 'x axis')
@@ -324,6 +326,7 @@
                 .attr('transform', function(d) {
                     return 'rotate(-65)'
                 });
+        //Y軸價格
         svg.append('g')
                 .attr('class', 'y axis')
                 .call(yAxis)
@@ -333,6 +336,7 @@
                 .attr('dy', '.71em')
                 .style('text-anchor', 'end')
                 .text('Price ($)');
+        //Y軸交易量
         svg.append('g')
                 .attr('class', 'y axis')
                 //.attr('transform', 'translate(' + width + ', 0)')
@@ -343,6 +347,7 @@
                 .attr('dy', '.71em')
                 .style('text-anchor', 'end')
                 .text('Quantity (KG)');
+        //右上角的顯示日期
         svg.append('g')
                 .attr('class', 'info')
                 .append('text')
@@ -355,16 +360,20 @@
                     d.setFullYear(d.getFullYear() - 1911);
                     return formatDate(d);
                 });
+        //每個作物的線
         var item = svg.selectAll('.item')
                 .data(nested_data)
                 .enter().append('g')
                 .attr('class', 'item')
-                .attr('onmousemove', 'toFront(this)');
-        item.append('path')
-                .attr('class', 'line')
                 .attr('data-key', function(d) {
                     return d.key;
                 })
+                .style('display', function(d, i) {
+                    return i ? 'none' : '';
+                })
+                .attr('onmousemove', 'toFront(this)');
+        item.append('path')
+                .attr('class', 'line')
                 .attr('d', function(d) {
                     return line(d.values);
                 })
@@ -374,9 +383,6 @@
                 .style('stroke-opacity', 0.8);
         item.append('path')
                 .attr('class', 'line')
-                .attr('data-key', function(d) {
-                    return d.key;
-                })
                 .attr('d', function(d) {
                     return line2(d.values);
                 })
@@ -394,9 +400,9 @@
                 .attr('y2', 0)
                 .style('stroke', 'rgba(100, 100, 100, 0.8)')
                 .style('stroke-width', '1px');
+        //用於滑鼠移動時的圈圈
         var focus = svg.append('g')
-                .attr('class', 'focus')
-                .style('display', 'none');
+                .attr('class', 'focus');
         var circles = focus.selectAll('circle')
                 .data(nested_data)
                 .enter()
@@ -405,6 +411,12 @@
                     return d.key;
                 })
                 .attr('class', 'circle')
+                .style('display', function(d, i) {
+                    return i ? 'none' : '';
+                })
+                .attr('transform', function(d) {
+                    return 'translate(' + x(d.values[0].date.getTime()) + ',' + y(d.values[0].price) + ')';
+                })
                 .attr('r', 6)
                 .attr('fill', 'none')
                 .attr('stroke', function(d) {
@@ -428,6 +440,12 @@
         var trs = tbody.selectAll('tr')
                 .data(nested_data).enter()
                 .append('tr')
+                .attr('data-key', function(d) {
+                    return d.key;
+                })
+                .style('display', function(d, i) {
+                    return i ? 'none' : '';
+                })
                 .on('mouseout', function(d) {
                     $('[data-key="' + d.key + '"]').css('stroke-width', '');
                 })
@@ -439,15 +457,14 @@
         //印出每列中的資料
         var crop = trs.append('td').append('label');
         //加入是否顯示的checkbox
-        var radio = crop.append('input').attr('type', 'radio')
-                .attr('name', 'cropRadio')
-                .attr('checked', true)
-                .on('change', function(d) {
-                    $('.item path').hide();
-                    $('.focus circle').hide();
-                    $('[data-key="' + d.key + '"]').toggle($(this).prop('checked'));
-                });
-        $('[type="radio"]:first').click();
+        crop.append('a')
+                .attr('href', '#')
+                .on('click', function(d, i, event) {
+                    d3.event.preventDefault();
+                    $('[data-key="' + d.key + '"]').fadeOut();
+                })
+                .append('span')
+                .attr('class', 'glyphicon glyphicon-remove');
         //加入圖例顏色
         crop.append("svg").attr("width", '16').attr("height", '16')
                 .style('margin-left', '5px')
@@ -458,7 +475,10 @@
                 });
         //加入文字
         crop.append('span').text(function(d, i) {
-            return d.key;
+            return d.values[0].name;
+        });
+        trs.append('td').text(function(d, i) {
+            return d.values[0].market;
         });
         trs.append('td').text(function(d, i) {
             return formatDate(d.values[0].date);
@@ -471,6 +491,16 @@
         });
         trs.append('td').text(function(d, i) {
             return Math.round(d.values[0].price * d.values[0].quantity * 100) / 100;
+        });
+
+        //預設只顯示第一種作物@全部市場
+        nested_data.map(function(d, i) {
+            if (i) {
+                $('[data-key="' + d.key + '"]').fadeOut(1);
+            } else {
+                $('[data-key="' + d.key + '"]').fadeIn();
+            }
+            return d.key;
         });
 
         console.log(data.length - prevData.length);
@@ -547,15 +577,18 @@
                                             txt = s[0].name;
                                             break;
                                         case 1:
-                                            txt = formatDate(s[0].date);
+                                            txt = s[0].market;
                                             break;
                                         case 2:
-                                            txt = Math.round(s[0].price * 100) / 100;
+                                            txt = formatDate(s[0].date);
                                             break;
                                         case 3:
-                                            txt = s[0].quantity;
+                                            txt = Math.round(s[0].price * 100) / 100;
                                             break;
                                         case 4:
+                                            txt = s[0].quantity;
+                                            break;
+                                        case 5:
                                             txt = Math.round(s[0].price * s[0].quantity * 100) / 100;
                                             break;
                                     }

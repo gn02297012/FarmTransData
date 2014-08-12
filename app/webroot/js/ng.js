@@ -18,6 +18,9 @@ function ControlPanelCtrl($scope, $http) {
     $scope.items = null;
     //市場選單
     $scope.markets = [];
+    //是否要將查詢按鈕變成等待中
+    $scope.btnSubmitWaiting = false;
+
     //動態載入作物名稱與市場清單
     $http.get(webroot + 'query/getCropAndMarketList').success(function(data) {
         //設定作物名稱清單
@@ -46,8 +49,10 @@ function ControlPanelCtrl($scope, $http) {
     };
     //負責處理GET的函數，由於全部寫在submit會出錯，所以才多透過這個
     $scope.getData = function(url, callback, sourcePathName) {
+        $scope.btnSubmitWaiting = true;
         console.log(encodeURI(url));
         $http.get(url).success(function(data) {
+            $scope.btnSubmitWaiting = false;
             //如果網址中的pathname改變，就捨棄本次的資料
             if (sourcePathName !== window.location.pathname) {
                 return;
@@ -55,6 +60,17 @@ function ControlPanelCtrl($scope, $http) {
             callback(data);
         });
         //$('#controlPanelBody').collapse('hide');
+    };
+
+    //按鈕等待
+    $scope.btnSubmitSwitch = function(show) {
+        var currStat = angular.element('#submit').attr('disabled');
+        if (show === undefined) {
+            show = !currStat;
+        }
+        if (show) {
+
+        }
     };
 
     $scope.settings = {};

@@ -134,7 +134,7 @@ $menuItems = array(
                                             <input type="date" class="form-control" ng-model="EndDate" ng-min="StartDate">
                                         </div>
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary" id="submit" ng-click="submit()">查詢</button>
+                                            <button type="button" class="btn btn-primary" ng-class="{'waiting':btnSubmitWaiting}" ng-disabled="btnSubmitWaiting" id="submit" ng-click="submit()"><span>查詢</span><i class="fa fa-spinner fa-spin"></i></button>
                                         </div>
                                     </form>
                                 </div>
@@ -168,5 +168,10 @@ $menuItems = array(
                 </div>
             </div>
         </div>
+        <?php
+        echo $this->Html->script(array(
+            'footer',
+                ), array('async'));
+        ?>
     </body>
 </html>

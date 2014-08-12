@@ -70,3 +70,19 @@
 .dataTables_filter {
     float: right;
 }
+
+#submit span{
+    display: block;
+}
+
+#submit i{
+    display: none;
+}
+
+#submit.waiting span{
+    display: none;
+}
+
+#submit.waiting i{
+    display: block;
+}
