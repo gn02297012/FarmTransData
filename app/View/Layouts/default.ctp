@@ -5,6 +5,7 @@ $menuItems = array(
     '/diagrams/partition' => '價量比例圖',
     '/diagrams/line' => '價格走勢圖',
     '/diagrams/dashboard' => '市場分析圖',
+    '/diagrams/bubble' => '泡泡圖',
 );
 ?>
 

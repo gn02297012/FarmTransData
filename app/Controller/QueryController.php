@@ -5,6 +5,8 @@ App::uses('AppController', 'Controller');
 class QueryController extends AppController {
 
     public $uses = array('Query');
+    //定義有哪些種類
+    private $categorys = array('', 'vegetables', 'fruits');
 
     public function beforeFilter() {
         parent::beforeFilter();
@@ -57,7 +59,7 @@ class QueryController extends AppController {
         //$result = array();
         foreach ($data as &$item) {
             //把花卉的資料剔除
-            if ((strpos($item['市場名稱'], '市場') !== false) or (strlen($item['作物代號']) === 5 and $item['作物代號'] !== 'ZZZZZ')) {
+            if ((strpos($item['市場名稱'], '市場') !== false) or ( strlen($item['作物代號']) === 5 and $item['作物代號'] !== 'ZZZZZ')) {
                 continue;
             }
             //把不同品種的作物都剔除
@@ -147,11 +149,15 @@ class QueryController extends AppController {
     }
 
     private function processLineData($data, $params) {
+        //例外處理
+        if (!isset($this->categorys[$params['Category']])) {
+            $params['Category'] = 0;
+        }
         $result = array();
         $keymap = array();
         foreach ($data as &$item) {
             //把花卉的資料剔除
-            if (strpos($item['市場名稱'], '市場') !== false) {
+            if ((strpos($item['市場名稱'], '市場') !== false) or ( strlen($item['作物代號']) === 5 and $item['作物代號'] !== 'ZZZZZ')) {
                 continue;
             }
             //取出作物名稱中的名稱，把品種分離
@@ -161,6 +167,10 @@ class QueryController extends AppController {
                 //$result[$cat] = array();
             } else {
                 $cat = substr($item['作物名稱'], 0, $pos);
+            }
+                        //檢查是否為蔬菜，只保留蔬菜，其餘都剃除
+            if ( $params['Category'] != 0 and ! isset($this->Query->{$this->categorys[$params['Category']]}[$cat])) {
+                continue;
             }
             if (!empty($params['Crop']) and ( strcmp($params['Crop'], $cat) != 0)) {
                 continue;
@@ -181,6 +191,7 @@ class QueryController extends AppController {
                     'quantity' => (double) $item['交易量'],
                     'amount' => (double) $item['平均價'] * (double) $item['交易量'],
                     'marketCount' => 1,
+                    'cropCategory' => $cat,
                 );
             } else {
                 $tmp = &$result[$keymap[$key]];
@@ -281,7 +292,7 @@ class QueryController extends AppController {
                 break;
             }
             $params['$skip'] += (int) $params['$top'];
-                break;
+            break;
         }
         echo json_encode($result);
     }

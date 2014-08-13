@@ -13,6 +13,13 @@ class DiagramsController extends AppController {
         }
     }
     
+    public function search() {
+        $vegetables = array_keys($this->Query->vegetables);
+        $fruits = array_keys($this->Query->fruits);
+        $markets = array_keys($this->Query->markets);
+        $this->set(compact('vegetables', 'fruits', 'markets'));
+    }
+    
     public function partition() {
         $vegetables = array_keys($this->Query->vegetables);
         $fruits = array_keys($this->Query->fruits);
@@ -35,7 +42,7 @@ class DiagramsController extends AppController {
         $this->set(compact('vegetables', 'fruits', 'markets', 'markets_raw'));
     }
 
-    public function search() {
+    public function bubble() {
         $vegetables = array_keys($this->Query->vegetables);
         $fruits = array_keys($this->Query->fruits);
         $markets = array_keys($this->Query->markets);

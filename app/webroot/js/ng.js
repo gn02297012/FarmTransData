@@ -58,6 +58,8 @@ function ControlPanelCtrl($scope, $http) {
                 return;
             }
             callback(data);
+        }).error(function() {
+            $scope.btnSubmitWaiting = false;
         });
         //$('#controlPanelBody').collapse('hide');
     };
