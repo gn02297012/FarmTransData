@@ -261,6 +261,7 @@ class QueryController extends AppController {
         App::uses('HttpSocket', 'Network/Http');
         $HttpSocket = new HttpSocket();
         empty($params) and $params = $this->getQueryParams();
+        $HttpSocket->config['timeout'] = 40;
         $HttpSocket->get('http://m.coa.gov.tw/OpenData/FarmTransData.aspx', $params);
         if ($jsonDecode) {
             $data = json_decode($HttpSocket->response['body'], true);
