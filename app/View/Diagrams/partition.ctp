@@ -2,6 +2,7 @@
     //設定ControlPanelCtrl的參數
     $(document).ready(function() {
         angular.element('.controlPanel').scope().$apply(function($scope, $http) {
+            $scope.showControlPanel = true;
             $scope.showAllCrop = true;
             $scope.showMarket = true;
             $scope.baseUrl = '<?php echo $this->Html->webroot('/query/partition'); ?>';

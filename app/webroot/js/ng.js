@@ -1,6 +1,8 @@
 //控制介面的controller
 function ControlPanelCtrl($scope, $http) {
-//是否顯示選單，全部作物與市場
+    //是否顯示Control Panel
+    $scope.showControlPanel = true;
+    //是否顯示選單，全部作物與市場
     $scope.showAllCrop = true;
     $scope.showMarket = true;
     //API參數

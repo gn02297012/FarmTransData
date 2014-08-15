@@ -19,6 +19,7 @@
     //設定ControlPanelCtrl的參數
     $(document).ready(function() {
         angular.element('.controlPanel').scope().$apply(function($scope, $http) {
+            $scope.showControlPanel = true;
             $scope.showAllCrop = false;
             $scope.showMarket = false;
             $scope.baseUrl = '<?php echo $this->Html->webroot('/query/dashboard'); ?>';

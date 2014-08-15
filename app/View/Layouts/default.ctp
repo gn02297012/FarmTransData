@@ -73,7 +73,7 @@ $menuItems = array(
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="#">農產品交易行情資料視覺化</a>
+                        <?php echo $this->Html->link('農產品交易行情資料視覺化', '/diagrams', array('class' => 'navbar-brand')); ?>
                     </div>
 
                     <!-- Collect the nav links, forms, and other content for toggling -->
@@ -89,7 +89,7 @@ $menuItems = array(
                     </div><!-- /.navbar-collapse -->
                 </div><!-- /.container-fluid -->
             </nav>
-            <div class="row">
+            <div class="row" ng-show="showControlPanel">
                 <div class="col-xs-12">
                     <div class="controlPanel">
                         <div class="col-xs-12 col-sm-8">
@@ -159,6 +159,7 @@ $menuItems = array(
                 </div>
             </div>
         </div>
+
         <div class="container-fluid">
             <div class="row">
                 <div class="col-xs-12" id="mainContent">

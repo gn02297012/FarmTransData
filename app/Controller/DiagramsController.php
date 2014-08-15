@@ -13,6 +13,10 @@ class DiagramsController extends AppController {
         }
     }
     
+    public function index() {
+        
+    }    
+    
     public function search() {
         $vegetables = array_keys($this->Query->vegetables);
         $fruits = array_keys($this->Query->fruits);
