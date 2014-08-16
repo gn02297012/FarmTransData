@@ -8,40 +8,40 @@
 </script>
 
 <div class="row">
-    <div class="jumbotron">
+    <div class="landingpage">
+        <div class="container">
         <h1>Hello, world!</h1>
         <p>This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information</p>
         <p><a class="btn btn-primary btn-lg" role="button">Learn more</a></p>
+        </div>
     </div>   
 </div>
-<div class="row">
-    <div class="col-sm-6 col-md-4">
-        <div class="thumbnail">
-            <img data-src="holder.js/100%x200" alt="100%x200" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDIiIGhlaWdodD0iMjAwIj48cmVjdCB3aWR0aD0iMjQyIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjEyMSIgeT0iMTAwIiBzdHlsZT0iZmlsbDojYWFhO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjE1cHg7Zm9udC1mYW1pbHk6QXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7ZG9taW5hbnQtYmFzZWxpbmU6Y2VudHJhbCI+MjQyeDIwMDwvdGV4dD48L3N2Zz4=" style="height: 200px; width: 100%; display: block;">
+<div class="row" style="background-color: #f0f0f0;">
+    <br /><br />
+    <div class="col-sm-4 col-md-4">
+        <div class="thumbnail features">
+            <div class="features-icon"><span class="glyphicon glyphicon-eye-open"></span></div>
             <div class="caption">
-                <h3>Thumbnail label</h3>
-                <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-                <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+                <h3>視覺化</h3>
+                <p>使用<a href="http://d3js.org/" target="_blank">D3.js</a>進行資料視覺化，不用再花費眼力看死板板的文字，各種圖表一目瞭然。</p>
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-md-4">
-        <div class="thumbnail">
-            <img data-src="holder.js/100%x200" alt="100%x200" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDIiIGhlaWdodD0iMjAwIj48cmVjdCB3aWR0aD0iMjQyIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjEyMSIgeT0iMTAwIiBzdHlsZT0iZmlsbDojYWFhO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjE1cHg7Zm9udC1mYW1pbHk6QXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7ZG9taW5hbnQtYmFzZWxpbmU6Y2VudHJhbCI+MjQyeDIwMDwvdGV4dD48L3N2Zz4=" style="height: 200px; width: 100%; display: block;">
+    <div class="col-sm-4 col-md-4">
+        <div class="thumbnail features">
+            <div class="features-icon"><span class="glyphicon glyphicon-thumbs-up"></span></div>
             <div class="caption">
-                <h3>Thumbnail label</h3>
-                <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-                <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+                <h3>簡單使用</h3>
+                <p>改善<a href="http://amis.afa.gov.tw/default.asp" target="_blank">農產品交易行情站</a>難以操作的問題，提供新世代網頁的操作方式。</p>
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-md-4">
-        <div class="thumbnail">
-            <img data-src="holder.js/100%x200" alt="100%x200" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDIiIGhlaWdodD0iMjAwIj48cmVjdCB3aWR0aD0iMjQyIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjEyMSIgeT0iMTAwIiBzdHlsZT0iZmlsbDojYWFhO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjE1cHg7Zm9udC1mYW1pbHk6QXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7ZG9taW5hbnQtYmFzZWxpbmU6Y2VudHJhbCI+MjQyeDIwMDwvdGV4dD48L3N2Zz4=" style="height: 200px; width: 100%; display: block;">
+    <div class="col-sm-4 col-md-4">
+        <div class="thumbnail features">
+            <div class="features-icon"><span class="glyphicon glyphicon-search"></span></div>
             <div class="caption">
-                <h3>Thumbnail label</h3>
-                <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-                <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+                <h3>資訊豐富</h3>
+                <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
             </div>
         </div>
     </div>

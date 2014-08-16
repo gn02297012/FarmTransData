@@ -86,3 +86,28 @@
 #submit.waiting i{
     display: block;
 }
+
+.features-icon {
+    text-align: center;
+    margin-top: -4em;
+}
+
+.features-icon>* {
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    padding: 20px;
+    font-size: 5em;
+    background-color: #fff;
+}
+
+.thumbnail>.caption>h3 {
+    text-align: center;
+}
+
+.landingpage {
+    padding-top: 80px;
+    height: 500px;
+    background-image: url('../img/landingpage.jpg');
+    background-position: 50% 50%;
+    background-size: 100%;
+}
