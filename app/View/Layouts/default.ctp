@@ -63,32 +63,34 @@ $menuItems = array(
     </head>
     <body ng-app>
         <div class="container-fluid" ng-controller="ControlPanelCtrl">
-            <nav class="navbar navbar-default" role="navigation" style="/*display: none;*/">
-                <div class="container-fluid">
-                    <!-- Brand and toggle get grouped for better mobile display -->
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <?php echo $this->Html->link('農產品交易行情資料視覺化', '/diagrams', array('class' => 'navbar-brand')); ?>
-                    </div>
+            <div class="row">
+                <nav class="navbar navbar-default" role="navigation" style="/*display: none;*/">
+                    <div class="container-fluid">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <?php echo $this->Html->link('農產品交易行情資料視覺化', '/diagrams', array('class' => 'navbar-brand')); ?>
+                        </div>
 
-                    <!-- Collect the nav links, forms, and other content for toggling -->
-                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                        <ul class="nav navbar-nav">
-                            <?php
-                            foreach ($menuItems as $key => &$value) {
-                                echo $this->Html->tag('li', $this->Html->link($value, $key)
-                                        , array('class' => (strcmp($path, $key) === 0 ? 'active' : '')));
-                            }
-                            ?>
-                        </ul>
-                    </div><!-- /.navbar-collapse -->
-                </div><!-- /.container-fluid -->
-            </nav>
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav">
+                                <?php
+                                foreach ($menuItems as $key => &$value) {
+                                    echo $this->Html->tag('li', $this->Html->link($value, $key)
+                                            , array('class' => (strcmp($path, $key) === 0 ? 'active' : '')));
+                                }
+                                ?>
+                            </ul>
+                        </div><!-- /.navbar-collapse -->
+                    </div><!-- /.container-fluid -->
+                </nav>
+            </div>
             <div class="row" ng-show="showControlPanel">
                 <div class="col-xs-12">
                     <div class="controlPanel">
