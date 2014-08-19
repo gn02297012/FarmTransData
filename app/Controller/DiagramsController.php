@@ -52,4 +52,11 @@ class DiagramsController extends AppController {
         $markets = array_keys($this->Query->markets);
         $this->set(compact('vegetables', 'fruits', 'markets'));
     }
+    
+    public function rank() {
+        $vegetables = array_keys($this->Query->vegetables);
+        $fruits = array_keys($this->Query->fruits);
+        $markets = array_keys($this->Query->markets);
+        $this->set(compact('vegetables', 'fruits', 'markets'));
+    }
 }

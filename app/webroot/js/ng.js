@@ -177,3 +177,16 @@ function DatePickerCtrl($scope) {
         updateDetailTable(t);
     }, true);
 }
+
+function ZoomCtrl($scope, $http) {
+    $scope.maxZoom = 1600;
+    $scope.minZoom = 200;
+     $scope.$watch('zoom', function(newValue, oldValue) {
+        if ($scope.zoom < $scope.minZoom) {
+            $scope.zoom = $scope.minZoom;
+        } else if(newValue> $scope.maxZoom ) {
+            $scope.zoom =  $scope.maxZoom;
+        }
+        $scope.myStyle = {transform: 'scale(' + ($scope.zoom / $scope.minZoom) + ')'};
+    });
+}

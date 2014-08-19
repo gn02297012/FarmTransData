@@ -56,6 +56,10 @@ class QueryController extends AppController {
     }
 
     private function processData($data, $params, &$result) {
+        //例外處理
+        if (!isset($this->categorys[$params['Category']])) {
+            $params['Category'] = 0;
+        }
         //$result = array();
         foreach ($data as &$item) {
             //把花卉的資料剔除
@@ -65,6 +69,10 @@ class QueryController extends AppController {
             //把不同品種的作物都剔除
             $cat = $this->getBasicName($item['作物名稱']);
             if (!empty($params['Crop']) and ( strcmp($params['Crop'], $cat) != 0)) {
+                continue;
+            }
+            //檢查是否為蔬菜或水果
+            if ( $params['Category'] != 0 and ! isset($this->Query->{$this->categorys[$params['Category']]}[$cat])) {
                 continue;
             }
             $result[] = array(
@@ -168,7 +176,7 @@ class QueryController extends AppController {
             } else {
                 $cat = substr($item['作物名稱'], 0, $pos);
             }
-                        //檢查是否為蔬菜，只保留蔬菜，其餘都剃除
+            //檢查是否為蔬菜或水果
             if ( $params['Category'] != 0 and ! isset($this->Query->{$this->categorys[$params['Category']]}[$cat])) {
                 continue;
             }

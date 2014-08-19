@@ -5,7 +5,9 @@
  */
 var formatROCDate = function(d) {
     d = new Date(d);
-    d.setFullYear(d.getFullYear() - 1911);
+    if (d.getFullYear() > 1911) {
+       d.setFullYear(d.getFullYear() - 1911); 
+    }    
     var mm = d.getMonth() + 1,
             dd = d.getDate();
     if (mm < 10) {

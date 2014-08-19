@@ -111,3 +111,9 @@
     background-position: 50% 50%;
     background-size: 100%;
 }
+
+#bubbleDetailSection {
+    position: relative;
+    z-index: 1;
+    background-color: rgba(245, 245, 245, 0.7);
+}

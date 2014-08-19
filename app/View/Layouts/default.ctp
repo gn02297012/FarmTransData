@@ -6,6 +6,7 @@ $menuItems = array(
     '/diagrams/line' => '價格走勢圖',
     '/diagrams/dashboard' => '市場分析圖',
     '/diagrams/bubble' => '泡泡圖',
+    '/diagrams/rank' => '排行榜',
 );
 ?>
 
@@ -24,6 +25,7 @@ $menuItems = array(
         echo $this->Html->css(array(
             'bootstrap.min',
             'font-awesome.min',
+            'jquery-ui',
             'style',
         ));
         echo $this->Html->script(array('jquery-1.10.2'));
@@ -33,6 +35,7 @@ $menuItems = array(
             'bootstrap-tooltip',
             'bootstrap.min',
             'jquery.dataTables.min',
+            'jquery-ui.min',
             'dataTables.bootstrap',
             'public',
             'ng',

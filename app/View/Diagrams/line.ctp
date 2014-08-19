@@ -280,6 +280,23 @@
         color.domain(nested_data.map(function(d) {
             return d.key;
         }));
+
+        //計算delta
+        $.each(combineMarket, function(i, d) {
+            $.each(d, function(i, e) {
+                //設定每個作物最早那天的delta資料
+                if (e.values.length) {
+                    e.values[e.values.length - 1].deltaPrice = 0;
+                    e.values[e.values.length - 1].deltaQuantity = 0;
+                }
+                //計算其他天的delta
+                for (var index = 0; index < e.values.length - 1; index++) {
+                    e.values[index].deltaPrice = e.values[index].price - e.values[index + 1].price;
+                    e.values[index].deltaQuantity = e.values[index].quantity - e.values[index + 1].quantity;
+                }
+            });
+        });
+
         var startDate = new Date(angular.element('.controlPanel').scope().StartDate);
         startDate.setFullYear(startDate.getFullYear() - 1911);
         var currStartDate = d3.min(data, function(c) {
@@ -482,7 +499,7 @@
             return d.values[0].market;
         });
         trs.append('td').text(function(d, i) {
-            return formatDate(d.values[0].date);
+            return formatROCDate(d.values[0].date);
         });
         trs.append('td').text(function(d, i) {
             return Math.round(d.values[0].price * 100) / 100;
@@ -551,7 +568,7 @@
             updateDetailTable(a);
 
             //顯示日期
-            $('.info').children('text').html(formatDate(date));
+            $('.info').children('text').html(formatROCDate(date));
         }
     };
 
@@ -581,13 +598,25 @@
                                             txt = s[0].market;
                                             break;
                                         case 2:
-                                            txt = formatDate(s[0].date);
+                                            txt = formatROCDate(s[0].date);
                                             break;
                                         case 3:
-                                            txt = Math.round(s[0].price * 100) / 100;
+                                            txt = (Math.round(s[0].price * 100) / 100) + '<br />';
+                                            if (s[0].deltaPrice > 0) {
+                                                txt += '<i class="fa fa-sort-asc" style="color: red;"></i>(' + (Math.round(s[0].deltaPrice * 100) / 100) + ')';
+                                            } else if (s[0].deltaPrice < 0) {
+                                                txt += '<i class="fa fa-sort-desc" style="color: green;"></i>(' + (Math.round(s[0].deltaPrice * 100) / 100) + ')';
+                                            }
                                             break;
                                         case 4:
-                                            txt = s[0].quantity;
+                                            txt = s[0].quantity + '<br />';
+                                            if (s[0].deltaQuantity > 0) {
+                                                txt += '<i class="fa fa-sort-asc" style="color: red;"></i>(' + s[0].deltaQuantity + ')';
+                                            } else if (s[0].deltaQuantity < 0) {
+                                                txt += '<i class="fa fa-sort-desc" style="color: green;"></i>(' + s[0].deltaQuantity + ')';
+                                            } else {
+                                                
+                                            }
                                             break;
                                         case 5:
                                             txt = Math.round(s[0].price * s[0].quantity * 100) / 100;
