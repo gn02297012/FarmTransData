@@ -42,7 +42,7 @@ $('#rankContorl .toggleCategory button').on('click', function(event) {
     $(this).toggleClass('btn-primary', true);
 
     var sec = $(this).data('toggle');
-    var other = (sec === '蔬菜' ? '水果' : '蔬菜');
+    var other = (sec == '1' ? '2' : '1');
     $('div[data-sec="' + sec + '"]').fadeIn();
     $('div[data-sec="' + other + '"]').fadeOut();
 });
@@ -251,7 +251,7 @@ var drawEachTable = function(tag, sec, nodes) {
             .attr('data-sec', tag)
             .classed('cropCategorySection', 1)
             .style('display', function(d) {
-                return (tag === $('.toggleCategory .btn-primary').data('toggle')) ? 'block' : 'none';
+                return (tag == $('.toggleCategory .btn-primary').data('toggle')) ? 'block' : 'none';
             });
     var div = sec.selectAll('div')
             .data(nodes.values).enter()

@@ -13,7 +13,13 @@
             <div class="col-sm-4 col-sm-offset-8">
                 <br/><br />
                 <br/><br />
-                <span class="title">KnowMe</span><span>農價資訊站</span>
+                <div style="max-width: 313px;">
+                    <div class="arrow_box">
+                        農價資訊站
+                    </div>
+                    <span class="title">KnowMe</span>
+                </div>
+
                 <br />
                 <br />
                 <p>這邊可以打一些描述文字，否則會顯得太空虛。</p>

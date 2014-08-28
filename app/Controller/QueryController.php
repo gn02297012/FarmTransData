@@ -30,7 +30,7 @@ class QueryController extends AppController {
             '$top' => 100,
             '$skip' => 0,
             'StartDate' => $strNow,
-            'EndDate' => $strNow,
+            'EndDate' => '',
             'Crop' => '',
             'Market' => '',
             'Category' => 0,
@@ -341,7 +341,7 @@ class QueryController extends AppController {
     public function test() {
         $params = $this->getQueryParams();
         $result = $this->Query->search($params);
-        var_dump($result);
+        echo json_encode($result);
     }
 
     public function getCropAndMarketList() {

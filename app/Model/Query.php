@@ -10,7 +10,8 @@ class Query extends AppModel {
     public $belongsTo = array(
         'Code' => array(
             'className' => 'Code',
-            'foreignKey' => 'code'
+            'foreignKey' => 'code',
+            'fields' => array('category'),
         )
     );
     public $markets = array(
@@ -55,7 +56,7 @@ class Query extends AppModel {
         '小番茄' => 1, '山竹' => 1, '木瓜' => 1, '水蜜桃' => 1, '火龍果' => 1,
         '甘蔗' => 1, '石榴' => 1, '百香果' => 1, '西瓜' => 1, '佛利檬' => 1,
         '李' => 1, '芒果' => 1, '其他' => 1, '奇異果' => 1, '枇杷' => 1,
-        '波羅蜜' => 1, '虎頭柑' => 1, '柚子' => 1, '文旦柚' => 1, '西施柚' => 1, 
+        '波羅蜜' => 1, '虎頭柑' => 1, '柚子' => 1, '文旦柚' => 1, '西施柚' => 1,
         '西洋梨' => 1, '柿子' => 1, '柿餅' => 1, '洋香瓜' => 1,
         '紅毛丹' => 1, '紅柑' => 1, '茂谷柑' => 1, '香瓜梨' => 1, '香蕉' => 1,
         '香櫞' => 1, '栗子' => 1, '桃子' => 1, '桑椹' => 1, '海梨' => 1,
@@ -69,16 +70,63 @@ class Query extends AppModel {
     );
 
     public function &search($params) {
+        //params的參數與conditions的參數對照
+        $keys = array(
+            'Crop' => 'Query.name like', 'Market' => 'Query.market'
+        );
+        //產生查詢條件
+        $conditions = array();
+        foreach ($keys as $key => &$value) {
+            if (!empty($params[$key])) {
+                $conditions[$value] = $params[$key];
+            }
+        }
+        $startDate = empty($params['StartDate']) ? 1 : str_replace('.', '', $params['StartDate']);
+        $endDate = empty($params['EndDate']) ? 1 : str_replace('.', '', $params['EndDate']);
+        $conditions['Query.date_int BETWEEN ? AND ?'] = array($startDate, $endDate);
+        $conditions['Code.category BETWEEN ? AND ?'] = array(1, 2);
+        //如果有設定Crop參數，則在查詢後加個%
+        if (isset($conditions[$keys['Crop']])) {
+            $conditions[$keys['Crop']] .= '%';
+        }
         $result = $this->find('all', array(
-            /* 'conditions' => array(
-              'name'=>$params['Crop'],
-              'market' => $params['Market'],
-              ), */
+            'conditions' => $conditions,
             'recursive' => 1,
             'order' => array('date desc'),
-            'limit' => 100,
+            'limit' => $params['$top'],
+            'offset' => $params['$skip'],
         ));
+
+        //var_dump($this->getLastQuery());
+        //整理結果，去除掉陣列中的Query跟Code，變成SQL出來的結果
+        function getCategory($cat) {
+            switch ($cat) {
+                case '1':
+                    return '蔬菜';
+                case '2':
+                    return '水果';
+                case '3':
+                    return '花卉';
+                default:
+                    return '其他';
+            }
+        }
+
+        foreach ($result as &$item) {
+            $item = array_merge($item['Query'], $item['Code']);
+            $item['code'] = getCategory($item['code']);
+        }
         return $result;
+
+        //更新date_int
+        // update `raw` set `date_int` = replace(`date`,'.','') where date_int='0';
+    }
+
+    public function getLastQuery() {
+        $dbo = $this->getDatasource();
+        $logs = $dbo->getLog();
+        $lastLog = end($logs['log']);
+        return $lastLog['query'];
     }
 
 }

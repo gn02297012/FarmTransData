@@ -65,8 +65,8 @@
     </div>
     <div class="form-group toggleCategory">
         <label>種類</label>
-        <button type="button" class="btn btn-primary btn-lg" data-toggle="蔬菜">　蔬菜　</button>
-        <button type="button" class="btn btn-default btn-lg" data-toggle="水果">　水果　</button>
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="1">　蔬菜　</button>
+        <button type="button" class="btn btn-default btn-lg" data-toggle="2">　水果　</button>
     </div>
 
 </div>
@@ -218,12 +218,12 @@ echo $this->Html->script(array('diagrams/rank'));
             $scope.showControlPanel = false;
             $scope.showAllCrop = true;
             $scope.showMarket = true;
-            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
+            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/test'); ?>';
             $scope.Crop = '全部';
             //$scope.Market = '';
             $scope.StartDate = formatDateInput(new Date());
             $scope.EndDate = formatDateInput(new Date());
-            $scope.top = 5000;
+            $scope.top = 10000;
             $scope.skip = 0;
             $scope.submit = function() {
                 var url = $scope.baseUrl + '?$top=' + $scope.top + '&$skip=' + $scope.skip + '&Crop=' + '&Market=' + ($scope.Market === '全部' ? '' : $scope.Market) + '&StartDate=' + formatROCDate($scope.StartDate) + '&EndDate=' + formatROCDate($scope.EndDate);
