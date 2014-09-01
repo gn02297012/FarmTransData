@@ -120,7 +120,9 @@ $menuItems = array(
                                             <label>作物名稱</label>
                                             <select class="form-control" ng-model="selCat" ng-options="cat.name for cat in categorys" ng-change="update(selCat)" ng-init="selCat = categorys[0]">
                                             </select>
-                                            <select class="form-control" ng-model="Crop" ng-options="item for item in items">
+                                            <select class="form-control" id="selectCrop" ng-model="Crop" ng-options="item for item in items"
+                                                    data-toggle="popover" data-trigger="manual" data-content="選取的時間區間過長，建議選擇單一作物"
+                                                    onclick="$(this).popover('hide')">
                                             </select>
                                         </div>
                                         <div class="form-group" ng-show="showMarket">
@@ -176,7 +178,7 @@ $menuItems = array(
                 </div>
             </div>
         </div>
-        
+
         <footer></footer>
         <?php
         echo $this->Html->script(array(

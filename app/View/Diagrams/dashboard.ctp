@@ -82,7 +82,7 @@
 
         //畫出長條圖
         function histoGram(fD) {
-            var hG = {}, hGDim = {t: 60, r: 0, b: 30, l: 0};
+            var hG = {}, hGDim = {t: 60, r: 0, b: 50, l: 0};
             hGDim.w = (count < 3 ? 2 : count) * keyLengthMax * 11 - hGDim.l - hGDim.r,
                     hGDim.h = 300 - hGDim.t - hGDim.b;
 
@@ -98,7 +98,14 @@
 
             hGsvg.append("g").attr("class", "x axis")
                     .attr("transform", "translate(0," + hGDim.h + ")")
-                    .call(d3.svg.axis().scale(x).orient("bottom"));
+                    .call(d3.svg.axis().scale(x).orient("bottom"))
+                    .selectAll('text')
+                    .style('text-anchor', 'end')
+                    .attr('dx', '.8em')
+                    .attr('dy', '.45em')
+                    .attr('transform', function(d) {
+                        return 'rotate(-25)'
+                    });
 
             var y = d3.scale.linear().range([hGDim.h, 0])
                     .domain([0, d3.max(fD, function(d) {

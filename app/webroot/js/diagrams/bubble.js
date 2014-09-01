@@ -5,14 +5,9 @@ var width = 960,
         clusterPadding = 4, //不同群的圈圈留白
         maxRadius = 50;
 
-var svg = d3.select('body').select('.svgBubble')
-        .attr("width", width / 2)
-        .attr("height", height)
-        .style('z-index', '0');
-
 var svgPartition = d3.select('body').select('.svgPartition')
-        .attr("width", width / 2)
-        .attr("height", 400);
+        .attr("width", 540)
+        .attr("height", 500);
 
 var svgLine = d3.select('body').select('.svgLine')
         .attr("width", width / 2)
@@ -24,6 +19,7 @@ var svgLine2 = d3.select('body').select('.svgLine2')
 var color = d3.scale.category20();
 var radius = d3.scale.linear()
         .range([1, maxRadius]);
+
 //將原始資料的日期格式化
 var format = d3.time.format('%Y.%m.%d');
 var formatDate = function(d) {
@@ -35,6 +31,10 @@ var selectProp = function(d, isPrice) {
         return d.price * 1;
     return d.quantity * 1;
 };
+
+
+//mouseenter時是否要畫線
+var drawLineOnMouseEnter = true;
 
 //儲存每次查詢的資料，等到全部抓完後再進行動作
 var prevData = [];
@@ -65,7 +65,6 @@ var jsonSuccess = function(data) {
     //如果skip為0，表示這次是第一次搜尋，要先將表格清空
     if (angular.element('.controlPanel').scope().skip === 0) {
         init();
-        svg.selectAll("circle").remove();
     }
 
     //承接下面的變數，資料分群後，再將所有子元素合併成一維陣列
@@ -103,62 +102,9 @@ var jsonSuccess = function(data) {
                 return e;
             });
 
-    //總共要有多少個圈
-    var n = children.length;
-    //總共要有多少個群
-    var m = nodes.length;
-
     color.domain(nodes.map(function(d) {
         return d.key;
     }));
-
-    radius.domain(d3.extent(children, function(d) {
-        return selectProp(d);
-    }));
-
-    //如果只有一個圈，就讓那個圈半徑最大化
-    if (children.length === 1) {
-        radius.domain([0, radius.domain()[1]]);
-    }
-    //因為先前有做過排序，直接傳回每個群中的第一項，即為各群的最大值
-    var clusters = nodes.map(function(d) {
-        return d[0];
-    });
-
-    var force = d3.layout.force()
-            .nodes(children)
-            .size([svg.attr('width'), height])
-            .gravity(.04)
-            .charge(0)
-            .on("tick", tick)
-            .start();
-
-    var circle = svg.selectAll("circle")
-            .data(children)
-            .enter().append("circle")
-            .attr("r", function(d) {
-                return radius(selectProp(d));
-            })
-            .style("fill", function(d) {
-                return color(d.cropCategory);
-            })
-            .call(force.drag)
-            .on('mousemove', function(d) {
-                //顯示滑鼠移動到的作物名稱
-                d3.select('.svgSection #key').text(d.key + "\t" + selectProp(d));
-                if (angular.element('#bubbleDetailSection').scope().showOneCrop)
-                    return;
-                drawLine(d);
-
-            })
-            .on('click', function(d) {
-                //畫線
-                drawLine(d);
-                angular.element('#bubbleDetailSection').scope().$apply(
-                        function($scope) {
-                            $scope.showOneCrop = true;
-                        });
-            });
 
     var partition = d3.layout.partition()
             .children(function(d) {
@@ -173,7 +119,6 @@ var jsonSuccess = function(data) {
             })
             .entries(children);
     var root = {name: '全部作物', values: nes};
-    console.log(root);
 
     var px = d3.scale.linear()
             .range([0, 2 * Math.PI]);
@@ -185,29 +130,18 @@ var jsonSuccess = function(data) {
                 return Math.max(0, Math.min(2 * Math.PI, px(d.x + d.dx)));
             })
             .innerRadius(function(d) {
-                return 300 / 5 * d.depth;
+                return 400 / 5 * d.depth;
             })
             .outerRadius(function(d) {
-                return 300 / 5 * (d.depth + 1) - 1;
+                return 400 / 5 * (d.depth + 1) - 1;
             });
 
     var node = partition.nodes(root);
 
-    //滾輪捲動時的縮放效果
-    svg.on('mousewheel', function() {
-        d3.event.preventDefault();
-        var dx = d3.event.offsetX / $('.svgBubble').width(),
-                dy = d3.event.offsetY / $('.svgBubble').height();
-        $('.svgBubble').css('transform-origin', (dx * 100) + '% ' + (dy * 100) + '%');
-        angular.element('#svgZoom').scope().$apply(function($scope) {
-            $scope.zoom = parseInt($scope.zoom) + d3.event.wheelDelta;
-        });
-    });
-
     var path = svgPartition.append('g').datum(root)
             .style('stroke', 'white')
             .style('stroke-width', '0.5px')
-            .style('transform', 'translate(200px,200px)')
+            .style('transform', 'translate(250px, 250px)')
             .selectAll('path')
             .data(node).enter()
             .append('path')
@@ -215,72 +149,28 @@ var jsonSuccess = function(data) {
             .attr("display", function(d) {
                 return d.depth ? null : "none";
             })
+            .style('cursor', function(d) {
+                return (d.depth === 2) ? 'pointer' : null;
+            })
             .style('fill', function(d) {
                 return color((d.depth < 2) ? d.children[0].cropCategory : d.cropCategory);
             })
             .on('mouseenter', function(d) {
-                console.log(d);
-            });
-
-    function tick(e) {
-        circle
-                .each(cluster(10 * e.alpha * e.alpha))
-                .each(collide(.1))
-                .attr("cx", function(d) {
-                    return d.x;
-                })
-                .attr("cy", function(d) {
-                    return d.y;
-                });
-    }
-
-    // Move d to be adjacent to the cluster node.
-    function cluster(alpha) {
-        return function(d) {
-            var cluster = clusters[d.cluster];
-            if (cluster === d)
-                return;
-            var x = d.x - cluster.x,
-                    y = d.y - cluster.y,
-                    l = Math.sqrt(x * x + y * y),
-                    r = radius(selectProp(d)) + radius(selectProp(cluster));
-            if (l != r) {
-                l = (l - r) / l * alpha;
-                d.x -= x *= l;
-                d.y -= y *= l;
-                cluster.x += x;
-                cluster.y += y;
-            }
-        };
-    }
-
-    // Resolves collisions between d and all other circles.
-    function collide(alpha) {
-        var quadtree = d3.geom.quadtree(children);
-        return function(d) {
-            var r = radius(selectProp(d)) + maxRadius + Math.max(padding, clusterPadding),
-                    nx1 = d.x - r,
-                    nx2 = d.x + r,
-                    ny1 = d.y - r,
-                    ny2 = d.y + r;
-            quadtree.visit(function(quad, x1, y1, x2, y2) {
-                if (quad.point && (quad.point !== d)) {
-                    var x = d.x - quad.point.x,
-                            y = d.y - quad.point.y,
-                            l = Math.sqrt(x * x + y * y),
-                            r = radius(selectProp(d)) + radius(selectProp(quad.point)) + (d.cluster === quad.point.cluster ? padding : clusterPadding);
-                    if (l < r) {
-                        l = (l - r) / l * alpha;
-                        d.x -= x *= l;
-                        d.y -= y *= l;
-                        quad.point.x += x;
-                        quad.point.y += y;
-                    }
+                d3.select('.svgSection #key').text(d.key + "\t" + d.value + "/" + d.parent.value + "(" + (d.value / d.parent.value) + "%)");
+                if (drawLineOnMouseEnter && d.depth === 2) {
+                    //畫線
+                    drawLine(d);
                 }
-                return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+            })
+            .on('click', function(d) {
+                if (d.depth < 2) {
+                    return;
+                }
+                //畫線
+                drawLine(d);
+                //mouseenter時不畫線
+                drawLineOnMouseEnter = false;
             });
-        };
-    }
 
     function drawLine(d) {
         var width = svgLine.attr('width') - margin.left - margin.right,
@@ -348,7 +238,7 @@ var jsonSuccess = function(data) {
                     return d.market;
                 })
                 .entries(afterNested);
-
+        console.log(nestedMarket);
         x.domain([d3.min(nestedMarket, function(d) {
                 return d3.min(d.values, function(e) {
                     return e.date.getTime();
@@ -449,7 +339,7 @@ var jsonSuccess = function(data) {
                     return selectProp(e, 1);
                 });
             })]);
-        
+
         //X軸日期
         g2.append('g')
                 .attr('id', 'xAxis')

@@ -142,6 +142,24 @@ function ControlPanelCtrl($scope, $http) {
             }
         }
     });
+
+    $scope.$watch('StartDate', function(newValue, oldValue) {
+        $scope.checkDate();
+    });
+
+    $scope.$watch('EndDate', function(newValue, oldValue) {
+        $scope.checkDate();
+    });
+
+    //判斷選取的時間區間是否過長
+    $scope.checkDate = function() {
+        var sD = new Date($scope.StartDate);
+        var eD = new Date($scope.EndDate);
+        var diff = (eD - sD) / 86400000;
+        if ($scope.Crop === '全部' && (diff > 30)) {
+            $('#selectCrop').popover('show');
+        }
+    };
 }
 
 //價格圖中的日期選擇的controller
@@ -181,11 +199,11 @@ function DatePickerCtrl($scope) {
 function ZoomCtrl($scope, $http) {
     $scope.maxZoom = 1600;
     $scope.minZoom = 200;
-     $scope.$watch('zoom', function(newValue, oldValue) {
+    $scope.$watch('zoom', function(newValue, oldValue) {
         if ($scope.zoom < $scope.minZoom) {
             $scope.zoom = $scope.minZoom;
-        } else if(newValue> $scope.maxZoom ) {
-            $scope.zoom =  $scope.maxZoom;
+        } else if (newValue > $scope.maxZoom) {
+            $scope.zoom = $scope.maxZoom;
         }
         $scope.myStyle = {transform: 'scale(' + ($scope.zoom / $scope.minZoom) + ')'};
     });

@@ -31,7 +31,7 @@
             $scope.baseUrl = '<?php echo $this->Html->webroot('/query/test'); ?>';
             //$scope.Crop = '';
             //$scope.Market = '';
-            $scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 4);
+            $scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 10);
             //$scope.EndDate = formatDateInput(new Date());
             $scope.top = 5000;
             $scope.skip = 0;
@@ -48,15 +48,10 @@
 
 <div class="svgSection">
     <div class="col-md-6" ng-controller="ZoomCtrl as zoomCtrl" style="overflow: hidden;">
-        <input type="range" min="{{minZoom}}" max="{{maxZoom}}" ng-value="minZoom" id="svgZoom" ng-model="zoom" ng-init="zoom = minZoom" style="position: absolute; z-index: 10;">
-        <span>{{zoom}}</span>
-        <svg class="svgBubble" ng-style="myStyle" style="border: 0px solid black;"></svg>
         <svg class="svgPartition"></svg>
     </div>
-    <div class="well col-md-6" id="bubbleDetailSection">
+    <div class="col-md-6" id="bubbleDetailSection">
         <div id="key"></div>
-        <button onclick="$('#bubbleDetailSection').toggleClass('col-md-6');">slide</button>
-        <label>是否要滑鼠點擊時才畫圖<input type="checkbox" ng-model="showOneCrop" ng-init="showOneCrop = false"></label>
         <br />
         <svg class="svgLine"></svg>
         <svg class="svgLine2"></svg>
