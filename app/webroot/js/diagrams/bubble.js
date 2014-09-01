@@ -6,7 +6,7 @@ var width = 960,
         maxRadius = 50;
 
 var svgPartition = d3.select('body').select('.svgPartition')
-        .attr("width", 540)
+        .attr("width", 500)
         .attr("height", 500);
 
 var svgLine = d3.select('body').select('.svgLine')
@@ -58,9 +58,12 @@ var jsonSuccess = function(data) {
     }
 
     data = prevData;
-    //將原始資料的日期格式化
     $.each(data, function(i, d) {
+        //將原始資料的日期格式化
         d.date = format.parse(d.date);
+        //將交易量、價格變成number型態
+        d.price *= 1;
+        d.quantity *= 1;
     });
     //如果skip為0，表示這次是第一次搜尋，要先將表格清空
     if (angular.element('.controlPanel').scope().skip === 0) {
@@ -68,7 +71,7 @@ var jsonSuccess = function(data) {
     }
 
     //承接下面的變數，資料分群後，再將所有子元素合併成一維陣列
-    var children = []
+    var children = [];
     //將資料分群，並將同一個作物的數值加總起來
     var nodes = d3.nest()
             .key(function(d) {
@@ -106,73 +109,131 @@ var jsonSuccess = function(data) {
         return d.key;
     }));
 
-    var partition = d3.layout.partition()
-            .children(function(d) {
-                return d.values;
-            })
-            .value(function(d) {
-                return d.quantity;
-            });
-    var nes = d3.nest()
-            .key(function(d) {
-                return d.cropCategory;
-            })
-            .entries(children);
-    var root = {name: '全部作物', values: nes};
+    drawPartition(children);
 
-    var px = d3.scale.linear()
-            .range([0, 2 * Math.PI]);
-    var arc = d3.svg.arc()
-            .startAngle(function(d) {
-                return Math.max(0, Math.min(2 * Math.PI, px(d.x)));
-            })
-            .endAngle(function(d) {
-                return Math.max(0, Math.min(2 * Math.PI, px(d.x + d.dx)));
-            })
-            .innerRadius(function(d) {
-                return 400 / 5 * d.depth;
-            })
-            .outerRadius(function(d) {
-                return 400 / 5 * (d.depth + 1) - 1;
-            });
+    //畫階層圖
+    function drawPartition(children) {
+        var width = svgPartition.attr('width'),
+                height = svgPartition.attr('height');
 
-    var node = partition.nodes(root);
+        var partition = d3.layout.partition()
+                .children(function(d) {
+                    return d.values;
+                })
+                .value(function(d) {
+                    return d.quantity;
+                });
 
-    var path = svgPartition.append('g').datum(root)
-            .style('stroke', 'white')
-            .style('stroke-width', '0.5px')
-            .style('transform', 'translate(250px, 250px)')
-            .selectAll('path')
-            .data(node).enter()
-            .append('path')
-            .attr('d', arc)
-            .attr("display", function(d) {
-                return d.depth ? null : "none";
-            })
-            .style('cursor', function(d) {
-                return (d.depth === 2) ? 'pointer' : null;
-            })
-            .style('fill', function(d) {
-                return color((d.depth < 2) ? d.children[0].cropCategory : d.cropCategory);
-            })
-            .on('mouseenter', function(d) {
-                d3.select('.svgSection #key').text(d.key + "\t" + d.value + "/" + d.parent.value + "(" + (d.value / d.parent.value) + "%)");
-                if (drawLineOnMouseEnter && d.depth === 2) {
+        var px = d3.scale.linear()
+                .range([0, 2 * Math.PI]);
+        var arc = d3.svg.arc()
+                .startAngle(function(d) {
+                    return Math.max(0, Math.min(2 * Math.PI, px(d.x)));
+                })
+                .endAngle(function(d) {
+                    return Math.max(0, Math.min(2 * Math.PI, px(d.x + d.dx)));
+                })
+                .innerRadius(function(d) {
+                    return (width - 100) / 5 * d.depth;
+                })
+                .outerRadius(function(d) {
+                    return (height - 100) / 5 * (d.depth + 1) - 1;
+                });
+
+        //處理資料
+        var nes = d3.nest()
+                .key(function(d) {
+                    return d.cropCategory;
+                })
+                .entries(children);
+        var root = {name: '全部作物', values: nes};
+        var node = partition.nodes(root);
+
+        svgPartition.selectAll('g').remove();
+        //中間圓圈要顯示的文字
+        svgPartition.append('g')
+                .append('text')
+                .attr('x', (width / 2) - 20)
+                .attr('y', (height / 2))
+                .attr('fill', 'black')
+                .attr('id', 'partitionSelectCrop');
+        var path = svgPartition.append('g').datum(root)
+                .style('stroke', 'white')
+                .style('stroke-width', '0.5px')
+                .style('transform', 'translate(' + (width / 2) + 'px, ' + (height / 2) + 'px)')
+                .selectAll('path')
+                .data(node).enter()
+                .append('path')
+                .attr('d', arc)
+                .attr("display", function(d) {
+                    return d.depth ? null : "none";
+                })
+                .style('cursor', function(d) {
+                    return (d.depth === 2) ? 'pointer' : null;
+                })
+                .style('fill', function(d) {
+                    return color((d.depth < 2) ? d.children[0].cropCategory : d.cropCategory);
+                })
+                .on('mouseenter', function(d) {
+                    //設定圓圈中間顯示的文字
+                    var text = d3.select('.svgSection #partitionSelectCrop');
+                    text.selectAll('tspan').remove();
+                    //作物名稱
+                    text.append('tspan')
+                            .attr('x', function() {
+                                //算出最適合的X位置
+                                return (width / 2) - (d.key.length / 2) * 12;
+                            })
+                            .text(d.key);
+                    //占全部的百分比
+                    text.append('tspan')
+                            .attr('x', function() {
+                                //算出最適合的X位置
+                                return (width / 2) - 12;
+                            })
+                            .attr('dy', '1.5em')
+                            .text(Math.round(d.value / root.value * 10000) / 100 + '%');
+                    if (drawLineOnMouseEnter && d.depth === 2) {
+                        //畫線
+                        drawLine(d);
+                    }
+                })
+                .on('click', function(d) {
+                    if (d.depth < 2) {
+                        return;
+                    }
                     //畫線
                     drawLine(d);
-                }
-            })
-            .on('click', function(d) {
-                if (d.depth < 2) {
-                    return;
-                }
-                //畫線
-                drawLine(d);
-                //mouseenter時不畫線
-                drawLineOnMouseEnter = false;
-            });
+                    //mouseenter時不畫線
+                    drawLineOnMouseEnter = false;
+                });
+    }
+    ;
 
+    //畫價格、交易量的線圖
     function drawLine(d) {
+        //取出depth=0的value
+        var totalValue = (function(d) {
+            return d.depth ? arguments.callee(d.parent) : d.value;
+        })(d);
+        //顯示出此線圖的資料
+        var detail = d3.select('.svgSection #key')
+                .style('display', null);
+        //作物名稱
+        detail.select('h3')
+                .text(d.key);
+        //作物種類
+        detail.select('.cropCategory')
+                .style('background-color', function() {
+                    return  color(d.cropCategory);
+                })
+                .text(d.parent.key);
+        //占種類、全部的比例
+        detail.select('.ration1')
+                .text(Math.round(d.value / d.parent.value * 10000) / 100);
+        detail.select('.ration2')
+                .text(Math.round(d.value / totalValue * 10000) / 100);
+
         var width = svgLine.attr('width') - margin.left - margin.right,
                 height = 300 - margin.top - margin.bottom;
 
@@ -237,8 +298,22 @@ var jsonSuccess = function(data) {
                 .key(function(d) {
                     return d.market;
                 })
+                .rollup(function(d) {
+                    var day = 10;
+                    //計算價格的7日均線
+                    for (var i = d.length - 1; i >= 0; i--) {
+                        if (i === (d.length - 1)) {
+                            d[i].expPrice = d[i].price;
+                        } else if (i >= (d.length - 1 - day)) {
+                            d[i].expPrice = (d[i + 1].expPrice * (d.length - i - 1) + d[i].price * 1) / (d.length - i);
+                        } else {
+                            d[i].expPrice = (d[i + 1].expPrice * day - d[i + day].price + d[i].price) / day;
+                        }
+                    }
+                    return d;
+                })
                 .entries(afterNested);
-        console.log(nestedMarket);
+        //console.log(nestedMarket);
         x.domain([d3.min(nestedMarket, function(d) {
                 return d3.min(d.values, function(e) {
                     return e.date.getTime();
@@ -288,7 +363,6 @@ var jsonSuccess = function(data) {
                 .attr('dy', '.71em')
                 .style('text-anchor', 'end')
                 .text('交易量 (KG)');
-
         //每個作物的線
         var item = g.selectAll('.item')
                 .data(nestedMarket)
@@ -380,6 +454,22 @@ var jsonSuccess = function(data) {
                 })
                 .style('stroke', function(d) {
                     return color(d.values[0].cropCategory);
+                })
+                .style('stroke-opacity', 0.8);
+        //趨勢線
+        line2.y(function(d) {
+            if (isNaN(d.expPrice)) {
+                console.log(d);
+            }
+            return y2(d.expPrice);
+        });
+        item2.append('path')
+                .attr('class', 'line')
+                .attr('d', function(d) {
+                    return line2(d.values);
+                })
+                .style('stroke', function(d) {
+                    return '#aaaaaa';
                 })
                 .style('stroke-opacity', 0.8);
     }

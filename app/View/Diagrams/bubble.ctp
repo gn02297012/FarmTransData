@@ -51,7 +51,11 @@
         <svg class="svgPartition"></svg>
     </div>
     <div class="col-md-6" id="bubbleDetailSection">
-        <div id="key"></div>
+        <div id="key" style="display: none;">
+            <h3></h3>
+            <span>占 <span class="label cropCategory"></span> <span class="ration1">10</span> %</span>、
+            <span>占 <span class="label label-default">全部作物</span> <span class="ration2">1</span> %</span>
+        </div>
         <br />
         <svg class="svgLine"></svg>
         <svg class="svgLine2"></svg>
