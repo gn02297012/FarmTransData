@@ -5,12 +5,12 @@
             $scope.showControlPanel = true;
             $scope.showAllCrop = true;
             $scope.showMarket = true;
-            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/search'); ?>';
+            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/test'); ?>';
             //$scope.Crop = '';
             //$scope.Market = '';
             //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 10);
             //$scope.EndDate = formatDateInput(new Date());
-            $scope.top = 1000;
+            $scope.top = 5000;
             $scope.skip = 0;
 
             $scope.submit = function() {
@@ -114,6 +114,7 @@
 //                    return d;
 //                });
         console.log(data.length);
+        //判斷是否抓完資料
         if (data.length) {
             setFilterCheckbox(data);
             angular.element('.controlPanel').scope().skip += angular.element('.controlPanel').scope().top;
@@ -125,7 +126,8 @@
                 return d.getAttribute('data-key');
             }).toArray();
             //checkbox的數量必須大於1(只有一個key)而且小於資料列的數量(一列一個key)
-            if (existedKeys.length > 1 && existedKeys.length < dataTable.rows()[0].length) {
+            //2014-09-12新增條件，超過20個key就不要顯示
+            if (existedKeys.length > 1 && existedKeys.length < dataTable.rows()[0].length && existedKeys.length < 20) {
                 filter.selectAll('label')
                         .style('display', null);
             }

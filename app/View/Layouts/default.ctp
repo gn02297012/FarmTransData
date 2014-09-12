@@ -2,10 +2,10 @@
 $path = "/{$this->Html->request->controller}/{$this->Html->request->action}";
 $menuItems = array(
     '/diagrams/search' => '價格查詢',
-    '/diagrams/partition' => '價量比例圖',
-    '/diagrams/line' => '價格走勢圖',
-    '/diagrams/dashboard' => '市場分析圖',
-    '/diagrams/bubble' => '泡泡圖',
+    //'/diagrams/partition' => '價量比例圖',
+    //'/diagrams/line' => '價格走勢圖',
+    //'/diagrams/dashboard' => '市場分析圖',
+    '/diagrams/bubble' => '價量走勢',
     '/diagrams/rank' => '排行榜',
 );
 ?>
@@ -105,7 +105,7 @@ $menuItems = array(
                                 </div>
                                 <div class="panel-body panel-collapse collapse in" id="controlPanelBody">
                                     <form class="form-inline">
-                                        <div class="">
+                                        <div class="hide">
                                             <div class="form-group">
                                                 <label>top</label>
                                                 <input type="number" class="form-control" ng-model="top">
