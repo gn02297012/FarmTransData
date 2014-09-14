@@ -2,9 +2,9 @@
 $path = "/{$this->Html->request->controller}/{$this->Html->request->action}";
 $menuItems = array(
     '/diagrams/search' => '價格查詢',
-    //'/diagrams/partition' => '價量比例圖',
-    //'/diagrams/line' => '價格走勢圖',
-    //'/diagrams/dashboard' => '市場分析圖',
+    '/diagrams/partition' => '價量比例圖',
+    '/diagrams/line' => '價格走勢圖',
+    '/diagrams/dashboard' => '市場分析圖',
     '/diagrams/bubble' => '價量走勢',
     '/diagrams/rank' => '排行榜',
 );
@@ -26,12 +26,14 @@ $menuItems = array(
             'bootstrap.min',
             'font-awesome.min',
             'jquery-ui',
+            'c3',
             'style',
         ));
         echo $this->Html->script(array('jquery-1.10.2'));
         echo $this->Html->script(array(
             'angular.min',
             'd3.v3.min',
+            'c3.min',
             'bootstrap-tooltip',
             'bootstrap.min',
             'jquery.dataTables.min',

@@ -40,6 +40,10 @@ var formatDateInput = function(d, offset) {
     return (d.getFullYear()) + '-' + mm + '-' + dd;
 }
 
+var round4 = function(n) {
+    return Math.round(n * 1000) / 1000;
+}
+
 var showWaitingIcon = function(selector) {
     $(selector).html('<i class="fa fa-spinner fa-spin fa-5x"></i>');
 };

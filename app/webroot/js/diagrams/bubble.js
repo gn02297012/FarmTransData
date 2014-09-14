@@ -278,6 +278,7 @@ var jsonSuccess = function(data) {
                     return d.date;
                 })
                 .rollup(function(t) {
+                    //計算全部市場的總和
                     var sum = {key: t[0].name, code: t[0].code, name: t[0].name, market: '全部', marketCode: t[0].marketCode,
                         date: t[0].date, cropCategory: t[0].cropCategory,
                         marketCount: d3.sum(t, function(v) {
@@ -288,26 +289,36 @@ var jsonSuccess = function(data) {
                             return v.price * v.quantity;
                         })};
                     sum.price = sum.amount / sum.quantity;
+                    //將全部市場與其他市場的資料合併起來
                     var result = [sum].concat(t);
                     afterNested = afterNested.concat(result);
                     return result;
                 })
                 .entries(cropData);
+        //計算資料的時間區間
+        var dateRange = d3.extent(afterNested, function(d) {
+            return d.date;
+        });
+        //console.log(dateRange);
+        //算出日期最多差了幾天
+        var dateDiff = (dateRange[1] - dateRange[0]) / 86400 / 1000;
+        //要用多少天的趨勢線
+        var avgDay = (dateDiff > 20) ? parseInt(dateDiff / 10) : 10;
+        //console.log('dateDiff = ' + dateDiff);
         //將加總過後的資料用市場分群
         var nestedMarket = d3.nest()
                 .key(function(d) {
                     return d.market;
                 })
                 .rollup(function(d) {
-                    var day = 10;
-                    //計算價格的7日均線
+                    //計算價格均線
                     for (var i = d.length - 1; i >= 0; i--) {
                         if (i === (d.length - 1)) {
                             d[i].expPrice = d[i].price;
-                        } else if (i >= (d.length - 1 - day)) {
+                        } else if (i >= (d.length - 1 - avgDay)) {
                             d[i].expPrice = (d[i + 1].expPrice * (d.length - i - 1) + d[i].price * 1) / (d.length - i);
                         } else {
-                            d[i].expPrice = (d[i + 1].expPrice * day - d[i + day].price + d[i].price) / day;
+                            d[i].expPrice = (d[i + 1].expPrice * avgDay - d[i + avgDay].price + d[i].price) / avgDay;
                         }
                     }
                     return d;
@@ -469,8 +480,100 @@ var jsonSuccess = function(data) {
                     return line2(d.values);
                 })
                 .style('stroke', function(d) {
-                    return '#aaaaaa';
+                    return 'rgba(170, 170, 170, 0.8)';
                 })
                 .style('stroke-opacity', 0.8);
+
+        //C3測試
+        //X軸標籤
+        var x = nestedMarket[0].values.map(function(d) {
+            return d.date;
+        });
+        x.unshift('x');
+        //價格
+        var prices = nestedMarket[0].values.map(function(d) {
+            return round4(d.price);
+        });
+        prices.unshift(nestedMarket[0].values[0].name);
+        //交易量
+        var quantities = nestedMarket[0].values.map(function(d) {
+            return round4(d.quantity);
+        });
+        quantities.unshift(nestedMarket[0].values[0].name);
+        //趨勢線
+        var avg = nestedMarket[0].values.map(function(d) {
+            return round4(d.expPrice);
+        });
+        avg.unshift(avgDay + '日均線');
+        //畫圖
+        var quantityChart = c3.generate({
+            bindto: '#quantityLineChart',
+            data: {
+                x: 'x',
+                columns: [x, quantities]
+            },
+            zoom: {
+                enabled: true
+            },
+            point: {
+                show: true
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    //padding: {right: 100},
+                    tick: {
+                        fit: true,
+                        format: function(x) {
+                            return formatDate(x);
+                        }
+                    }
+                },
+                y: {
+                    label: '交易量(KG)'
+                }
+            }
+        });
+        var priceChart = c3.generate({
+            bindto: '#priceLineChart',
+            data: {
+                x: 'x',
+                columns: [x, prices, avg]
+            },
+            subchart: {
+                show: true
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    //padding: {right: 100},
+                    tick: {
+                        fit: true,
+                        format: function(x) {
+                            return formatDate(x);
+                        }
+                    }
+                },
+                y: {
+                    label: '價格'
+                }
+            }
+        });
+
+        //市場交易量
+        var marketSum = nestedMarket.map(function(d) {
+            return [d.key, d3.sum(d.values, function(d) {
+                    return d.quantity;
+                })];
+        });
+        //移除全部市場
+        marketSum.shift(0);
+        var quantityPieChart = c3.generate({
+            bindto: '#quantityPieChart',
+            data: {
+                columns: marketSum,
+                type: 'pie'
+            }
+        });
     }
 };

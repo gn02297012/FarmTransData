@@ -60,6 +60,11 @@
         <svg class="svgLine"></svg>
         <svg class="svgLine2"></svg>
     </div>
+    <div class="col-md-12">
+        <div id="quantityLineChart"></div>
+        <div id="priceLineChart"></div>
+        <div id="quantityPieChart"></div>
+    </div>
 </div>
 
 <?php

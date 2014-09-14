@@ -20,7 +20,7 @@
 
                 <br />
                 <br />
-                <p>這邊可以打一些描述文字，否則會顯得太空虛。</p>
+                <p>想要菜價上漲還下跌? 滑鼠點一點就行了!</p>
                 <br />
                 <br />
                 <button type="button" class="btn btn-primary btn-lg" onclick="scrollToFooter()">
