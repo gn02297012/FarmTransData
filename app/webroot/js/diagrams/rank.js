@@ -1,6 +1,9 @@
 var rankSection = d3.select('#rankSection');
 var processStatus = 'day';
 
+//暫時先隱藏各個市場的名稱
+$('.twMap text').hide();
+
 //讓排名的表格總是在最後一格顯示
 var popupRankTable = function(market) {
     var tables = d3.selectAll('.rankTable[data-market="' + market + '"]')[0];

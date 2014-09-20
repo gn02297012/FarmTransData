@@ -63,11 +63,10 @@
 </div>
 
 <div class="row" style="background-color: #f0f0f0;">
-    <div class="col-sm-4 col-md-4" style="">
-        <img class="img-circle" src="<?php echo $this->Html->webroot('img/about.jpg') ?>" style="width: 100%;">
-    </div>
-    <div class="col-sm-8">
-        <h2>About</h2>
+    <div class="col-sm-4 col-md-10 col-md-offset-1" style="">
+        <h2>關於</h2>
+        <div>contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent</div>
+        <br />
     </div>
 </div>
 
@@ -107,10 +106,19 @@
         <div class="thumbnail features">
             <div class="caption">
                 <a href="<?php echo $this->Html->webroot('diagrams/bubble') ?>">     
-                    <h3>泡泡圖</h3>
+                    <h3>價量走勢圖</h3>
                 </a>
                 <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
             </div>
         </div>
+    </div>
+</div>
+
+
+<div class="row" style="background-color: #f0f0f0;">
+    <div class="col-sm-12 text-center" style="">
+        <br />
+        Copyright &copy;  廖建銘、吳妮易 2014
+        <br />
     </div>
 </div>

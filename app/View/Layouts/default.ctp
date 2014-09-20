@@ -1,12 +1,12 @@
 <?php
 $path = "/{$this->Html->request->controller}/{$this->Html->request->action}";
 $menuItems = array(
-    '/diagrams/search' => '價格查詢',
-    '/diagrams/partition' => '價量比例圖',
-    '/diagrams/line' => '價格走勢圖',
-    '/diagrams/dashboard' => '市場分析圖',
-    '/diagrams/bubble' => '價量走勢',
-    '/diagrams/rank' => '排行榜',
+    '/diagrams/search' => ['價格查詢','查詢各種作物的價格、交易量等資料'],
+    //'/diagrams/partition' => ['價量比例圖',''],
+    '/diagrams/line' => ['價格走勢圖','專注於查詢作物的價格走勢，可用來比較不同市場的價格差異'],
+    //'/diagrams/dashboard' => ['市場分析圖',''],
+    '/diagrams/bubble' => ['價量走勢圖','用於呈現作物的價格、交易量走勢'],
+    '/diagrams/rank' => ['排行榜','可以看到本日或本月的蔬菜水果交易量排行'],
 );
 ?>
 
@@ -46,7 +46,7 @@ $menuItems = array(
         ?>
         <style>
             * {
-                /*border: 1px solid;*/
+                /*border: 1px solid black;*/
             }
 
             body {
@@ -63,7 +63,7 @@ $menuItems = array(
             }
 
             .svgSection, svg {
-                /*border: 1px solid;*/
+                /*border: 1px solid black;*/
             }
         </style>
     </head>
@@ -88,8 +88,11 @@ $menuItems = array(
                             <ul class="nav navbar-nav">
                                 <?php
                                 foreach ($menuItems as $key => &$value) {
-                                    echo $this->Html->tag('li', $this->Html->link($value, $key)
-                                            , array('class' => (strcmp($path, $key) === 0 ? 'active' : '')));
+                                    echo $this->Html->tag('li', $this->Html->link($value[0], $key)
+                                            , array('class' => (strcmp($path, $key) === 0 ? 'active' : ''),
+                                            ' data-toggle' => 'tooltip', 
+                                            'data-placement' => 'bottom', 
+                                            'title' => $value[1],));
                                 }
                                 ?>
                             </ul>
@@ -145,7 +148,7 @@ $menuItems = array(
                                             <input type="date" class="form-control" ng-model="EndDate" ng-min="StartDate">
                                         </div>
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary" ng-class="{'waiting':btnSubmitWaiting}" ng-disabled="btnSubmitWaiting" id="submit" ng-click="submit()"><span>查詢</span><i class="fa fa-spinner fa-spin"></i></button>
+                                            <button type="button" class="btn btn-primary" ng-class="{'waiting':btnSubmitWaiting}" ng-disabled="btnSubmitWaiting" id="submit" ng-click="click_submit()"><span>查詢</span><i class="fa fa-spinner fa-spin"></i></button>
                                         </div>
                                     </form>
                                 </div>
@@ -155,7 +158,7 @@ $menuItems = array(
                             <div class="panel panel-default"> <!--panel-->
                                 <div class="panel-heading" data-toggle="collapse" href="#settingList">
                                     <span class="panel-title">常用查詢 </span>
-                                    <a href="#" class="label label-success" ng-click="addSetting($event)" onclick="event.preventDefault();">新增</a>
+                                    <a href="#" class="label label-success hide" ng-click="addSetting($event)" onclick="event.preventDefault();">新增</a>
                                 </div>
                                 <ul class="list-group panel-collapse collapse in" id="settingList" ng-init="loadSetting()">
                                     <li class="list-group-item" ng-repeat="setting in settings" ng-click="setSetting(setting)">

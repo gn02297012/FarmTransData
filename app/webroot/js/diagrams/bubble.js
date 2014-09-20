@@ -1,13 +1,10 @@
 var margin = {top: 20, right: 60, bottom: 80, left: 70};
 var width = 960,
-        height = 500,
-        padding = 1.5, //同一群中，每個圈圈的留白
-        clusterPadding = 4, //不同群的圈圈留白
-        maxRadius = 50;
+        height = 500;
 
 var svgPartition = d3.select('body').select('.svgPartition')
-        .attr("width", 500)
-        .attr("height", 500);
+        .attr("width", 380)
+        .attr("height", 380);
 
 var svgLine = d3.select('body').select('.svgLine')
         .attr("width", width / 2)
@@ -17,16 +14,14 @@ var svgLine2 = d3.select('body').select('.svgLine2')
         .attr("height", 300);
 
 var color = d3.scale.category20();
-var radius = d3.scale.linear()
-        .range([1, maxRadius]);
 
 //將原始資料的日期格式化
 var format = d3.time.format('%Y.%m.%d');
-var formatDate = function(d) {
+var formatDate = function (d) {
     return (d.getFullYear()) + '/' + (d.getMonth() + 1) + '/' + (d.getDate());
 };
 //選取哪個屬性作為計算
-var selectProp = function(d, isPrice) {
+var selectProp = function (d, isPrice) {
     if (isPrice)
         return d.price * 1;
     return d.quantity * 1;
@@ -40,12 +35,12 @@ var drawLineOnMouseEnter = true;
 var prevData = [];
 
 //第一次搜尋的初始化動作
-var init = function() {
+var init = function () {
     //清除先前的資料
     prevData = [];
 };
 
-var jsonSuccess = function(data) {
+var jsonSuccess = function (data) {
     //全部資料抓完才開始畫圖
     console.log(data.length);
     if (data.length) {
@@ -58,7 +53,7 @@ var jsonSuccess = function(data) {
     }
 
     data = prevData;
-    $.each(data, function(i, d) {
+    $.each(data, function (i, d) {
         //將原始資料的日期格式化
         d.date = format.parse(d.date);
         //將交易量、價格變成number型態
@@ -74,38 +69,38 @@ var jsonSuccess = function(data) {
     var children = [];
     //將資料分群，並將同一個作物的數值加總起來
     var nodes = d3.nest()
-            .key(function(d) {
+            .key(function (d) {
                 return d.cropCategory;
             })
-            .key(function(d, i) {
+            .key(function (d, i) {
                 return d.name;
             })
-            .rollup(function(t) {
+            .rollup(function (t) {
                 var sum = {key: t[0].name, code: t[0].code, name: t[0].name, market: '全部', marketCode: t[0].marketCode,
                     date: t[0].date, cropCategory: t[0].cropCategory,
-                    marketCount: d3.sum(t, function(v) {
+                    marketCount: d3.sum(t, function (v) {
                         return v.marketCount;
-                    }), quantity: d3.sum(t, function(v) {
+                    }), quantity: d3.sum(t, function (v) {
                         return v.quantity;
-                    }), amount: d3.sum(t, function(v) {
+                    }), amount: d3.sum(t, function (v) {
                         return v.price * v.quantity;
                     })};
                 sum.price = sum.amount / sum.quantity;
                 return sum;
             })
             .entries(data)
-            .map(function(d, i) {
-                var e = d.values.map(function(e) {
+            .map(function (d, i) {
+                var e = d.values.map(function (e) {
                     e.values.cluster = i;
                     return e.values;
-                }).sort(function(a, b) {
+                }).sort(function (a, b) {
                     return selectProp(b) - selectProp(a);
                 });
                 children = children.concat(e);
                 return e;
             });
 
-    color.domain(nodes.map(function(d) {
+    color.domain(nodes.map(function (d) {
         return d.key;
     }));
 
@@ -117,32 +112,32 @@ var jsonSuccess = function(data) {
                 height = svgPartition.attr('height');
 
         var partition = d3.layout.partition()
-                .children(function(d) {
+                .children(function (d) {
                     return d.values;
                 })
-                .value(function(d) {
+                .value(function (d) {
                     return d.quantity;
                 });
 
         var px = d3.scale.linear()
                 .range([0, 2 * Math.PI]);
         var arc = d3.svg.arc()
-                .startAngle(function(d) {
+                .startAngle(function (d) {
                     return Math.max(0, Math.min(2 * Math.PI, px(d.x)));
                 })
-                .endAngle(function(d) {
+                .endAngle(function (d) {
                     return Math.max(0, Math.min(2 * Math.PI, px(d.x + d.dx)));
                 })
-                .innerRadius(function(d) {
+                .innerRadius(function (d) {
                     return (width - 100) / 5 * d.depth;
                 })
-                .outerRadius(function(d) {
+                .outerRadius(function (d) {
                     return (height - 100) / 5 * (d.depth + 1) - 1;
                 });
 
         //處理資料
         var nes = d3.nest()
-                .key(function(d) {
+                .key(function (d) {
                     return d.cropCategory;
                 })
                 .entries(children);
@@ -165,29 +160,29 @@ var jsonSuccess = function(data) {
                 .data(node).enter()
                 .append('path')
                 .attr('d', arc)
-                .attr("display", function(d) {
+                .attr("display", function (d) {
                     return d.depth ? null : "none";
                 })
-                .style('cursor', function(d) {
+                .style('cursor', function (d) {
                     return (d.depth === 2) ? 'pointer' : null;
                 })
-                .style('fill', function(d) {
+                .style('fill', function (d) {
                     return color((d.depth < 2) ? d.children[0].cropCategory : d.cropCategory);
                 })
-                .on('mouseenter', function(d) {
+                .on('mouseenter', function (d) {
                     //設定圓圈中間顯示的文字
                     var text = d3.select('.svgSection #partitionSelectCrop');
                     text.selectAll('tspan').remove();
                     //作物名稱
                     text.append('tspan')
-                            .attr('x', function() {
+                            .attr('x', function () {
                                 //算出最適合的X位置
                                 return (width / 2) - (d.key.length / 2) * 12;
                             })
                             .text(d.key);
                     //占全部的百分比
                     text.append('tspan')
-                            .attr('x', function() {
+                            .attr('x', function () {
                                 //算出最適合的X位置
                                 return (width / 2) - 12;
                             })
@@ -198,7 +193,7 @@ var jsonSuccess = function(data) {
                         drawLine(d);
                     }
                 })
-                .on('click', function(d) {
+                .on('click', function (d) {
                     if (d.depth < 2) {
                         return;
                     }
@@ -213,18 +208,19 @@ var jsonSuccess = function(data) {
     //畫價格、交易量的線圖
     function drawLine(d) {
         //取出depth=0的value
-        var totalValue = (function(d) {
+        var totalValue = (function (d) {
             return d.depth ? arguments.callee(d.parent) : d.value;
         })(d);
         //顯示出此線圖的資料
         var detail = d3.select('.svgSection #key')
-                .style('display', null);
+                .style('display', null)
+                .style('visibility', null);
         //作物名稱
         detail.select('h3')
                 .text(d.key);
         //作物種類
         detail.select('.cropCategory')
-                .style('background-color', function() {
+                .style('background-color', function () {
                     return  color(d.cropCategory);
                 })
                 .text(d.parent.key);
@@ -246,7 +242,7 @@ var jsonSuccess = function(data) {
         var xAxis = d3.svg.axis()
                 .scale(x)
                 .orient('bottom')
-                .tickFormat(function(d) {
+                .tickFormat(function (d) {
                     return formatDate(d);
                 });
 
@@ -255,10 +251,10 @@ var jsonSuccess = function(data) {
                 .orient('left');
 
         var line = d3.svg.line()
-                .x(function(d) {
+                .x(function (d) {
                     return x(d.date);
                 })
-                .y(function(d) {
+                .y(function (d) {
                     return y(selectProp(d));
                 });
 
@@ -266,7 +262,7 @@ var jsonSuccess = function(data) {
         var g = svgLine.append('g')
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-        var cropData = data.filter(function(e) {
+        var cropData = data.filter(function (e) {
             return e.name === d.name;
         });
 
@@ -274,18 +270,18 @@ var jsonSuccess = function(data) {
         var afterNested = [];
         //根據日期分群，用來加總同一天所有市場的資料
         var nestedDate = d3.nest()
-                .key(function(d) {
+                .key(function (d) {
                     return d.date;
                 })
-                .rollup(function(t) {
+                .rollup(function (t) {
                     //計算全部市場的總和
                     var sum = {key: t[0].name, code: t[0].code, name: t[0].name, market: '全部', marketCode: t[0].marketCode,
                         date: t[0].date, cropCategory: t[0].cropCategory,
-                        marketCount: d3.sum(t, function(v) {
+                        marketCount: d3.sum(t, function (v) {
                             return v.marketCount;
-                        }), quantity: d3.sum(t, function(v) {
+                        }), quantity: d3.sum(t, function (v) {
                             return v.quantity;
-                        }), amount: d3.sum(t, function(v) {
+                        }), amount: d3.sum(t, function (v) {
                             return v.price * v.quantity;
                         })};
                     sum.price = sum.amount / sum.quantity;
@@ -296,7 +292,7 @@ var jsonSuccess = function(data) {
                 })
                 .entries(cropData);
         //計算資料的時間區間
-        var dateRange = d3.extent(afterNested, function(d) {
+        var dateRange = d3.extent(afterNested, function (d) {
             return d.date;
         });
         //console.log(dateRange);
@@ -307,10 +303,10 @@ var jsonSuccess = function(data) {
         //console.log('dateDiff = ' + dateDiff);
         //將加總過後的資料用市場分群
         var nestedMarket = d3.nest()
-                .key(function(d) {
+                .key(function (d) {
                     return d.market;
                 })
-                .rollup(function(d) {
+                .rollup(function (d) {
                     //計算價格均線
                     for (var i = d.length - 1; i >= 0; i--) {
                         if (i === (d.length - 1)) {
@@ -325,22 +321,22 @@ var jsonSuccess = function(data) {
                 })
                 .entries(afterNested);
         //console.log(nestedMarket);
-        x.domain([d3.min(nestedMarket, function(d) {
-                return d3.min(d.values, function(e) {
+        x.domain([d3.min(nestedMarket, function (d) {
+                return d3.min(d.values, function (e) {
                     return e.date.getTime();
                 });
-            }), d3.max(nestedMarket, function(d) {
-                return d3.max(d.values, function(e) {
+            }), d3.max(nestedMarket, function (d) {
+                return d3.max(d.values, function (e) {
                     return e.date.getTime();
                 });
             })]);
 
-        y.domain([d3.min(nestedMarket, function(d) {
-                return d3.min(d.values, function(e) {
+        y.domain([d3.min(nestedMarket, function (d) {
+                return d3.min(d.values, function (e) {
                     return selectProp(e);
                 });
-            }), d3.max(nestedMarket, function(d) {
-                return d3.max(d.values, function(e) {
+            }), d3.max(nestedMarket, function (d) {
+                return d3.max(d.values, function (e) {
                     return selectProp(e);
                 });
             })]);
@@ -361,7 +357,7 @@ var jsonSuccess = function(data) {
                 .style('text-anchor', 'end')
                 .attr('dx', '-.8em')
                 .attr('dy', '.15em')
-                .attr('transform', function(d) {
+                .attr('transform', function (d) {
                     return 'rotate(-65)'
                 });
         //Y軸價格
@@ -379,18 +375,18 @@ var jsonSuccess = function(data) {
                 .data(nestedMarket)
                 .enter().append('g')
                 .attr('class', 'item')
-                .style('display', function(d, i) {
+                .style('display', function (d, i) {
                     return i ? 'none' : '';
                 })
-                .attr('data-key', function(d) {
+                .attr('data-key', function (d) {
                     return d.key;
                 });
         item.append('path')
                 .attr('class', 'line')
-                .attr('d', function(d) {
+                .attr('d', function (d) {
                     return line(d.values);
                 })
-                .style('stroke', function(d) {
+                .style('stroke', function (d) {
                     return color(d.values[0].cropCategory);
                 })
                 .style('stroke-opacity', 0.8);
@@ -408,19 +404,19 @@ var jsonSuccess = function(data) {
                 .orient('left');
 
         var line2 = d3.svg.line()
-                .x(function(d) {
+                .x(function (d) {
                     return x(d.date);
                 })
-                .y(function(d) {
+                .y(function (d) {
                     return y2(selectProp(d, 1));
                 });
 
-        y2.domain([d3.min(nestedMarket, function(d) {
-                return d3.min(d.values, function(e) {
+        y2.domain([d3.min(nestedMarket, function (d) {
+                return d3.min(d.values, function (e) {
                     return selectProp(e, 1);
                 });
-            }), d3.max(nestedMarket, function(d) {
-                return d3.max(d.values, function(e) {
+            }), d3.max(nestedMarket, function (d) {
+                return d3.max(d.values, function (e) {
                     return selectProp(e, 1);
                 });
             })]);
@@ -434,7 +430,7 @@ var jsonSuccess = function(data) {
                 .style('text-anchor', 'end')
                 .attr('dx', '-.8em')
                 .attr('dy', '.15em')
-                .attr('transform', function(d) {
+                .attr('transform', function (d) {
                     return 'rotate(-65)'
                 });
         //Y軸價格
@@ -452,23 +448,23 @@ var jsonSuccess = function(data) {
                 .data(nestedMarket)
                 .enter().append('g')
                 .attr('class', 'item')
-                .style('display', function(d, i) {
+                .style('display', function (d, i) {
                     return i ? 'none' : '';
                 })
-                .attr('data-key', function(d) {
+                .attr('data-key', function (d) {
                     return d.key;
                 });
         item2.append('path')
                 .attr('class', 'line')
-                .attr('d', function(d) {
+                .attr('d', function (d) {
                     return line2(d.values);
                 })
-                .style('stroke', function(d) {
+                .style('stroke', function (d) {
                     return color(d.values[0].cropCategory);
                 })
                 .style('stroke-opacity', 0.8);
         //趨勢線
-        line2.y(function(d) {
+        line2.y(function (d) {
             if (isNaN(d.expPrice)) {
                 console.log(d);
             }
@@ -476,32 +472,32 @@ var jsonSuccess = function(data) {
         });
         item2.append('path')
                 .attr('class', 'line')
-                .attr('d', function(d) {
+                .attr('d', function (d) {
                     return line2(d.values);
                 })
-                .style('stroke', function(d) {
+                .style('stroke', function (d) {
                     return 'rgba(170, 170, 170, 0.8)';
                 })
                 .style('stroke-opacity', 0.8);
 
         //C3測試
         //X軸標籤
-        var x = nestedMarket[0].values.map(function(d) {
+        var x = nestedMarket[0].values.map(function (d) {
             return d.date;
         });
         x.unshift('x');
         //價格
-        var prices = nestedMarket[0].values.map(function(d) {
+        var prices = nestedMarket[0].values.map(function (d) {
             return round4(d.price);
         });
         prices.unshift(nestedMarket[0].values[0].name);
         //交易量
-        var quantities = nestedMarket[0].values.map(function(d) {
+        var quantities = nestedMarket[0].values.map(function (d) {
             return round4(d.quantity);
         });
         quantities.unshift(nestedMarket[0].values[0].name);
         //趨勢線
-        var avg = nestedMarket[0].values.map(function(d) {
+        var avg = nestedMarket[0].values.map(function (d) {
             return round4(d.expPrice);
         });
         avg.unshift(avgDay + '日均線');
@@ -516,7 +512,7 @@ var jsonSuccess = function(data) {
                 enabled: true
             },
             point: {
-                show: true
+                show: false
             },
             axis: {
                 x: {
@@ -524,13 +520,22 @@ var jsonSuccess = function(data) {
                     //padding: {right: 100},
                     tick: {
                         fit: true,
-                        format: function(x) {
+                        format: function (x) {
                             return formatDate(x);
                         }
                     }
                 },
                 y: {
-                    label: '交易量(KG)'
+                    label: '交易量(KG)',
+                    tick: {
+                        format: function (d) {
+                            d += '';
+                            while (d.length < 7) {
+                                d = ' ' + d;
+                            }
+                            return d;
+                        }
+                    }
                 }
             }
         });
@@ -543,26 +548,38 @@ var jsonSuccess = function(data) {
             subchart: {
                 show: true
             },
+            point: {
+                show: false
+            },
             axis: {
                 x: {
                     type: 'timeseries',
                     //padding: {right: 100},
                     tick: {
                         fit: true,
-                        format: function(x) {
+                        format: function (x) {
                             return formatDate(x);
                         }
                     }
                 },
                 y: {
-                    label: '價格'
+                    label: '平均價格($)',
+                    tick: {
+                        format: function (d) {
+                            d += '';
+                            while (d.length < 7) {
+                                d = ' ' + d;
+                            }
+                            return d;
+                        }
+                    }
                 }
             }
         });
 
         //市場交易量
-        var marketSum = nestedMarket.map(function(d) {
-            return [d.key, d3.sum(d.values, function(d) {
+        var marketSum = nestedMarket.map(function (d) {
+            return [d.key, d3.sum(d.values, function (d) {
                     return d.quantity;
                 })];
         });

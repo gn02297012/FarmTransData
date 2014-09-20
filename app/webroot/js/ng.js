@@ -24,7 +24,7 @@ function ControlPanelCtrl($scope, $http) {
     $scope.btnSubmitWaiting = false;
 
     //動態載入作物名稱與市場清單
-    $http.get(webroot + 'query/getCropAndMarketList').success(function(data) {
+    $http.get(webroot + 'query/getCropAndMarketList').success(function (data) {
         //設定作物名稱清單
         $scope.categorys = data['crop'];
         //$scope.selCat = $scope.categorys[($scope.showAllCrop ? 0 : 1)];
@@ -39,35 +39,43 @@ function ControlPanelCtrl($scope, $http) {
         $scope.Market = $scope.markets[0];
     });
     //更新作物選單
-    $scope.update = function(selectedCat, Crop) {
+    $scope.update = function (selectedCat, Crop) {
         $scope.items = selectedCat.items;
         if ($scope.showAllCrop && $scope.items[0] != '全部') {
             $scope.items.splice(0, 0, '全部');
         }
         $scope.Crop = Crop ? Crop : $scope.items[0];
     };
+    //按下送出查詢
+    $scope.click_submit = function () {
+        $('.svgSection').ScrollTo({
+            duration: 500,
+            easing: 'linear'
+        });
+        $scope.submit();
+    };
     //送出查詢
-    $scope.submit = function() {
+    $scope.submit = function () {
     };
     //負責處理GET的函數，由於全部寫在submit會出錯，所以才多透過這個
-    $scope.getData = function(url, callback, sourcePathName) {
+    $scope.getData = function (url, callback, sourcePathName) {
         $scope.btnSubmitWaiting = true;
         console.log(encodeURI(url));
-        $http.get(url).success(function(data) {
+        $http.get(url).success(function (data) {
             $scope.btnSubmitWaiting = false;
             //如果網址中的pathname改變，就捨棄本次的資料
             if (sourcePathName !== window.location.pathname) {
                 return;
             }
             callback(data);
-        }).error(function() {
+        }).error(function () {
             $scope.btnSubmitWaiting = false;
         });
         //$('#controlPanelBody').collapse('hide');
     };
 
     //按鈕等待
-    $scope.btnSubmitSwitch = function(show) {
+    $scope.btnSubmitSwitch = function (show) {
         var currStat = angular.element('#submit').attr('disabled');
         if (show === undefined) {
             show = !currStat;
@@ -79,7 +87,7 @@ function ControlPanelCtrl($scope, $http) {
 
     $scope.settings = {};
     //新增設定
-    $scope.addSetting = function($event) {
+    $scope.addSetting = function ($event) {
         var s = {CatName: $scope.selCat.name, Category: $scope.selCat.cat, Crop: $scope.Crop, Market: $scope.Market, t: (new Date()).getTime()};
         $scope.settings[s.t] = s;
         $scope.saveSetting();
@@ -87,12 +95,12 @@ function ControlPanelCtrl($scope, $http) {
         $event.stopPropagation();
     };
     //儲存設定
-    $scope.saveSetting = function() {
+    $scope.saveSetting = function () {
         var obj = {setting: $scope.settings};
         localStorage.setItem('setting', JSON.stringify(obj));
     };
     //載入設定
-    $scope.loadSetting = function() {
+    $scope.loadSetting = function () {
         var old = localStorage.getItem('setting');
         if (old !== undefined && old !== null && typeof old === "string") {
             old = JSON.parse(old);
@@ -102,7 +110,7 @@ function ControlPanelCtrl($scope, $http) {
         $scope.settings = old.setting;
     };
     //設定設定檔到控制面板
-    $scope.setSetting = function(d) {
+    $scope.setSetting = function (d) {
         if ($scope.selCat.cat !== d.Cateogry) {
             $scope.selCat = $scope.categorys[d.Category];
         }
@@ -111,13 +119,13 @@ function ControlPanelCtrl($scope, $http) {
     }
 
     //刪除
-    $scope.deleteSetting = function(t) {
+    $scope.deleteSetting = function (t) {
         delete $scope.settings[t];
         $scope.saveSetting();
     }
 
     //是否在作物清單中顯示"全部"這個選項
-    $scope.$watch('showAllCrop', function(newValue, oldValue) {
+    $scope.$watch('showAllCrop', function (newValue, oldValue) {
         if (newValue === oldValue) {
             return;
         }
@@ -143,16 +151,16 @@ function ControlPanelCtrl($scope, $http) {
         }
     });
 
-    $scope.$watch('StartDate', function(newValue, oldValue) {
+    $scope.$watch('StartDate', function (newValue, oldValue) {
         $scope.checkDate();
     });
 
-    $scope.$watch('EndDate', function(newValue, oldValue) {
+    $scope.$watch('EndDate', function (newValue, oldValue) {
         $scope.checkDate();
     });
 
     //判斷選取的時間區間是否過長
-    $scope.checkDate = function() {
+    $scope.checkDate = function () {
         var sD = new Date($scope.StartDate);
         var eD = new Date($scope.EndDate);
         var diff = (eD - sD) / 86400000;
@@ -169,10 +177,10 @@ function DatePickerCtrl($scope) {
     $scope.startDate = $scope.range[0];
     $scope.endDate = $scope.range[1];
     $scope.selectedDate = 0;
-    $scope.init = function(domain) {
+    $scope.init = function (domain) {
         $scope.domain = [domain[0].getTime(), domain[1].getTime()];
     };
-    $scope.$watch('domain', function(newValue, oldValue) {
+    $scope.$watch('domain', function (newValue, oldValue) {
         if (newValue === undefined) {
             return;
         }
@@ -183,7 +191,7 @@ function DatePickerCtrl($scope) {
         $scope.endDate = $scope.range[1];
         $scope.selectedDate = 0;
     }, true);
-    $scope.$watch('selectedDate', function(newValue, oldValue) {
+    $scope.$watch('selectedDate', function (newValue, oldValue) {
         if (newValue === oldValue) {
             return;
         }
@@ -199,7 +207,7 @@ function DatePickerCtrl($scope) {
 function ZoomCtrl($scope, $http) {
     $scope.maxZoom = 1600;
     $scope.minZoom = 200;
-    $scope.$watch('zoom', function(newValue, oldValue) {
+    $scope.$watch('zoom', function (newValue, oldValue) {
         if ($scope.zoom < $scope.minZoom) {
             $scope.zoom = $scope.minZoom;
         } else if (newValue > $scope.maxZoom) {

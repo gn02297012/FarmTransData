@@ -34,12 +34,12 @@
             $scope.showControlPanel = true;
             $scope.showAllCrop = false;
             $scope.showMarket = true;
-            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/line'); ?>';
+            $scope.baseUrl = '<?php echo $this->Html->webroot('/query/test'); ?>';
             //$scope.Crop = '';
             //$scope.Market = '';
             //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 7);
             //$scope.EndDate = formatDateInput(new Date());
-            $scope.top = 500;
+            $scope.top = 5000;
             $scope.skip = 0;
 
             $scope.submit = function() {
@@ -174,6 +174,7 @@
         //將原始資料的日期格式化
         $.each(data, function(i, d) {
             d.date = format.parse(d.date);
+                    d.price = +d.price;
         });
         //如果skip為0，表示這次是第一次搜尋，要先將表格清空
         svg.selectAll('g').remove();

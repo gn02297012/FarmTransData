@@ -47,23 +47,24 @@
 <br />
 
 <div class="svgSection">
-    <div class="col-md-6" ng-controller="ZoomCtrl as zoomCtrl" style="overflow: hidden;">
-        <svg class="svgPartition"></svg>
-    </div>
-    <div class="col-md-6" id="bubbleDetailSection">
-        <div id="key" style="display: none;">
-            <h3></h3>
+    <div class="col-md-4" ng-controller="ZoomCtrl as zoomCtrl" style="overflow: hidden;">
+        <div id="key" style="visibility: hidden; margin-top: -20px;">
+            <h3>請選擇作物</h3>
             <span>占 <span class="label cropCategory"></span> <span class="ration1">10</span> %</span>、
             <span>占 <span class="label label-default">全部作物</span> <span class="ration2">1</span> %</span>
         </div>
-        <br />
-        <svg class="svgLine"></svg>
-        <svg class="svgLine2"></svg>
+        <svg class="svgPartition"></svg>
+        <div id="quantityPieChart" style="height: 320px;"></div>
     </div>
-    <div class="col-md-12">
+    <div class="col-md-4 hide" id="bubbleDetailSection">
+        <br />
+        <svg class="svgLine hide"></svg>
+        <svg class="svgLine2 hide"></svg>
+    </div>
+    <div class="col-md-8">
+        <br /><br /><br />
         <div id="quantityLineChart"></div>
         <div id="priceLineChart"></div>
-        <div id="quantityPieChart"></div>
     </div>
 </div>
 
