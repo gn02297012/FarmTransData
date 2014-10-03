@@ -23,12 +23,13 @@
                 <p>想要菜價上漲還下跌? 滑鼠點一點就行了!</p>
                 <br />
                 <br />
-                <button type="button" class="btn btn-primary btn-lg" onclick="scrollToFooter()">
-                    立刻看圖
-                </button>
             </div>
-            <div></div>
         </div>
+            <div class="arrowDown">
+                <a href="#" onclick="scrollToFooter()">
+                    <span class="glyphicon glyphicon-chevron-down"></span>
+                </a>                
+            </div>
     </div>   
 </div>
 <div class="row">
@@ -62,10 +63,10 @@
     </div>
 </div>
 
-<div class="row" style="background-color: #f0f0f0;">
+<div class="row" style="background-color: #f0f0f0;height: 300px;padding-top: 50px;">
     <div class="col-sm-4 col-md-10 col-md-offset-1" style="">
         <h2>關於</h2>
-        <div>contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent</div>
+        <div>雖然現今農委會有提供農產品交易行情價的網站供人查詢，但是其操作不易，資訊模糊不明，於是我們建立這個平台，除了能夠讓農民知道各作物在拍賣市場的最新行情價，也可以透過我們的統計圖表進行分析，可以讓農民將農產品批給上游時，擁有議價的能力。</div>
         <br />
     </div>
 </div>

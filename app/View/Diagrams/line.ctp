@@ -92,7 +92,7 @@
 </div>
 
 <script>
-    var margin = {top: 80, right: 60, bottom: 80, left: 50},
+    var margin = {top: 80, right: 60, bottom: 80, left: 60},
     width = 700 - margin.left - margin.right,
             height = 600 - margin.top - margin.bottom;
 
@@ -364,8 +364,8 @@
                 .attr('transform', 'rotate(-90)')
                 .attr('y', 6)
                 .attr('dy', '.71em')
-                .style('text-anchor', 'end')
-                .text('Quantity (KG)');
+                .style('text-anchor', 'end');
+                //.text('Quantity (KG)');
         //右上角的顯示日期
         svg.append('g')
                 .attr('class', 'info')

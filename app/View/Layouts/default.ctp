@@ -14,7 +14,7 @@ $menuItems = array(
 <html>
     <head>
         <?php echo $this->Html->charset(); ?>
-        <title>農產品交易行情資料視覺化</title>
+        <title>KnowMe農價資訊站</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script>
             var webroot = '<?php echo $this->Html->webroot ?>';
@@ -80,7 +80,7 @@ $menuItems = array(
                                 <span class="icon-bar"></span>
                                 <span class="icon-bar"></span>
                             </button>
-                            <?php echo $this->Html->link('農產品交易行情資料視覺化', '/diagrams', array('class' => 'navbar-brand')); ?>
+                            <?php echo $this->Html->link('KnowMe農價資訊站', '/diagrams', array('class' => 'navbar-brand')); ?>
                         </div>
 
                         <!-- Collect the nav links, forms, and other content for toggling -->

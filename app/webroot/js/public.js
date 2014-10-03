@@ -76,7 +76,8 @@ $(document).ready(function() {
             console.log(url);
             $.get(url + '?ajax=1', function(data) {
                 $("#mainContent").html(data);
-                //$('.controlPanel #submit').click();
+                //是否要自動按下查詢按鈕
+                $('.controlPanel #submit').click();
             });
             //儲存history
             window.history.pushState(url, 'New Title', url);

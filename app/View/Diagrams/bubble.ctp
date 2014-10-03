@@ -31,7 +31,7 @@
             $scope.baseUrl = '<?php echo $this->Html->webroot('/query/test'); ?>';
             //$scope.Crop = '';
             //$scope.Market = '';
-            $scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 10);
+            //$scope.StartDate = formatDateInput(new Date(), 86400 * 1000 * 10);
             //$scope.EndDate = formatDateInput(new Date());
             $scope.top = 5000;
             $scope.skip = 0;
