@@ -6,7 +6,7 @@ $menuItems = array(
     '/diagrams/line' => ['價格走勢圖','專注於查詢作物的價格走勢，可用來比較不同市場的價格差異'],
     //'/diagrams/dashboard' => ['市場分析圖',''],
     '/diagrams/bubble' => ['價量走勢圖','用於呈現作物的價格、交易量走勢'],
-    '/diagrams/rank' => ['排行榜','可以看到本日或本月的蔬菜水果交易量排行'],
+    '/diagrams/rank' => ['交易量排行榜','可以看到本日或本月的蔬菜水果交易量排行'],
 );
 ?>
 
@@ -104,7 +104,8 @@ $menuItems = array(
                 <div class="col-xs-12">
                     <div class="controlPanel">
                         <div class="col-xs-12 col-sm-8">
-                            <div class="panel panel-default"> <!--panel-->
+                            <!--<img src="<?php echo $this->Html->webroot('img/question.png')?>" style="height: 150px; display: inline-block; margin: -80px 0px 20px -20px;">-->
+                            <div class="panel panel-default" style=""> <!--panel-->
                                 <div class="panel-heading" data-toggle="collapse" href="#controlPanelBody">
                                     <span class="panel-title">查詢選單</span>
                                 </div>

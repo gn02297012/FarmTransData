@@ -63,8 +63,10 @@
     </div>
     <div class="col-md-8">
         <br /><br /><br />
+        <div class="well well-sm bubble-tooltip">可用滑鼠滾輪縮放時間區間</div>
         <div id="quantityLineChart"></div>
         <div id="priceLineChart"></div>
+        <div class="well well-sm bubble-tooltip">可拖曳上方時間軸縮放時間區間</div>
     </div>
 </div>
 

@@ -48,10 +48,11 @@ function ControlPanelCtrl($scope, $http) {
     };
     //按下送出查詢
     $scope.click_submit = function () {
-        $('.svgSection').ScrollTo({
-            duration: 500,
-            easing: 'linear'
-        });
+        //卷軸自動移動到圖表的位置
+//        $('.svgSection').ScrollTo({
+//            duration: 500,
+//            easing: 'linear'
+//        });
         $scope.submit();
     };
     //送出查詢

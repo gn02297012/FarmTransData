@@ -12,7 +12,7 @@
         <div class="container">
             <div class="col-sm-4 col-sm-offset-8">
                 <div style="max-width: 313px;">
-                    <div class="arrow_box">
+                    <div class="arrow_box" style="font-size: 2em;">
                         農價資訊站
                     </div>
                     <span class="title">KnowMe</span>
@@ -20,7 +20,7 @@
 
                 <br />
                 <br />
-                <p>想要菜價上漲還下跌? 滑鼠點一點就行了!</p>
+                <p>想要知道菜價上漲還下跌? 滑鼠點一點就行了!</p>
                 <br />
                 <br />
             </div>
@@ -76,16 +76,6 @@
     <div class="col-sm-3">
         <div class="thumbnail features">
             <div class="caption">
-                <a href="<?php echo $this->Html->webroot('diagrams/partition') ?>">
-                    <h3>價量比例圖</h3>
-                </a>
-                <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-3">
-        <div class="thumbnail features">
-            <div class="caption">
                 <a href="<?php echo $this->Html->webroot('diagrams/line') ?>">  
                     <h3>價格走勢圖</h3>
                 </a>
@@ -108,6 +98,16 @@
             <div class="caption">
                 <a href="<?php echo $this->Html->webroot('diagrams/bubble') ?>">     
                     <h3>價量走勢圖</h3>
+                </a>
+                <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="thumbnail features">
+            <div class="caption">
+                <a href="<?php echo $this->Html->webroot('diagrams/rank') ?>">
+                    <h3>交易量排行榜</h3>
                 </a>
                 <p>提供了多種圖表呈現的方法，節省在多個頁面中交叉查詢的時間。</p>
             </div>

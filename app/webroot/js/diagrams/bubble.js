@@ -15,6 +15,9 @@ var svgLine2 = d3.select('body').select('.svgLine2')
 
 var color = d3.scale.category20();
 
+//一開始要隱藏圖的提示文字
+$('.bubble-tooltip').hide();
+
 //將原始資料的日期格式化
 var format = d3.time.format('%Y.%m.%d');
 var formatDate = function (d) {
@@ -207,6 +210,9 @@ var jsonSuccess = function (data) {
 
     //畫價格、交易量的線圖
     function drawLine(d) {
+        //顯示圖的提示文字
+        $('.bubble-tooltip').fadeIn();
+
         //取出depth=0的value
         var totalValue = (function (d) {
             return d.depth ? arguments.callee(d.parent) : d.value;
